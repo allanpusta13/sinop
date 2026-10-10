@@ -1,0 +1,40 @@
+# master: release gate. Only develop, hotfix/* or release/* may merge in,
+# and every PR and push must pass the full quality gate. No deploys here.
+name: Master
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: master-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check-source-branch:
+    name: Check source branch
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Allow only develop, hotfix/* or release/* into master
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          case "$HEAD_REF" in
+            develop|hotfix/*|release/*)
+              echo "Source branch '$HEAD_REF' is allowed." ;;
+            *)
+              echo "::error::PRs into master must come from develop, hotfix/* or release/* (got '$HEAD_REF')."
+              exit 1 ;;
+          esac
+
+  quality:
+    needs: check-source-branch
+    if: always() && (needs.check-source-branch.result == 'success' || needs.check-source-branch.result == 'skipped')
+    uses: ./.github/workflows/_quality.yml
