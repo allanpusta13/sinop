@@ -3,6 +3,7 @@
 use App\Models\ProductVariant;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -32,7 +33,7 @@ return new class extends Migration
                 'CREATE UNIQUE INDEX product_variant_prices_current_unique ON product_variant_prices (product_variant_id) WHERE is_current = true'
             );
         }
-        });
+
     }
 
     /**

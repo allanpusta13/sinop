@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('product_variant_unit_conversions', function (Blueprint $table) {
             $table->id();
-             $table->foreignIdFor(ProductVariant::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(ProductVariant::class)->constrained()->cascadeOnDelete();
             $table->string('unit_name');
             $table->integer('base_unit_ratio');
             $table->boolean('is_default_purchase')->default(false);
