@@ -1,7 +1,11 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\Filament\AdminPanelProvider;
+use App\Providers\InventoryServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\InventoryServiceProvider::class,
-    App\Providers\Filament\AdminPanelProvider::class,
+    AppServiceProvider::class,
+    InventoryServiceProvider::class,
+    AdminPanelProvider::class,
 ];

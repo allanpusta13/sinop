@@ -123,6 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'currency' => env('APP_CURRENCY', 'PHP')
+    'currency' => env('APP_CURRENCY', 'PHP'),
 
 ];
