@@ -1,0 +1,104 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Filament\Resources\Users;
+
+use App\Enums\UserRole;
+use App\Filament\Resources\Users\Pages\CreateUser;
+use App\Filament\Resources\Users\Pages\EditUser;
+use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\Pages\ViewUser;
+use App\Models\User;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
+
+final class UserResource extends Resource
+{
+    protected static ?string $model = User::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'SYSTEM ADMIN';
+
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedUsers;
+
+    protected static BackedEnum|string|null $activeNavigationIcon = Heroicon::Users;
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getModelLabel(): string
+    {
+        return __('resources.users.model.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources.users.model.plural');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('resources.users.navigation.label');
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return Schemas\UserForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return Tables\UsersTable::configure($table);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return Schemas\UserInfolist::configure($schema);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListUsers::route('/'),
+            'create' => CreateUser::route('/create'),
+            'view' => ViewUser::route('/{record}'),
+            'edit' => EditUser::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            // RelationManagers\WarehousesRelationManager::class,
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email'];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $user = auth()->user();
+
+        // Q7/Q11 — a BranchManager sees only WarehouseStaff accounts
+        // sharing at least one of its own warehouses (the accounts it may
+        // reassign, §8.12); Admin/Auditor see the global list.
+        return parent::getEloquentQuery()
+            ->with(['warehouses'])
+            ->when(
+                $user?->isBranchManager(),
+                fn (Builder $q) => $q
+                    ->where('role', UserRole::WarehouseStaff)
+                    ->whereHas('warehouses', fn (Builder $qq) => $qq
+                        ->whereIn('warehouses.id', $user->warehouses()->pluck('warehouses.id'))),
+            );
+    }
+}
