@@ -1,0 +1,87 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Filament\Resources\Warehouses\Schemas;
+
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\FontWeight;
+use Filament\Support\Icons\Heroicon;
+
+/**
+ * Warehouse infolist — §7K.3 canonical contract.
+ */
+class WarehouseInfolist
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema->components([
+            Grid::make(['default' => 1, 'md' => 3, 'xl' => 3])->schema([
+                Section::make(__('resources.warehouses.infolist.profile'))
+                    ->icon(Heroicon::BuildingOffice)
+                    ->columnSpan(['default' => 1, 'md' => 2, 'xl' => 2])
+                    ->columns(['default' => 1, 'md' => 2, 'xl' => 2])
+                    ->schema([
+                        TextEntry::make('code')
+                            ->label(__('resources.warehouses.fields.code'))
+                            ->weight(FontWeight::Bold)
+                            ->size('lg')
+                            ->copyable()
+                            ->color('primary')
+                            ->columnSpan(['default' => 1, 'md' => 1, 'xl' => 1]),
+
+                        TextEntry::make('name')
+                            ->label(__('resources.warehouses.fields.name'))
+                            ->columnSpan(['default' => 1, 'md' => 1, 'xl' => 1]),
+
+                        TextEntry::make('location')
+                            ->label(__('resources.warehouses.fields.location'))
+                            ->placeholder(__('common.empty'))
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make(__('resources.warehouses.infolist.status'))
+                    ->icon(Heroicon::ShieldCheck)
+                    ->columnSpan(['default' => 1, 'md' => 1, 'xl' => 1])
+                    ->schema([
+                        TextEntry::make('is_active')
+                            ->label(__('resources.warehouses.fields.is_active'))
+                            ->badge()
+                            ->color(fn (bool $state) => $state ? 'success' : 'danger')
+                            ->formatStateUsing(fn (bool $state) => $state ? __('common.active') : __('common.inactive')),
+
+                        TextEntry::make('users_count')
+                            ->label(__('resources.warehouses.fields.assigned_staff'))
+                            ->state(fn ($record) => $record->users()->count()),
+                    ]),
+
+                Section::make(__('resources.warehouses.infolist.assigned_staff'))
+                    ->icon(Heroicon::UserGroup)
+                    ->columnSpanFull()
+                    ->schema([
+                        RepeatableEntry::make('users')
+                            ->table([
+                                TableColumn::make(__('resources.users.fields.name')),
+                                TableColumn::make(__('resources.users.fields.email')),
+                                TableColumn::make(__('resources.users.fields.role')),
+                            ])
+                            ->schema([
+                                TextEntry::make('name')
+                                    ->weight(FontWeight::Bold),
+
+                                TextEntry::make('email'),
+
+                                TextEntry::make('role')
+                                    ->badge(),
+                            ])
+                            ->placeholder(__('resources.warehouses.empty_staff')),
+                    ]),
+            ]),
+        ]);
+    }
+}
