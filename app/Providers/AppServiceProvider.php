@@ -2,9 +2,70 @@
 
 namespace App\Providers;
 
+use App\Events\InventoryBelowReorderPoint;
+use App\Events\LossRecorded;
+use App\Events\PurchaseOrderCancelled;
+use App\Events\PurchaseOrderReceived;
+use App\Events\SalesOrderCancelled;
+use App\Events\SalesOrderDispatched;
+use App\Events\SalesOrderReturned;
+use App\Events\TransferCancelled;
+use App\Events\TransferConfirmed;
+use App\Events\TransferDispatched;
+use App\Events\TransferReceived;
+use App\Filament\Resources\InTransits\InTransitResource;
+use App\Filament\Resources\PurchaseOrders\PurchaseOrderResource;
+use App\Filament\Resources\SalesOrders\SalesOrderResource;
+use App\Filament\Resources\TransferRequisitions\TransferRequisitionResource;
+use App\Listeners\NotifyInventoryBelowReorderPoint;
+use App\Listeners\NotifyLossRecorded;
+use App\Listeners\NotifyPurchaseOrderCancelled;
+use App\Listeners\NotifyPurchaseOrderReceived;
+use App\Listeners\NotifySalesOrderCancelled;
+use App\Listeners\NotifySalesOrderDispatched;
+use App\Listeners\NotifySalesOrderReturned;
+use App\Listeners\NotifyTransferCancelled;
+use App\Listeners\NotifyTransferConfirmed;
+use App\Listeners\NotifyTransferDispatched;
+use App\Listeners\NotifyTransferReceived;
+use App\Models\Customer;
+use App\Models\DirectTransfer;
+use App\Models\InTransit;
+use App\Models\LossLedger;
+use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\PurchaseOrder;
+use App\Models\SalesOrder;
+use App\Models\StockMovement;
+use App\Models\Supplier;
+use App\Models\TransferRequisition;
+use App\Models\TransferRequisitionItemRevision;
+use App\Models\User;
+use App\Models\Warehouse;
+use App\Observers\ProductObserver;
+use App\Observers\ProductVariantObserver;
+use App\Policies\CustomerPolicy;
+use App\Policies\DirectTransferPolicy;
+use App\Policies\InTransitPolicy;
+use App\Policies\LossLedgerPolicy;
+use App\Policies\ProductPolicy;
+use App\Policies\ProductVariantPolicy;
+use App\Policies\PurchaseOrderPolicy;
+use App\Policies\SalesOrderPolicy;
+use App\Policies\StockMovementPolicy;
+use App\Policies\SupplierPolicy;
+use App\Policies\TransferRequisitionItemRevisionPolicy;
+use App\Policies\TransferRequisitionPolicy;
+use App\Policies\UserPolicy;
+use App\Policies\WarehousePolicy;
 use Carbon\CarbonImmutable;
+use Filament\Tables\Table;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,6 +85,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        $this->configureTable();
+
+        $this->registerObservers();
+        $this->registerPolicies();
+        $this->registerEventListeners();
+        $this->registerBadgeScopeFlush();
     }
 
     /**
@@ -48,7 +116,7 @@ class AppServiceProvider extends ServiceProvider
         );
     }
 
-      /**
+    /**
      * §17.3 — observer registration.
      *
      * MUST run before any seeder or factory creates variants so the
@@ -56,10 +124,9 @@ class AppServiceProvider extends ServiceProvider
      */
     private function registerObservers(): void
     {
-        // Product::observe(ProductObserver::class);
-        // ProductVariant::observe(ProductVariantObserver::class);
+        Product::observe(ProductObserver::class);
+        ProductVariant::observe(ProductVariantObserver::class);
     }
-
 
     /**
      * §17.4 — policy registration.
@@ -73,47 +140,47 @@ class AppServiceProvider extends ServiceProvider
      */
     private function registerPolicies(): void
     {
-        // // §8.1
-        // Gate::policy(Product::class, ProductPolicy::class);
+        // §8.1
+        Gate::policy(Product::class, ProductPolicy::class);
 
-        // // §8.2
-        // Gate::policy(ProductVariant::class, ProductVariantPolicy::class);
+        // §8.2
+        Gate::policy(ProductVariant::class, ProductVariantPolicy::class);
 
-        // // §8.3
-        // Gate::policy(TransferRequisition::class, TransferRequisitionPolicy::class);
+        // §8.3
+        Gate::policy(TransferRequisition::class, TransferRequisitionPolicy::class);
 
-        // // §8.4
-        // Gate::policy(InTransit::class, InTransitPolicy::class);
+        // §8.4
+        Gate::policy(InTransit::class, InTransitPolicy::class);
 
-        // // §8.5
-        // Gate::policy(StockMovement::class, StockMovementPolicy::class);
+        // §8.5
+        Gate::policy(StockMovement::class, StockMovementPolicy::class);
 
-        // // §8.6
-        // Gate::policy(LossLedger::class, LossLedgerPolicy::class);
+        // §8.6
+        Gate::policy(LossLedger::class, LossLedgerPolicy::class);
 
-        // // §8.7
-        // Gate::policy(PurchaseOrder::class, PurchaseOrderPolicy::class);
+        // §8.7
+        Gate::policy(PurchaseOrder::class, PurchaseOrderPolicy::class);
 
-        // // §8.8
-        // Gate::policy(SalesOrder::class, SalesOrderPolicy::class);
+        // §8.8
+        Gate::policy(SalesOrder::class, SalesOrderPolicy::class);
 
-        // // §8.9
-        // Gate::policy(Supplier::class, SupplierPolicy::class);
+        // §8.9
+        Gate::policy(Supplier::class, SupplierPolicy::class);
 
-        // // §8.10
-        // Gate::policy(Customer::class, CustomerPolicy::class);
+        // §8.10
+        Gate::policy(Customer::class, CustomerPolicy::class);
 
-        // // §8.11
-        // Gate::policy(Warehouse::class, WarehousePolicy::class);
+        // §8.11
+        Gate::policy(Warehouse::class, WarehousePolicy::class);
 
-        // // §8.12
-        // Gate::policy(User::class, UserPolicy::class);
+        // §8.12
+        Gate::policy(User::class, UserPolicy::class);
 
-        // // §8.13
-        // Gate::policy(DirectTransfer::class, DirectTransferPolicy::class);
+        // §8.13
+        Gate::policy(DirectTransfer::class, DirectTransferPolicy::class);
 
-        // // §8.14
-        // Gate::policy(TransferRequisitionItemRevision::class, TransferRequisitionItemRevisionPolicy::class);
+        // §8.14
+        Gate::policy(TransferRequisitionItemRevision::class, TransferRequisitionItemRevisionPolicy::class);
     }
 
     /**
@@ -130,17 +197,17 @@ class AppServiceProvider extends ServiceProvider
      */
     private function registerEventListeners(): void
     {
-        // Event::listen(TransferConfirmed::class, NotifyTransferConfirmed::class);
-        // Event::listen(TransferCancelled::class, NotifyTransferCancelled::class);
-        // Event::listen(TransferDispatched::class, NotifyTransferDispatched::class);
-        // Event::listen(TransferReceived::class, NotifyTransferReceived::class);
-        // Event::listen(LossRecorded::class, NotifyLossRecorded::class);
-        // Event::listen(PurchaseOrderReceived::class, NotifyPurchaseOrderReceived::class);
-        // Event::listen(PurchaseOrderCancelled::class, NotifyPurchaseOrderCancelled::class);
-        // Event::listen(SalesOrderDispatched::class, NotifySalesOrderDispatched::class);
-        // Event::listen(SalesOrderCancelled::class, NotifySalesOrderCancelled::class);
-        // Event::listen(SalesOrderReturned::class, NotifySalesOrderReturned::class);
-        // Event::listen(InventoryBelowReorderPoint::class, NotifyInventoryBelowReorderPoint::class);
+        Event::listen(TransferConfirmed::class, NotifyTransferConfirmed::class);
+        Event::listen(TransferCancelled::class, NotifyTransferCancelled::class);
+        Event::listen(TransferDispatched::class, NotifyTransferDispatched::class);
+        Event::listen(TransferReceived::class, NotifyTransferReceived::class);
+        Event::listen(LossRecorded::class, NotifyLossRecorded::class);
+        Event::listen(PurchaseOrderReceived::class, NotifyPurchaseOrderReceived::class);
+        Event::listen(PurchaseOrderCancelled::class, NotifyPurchaseOrderCancelled::class);
+        Event::listen(SalesOrderDispatched::class, NotifySalesOrderDispatched::class);
+        Event::listen(SalesOrderCancelled::class, NotifySalesOrderCancelled::class);
+        Event::listen(SalesOrderReturned::class, NotifySalesOrderReturned::class);
+        Event::listen(InventoryBelowReorderPoint::class, NotifyInventoryBelowReorderPoint::class);
     }
 
     /**
@@ -171,27 +238,34 @@ class AppServiceProvider extends ServiceProvider
      */
     private function registerBadgeScopeFlush(): void
     {
-        // $badgeBearingResources = [
-        //     TransferRequisitionResource::class,
-        //     PurchaseOrderResource::class,
-        //     SalesOrderResource::class,
-        //     InTransitResource::class,
-        // ];
+        $badgeBearingResources = [
+            TransferRequisitionResource::class,
+            PurchaseOrderResource::class,
+            SalesOrderResource::class,
+            InTransitResource::class,
+        ];
 
-        // $flush = static function () use ($badgeBearingResources): void {
-        //     foreach ($badgeBearingResources as $resource) {
-        //         // Build-order guard: a class not yet generated resolves to
-        //         // a no-op instead of a fatal. Removable once §7B, §7G, §7H,
-        //         // and §7D are all on disk.
-        //         if (method_exists($resource, 'flushBadgeScope')) {
-        //             $resource::flushBadgeScope();
-        //         }
-        //     }
-        // };
+        $flush = static function () use ($badgeBearingResources): void {
+            foreach ($badgeBearingResources as $resource) {
+                // Build-order guard: a class not yet generated resolves to
+                // a no-op instead of a fatal. Removable once §7B, §7G, §7H,
+                // and §7D are all on disk.
+                if (method_exists($resource, 'flushBadgeScope')) {
+                    $resource::flushBadgeScope();
+                }
+            }
+        };
 
-        // Event::listen(Logout::class, $flush);
-        // Event::listen(Login::class, $flush);
+        Event::listen(Logout::class, $flush);
+        Event::listen(Login::class, $flush);
     }
 
-
+    private function configureTable(): void
+    {
+        Table::configureUsing(function (Table $table): void {
+            $table->striped()
+                ->deferLoading();
+            $table->recordActionsAlignment('end');
+        });
+    }
 }
