@@ -1,0 +1,40 @@
+<?php
+
+use App\Models\ProductVariant;
+use App\Models\SalesOrder;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('sales_order_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignIdFor(SalesOrder::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(ProductVariant::class)->constrained()->restrictOnDelete();
+            $table->string('unit_name');
+            $table->integer('unit_ratio')->default(1);
+            $table->integer('qty');
+            $table->integer('base_qty');
+            $table->decimal('unit_sale_price_snapshot', 15, 4)->default('0.0000');
+            $table->integer('dispatched_base_qty')->default(0);
+            $table->text('notes')->nullable();
+            $table->timestamps();
+
+            $table->index('sales_order_id');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('sales_order_items');
+    }
+};
