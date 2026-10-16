@@ -1,7 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Enums\UserRole;
+use App\Models\User;
+use App\Models\Warehouse;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+
+use function Pest\Laravel\actingAs;
+
+/**
+ * Call a protected method on an object using reflection.
+ */
+function callProtected(object $object, string $method, array $args = []): mixed
+{
+    $reflection = new ReflectionClass($object);
+    $method = $reflection->getMethod($method);
+    $method->setAccessible(true);
+
+    return $method->invoke($object, ...$args);
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -10,41 +30,114 @@ use Tests\TestCase;
 |
 | The closure you provide to your test functions is always bound to a specific PHPUnit test
 | case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "pest()" function to bind different classes or traits.
+| need to change it using the "uses()" function to bind a different classes or traits.
 |
 */
 
-pest()->extend(TestCase::class)
-    // ->use(RefreshDatabase::class)
-    ->in('Feature');
+uses(
+    TestCase::class,
+    RefreshDatabase::class,
+)->in('Feature', 'Unit');
 
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
-
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
+beforeEach(function () {
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
 });
 
 /*
 |--------------------------------------------------------------------------
-| Functions
+| Shared Datasets
 |--------------------------------------------------------------------------
 |
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
+| Load all shared datasets from dedicated file.
+| Pest 4 dataset() definitions are file-scoped.
 |
 */
 
-function something()
+// require __DIR__.'/Datasets/SharedDatasets.php';
+
+/*
+|--------------------------------------------------------------------------
+| Role Helpers
+|--------------------------------------------------------------------------
+|
+| Helper functions for creating authenticated users with specific roles.
+| Use in tests instead of manually creating users.
+|
+*/
+
+function actingAsAdmin(array $attributes = []): User
 {
-    // ..
+    $user = User::factory()->create(array_merge([
+        'role' => UserRole::Admin->value,
+    ], $attributes));
+
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsAuditor(array $attributes = []): User
+{
+    $user = User::factory()->create(array_merge([
+        'role' => UserRole::Auditor->value,
+    ], $attributes));
+
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsBranchManager(array $attributes = []): User
+{
+    $user = User::factory()->create(array_merge([
+        'role' => UserRole::BranchManager->value,
+    ], $attributes));
+
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsWarehouseStaff(array $attributes = []): User
+{
+    $user = User::factory()->create(array_merge([
+        'role' => UserRole::WarehouseStaff->value,
+    ], $attributes));
+
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsUser(array $attributes = []): User
+{
+    $user = User::factory()->create($attributes);
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsGuest(): void
+{
+    auth()->logout();
+}
+
+/**
+ * Create an authenticated WarehouseStaff user assigned to the given
+ * warehouses (mirrors TestCase::actingAsWarehouseStaff but variadic, for
+ * tests asserting the operational-scope boundary).
+ */
+function actingAsStaff(Warehouse ...$warehouses): User
+{
+    $user = User::factory()->create([
+        'role' => UserRole::WarehouseStaff->value,
+    ]);
+
+    if ($warehouses !== []) {
+        $user->warehouses()->attach(array_map(static fn ($w) => $w->id, $warehouses));
+    }
+
+    actingAs($user);
+
+    return $user;
 }
