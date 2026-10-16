@@ -4,6 +4,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default User Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This configuration defines the default user credentials that will be
+    | used in local development environments. It is particularly useful
+    | for quickly logging into the application without needing
+    | to create a user manually.
+    |
+    */
+
+    'default_user' => [
+        'name' => env('DEFAULT_USER_NAME', 'Admin'),
+        'email' => env('DEFAULT_USER_EMAIL', 'admin@example.test'),
+        'password' => env('DEFAULT_USER_PASSWORD', 'password'),
+    ],
+
+    'currency' => env('APP_CURRENCY', 'PHP'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Name
     |--------------------------------------------------------------------------
     |
@@ -122,7 +142,5 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
-    'currency' => env('APP_CURRENCY', 'PHP'),
 
 ];
