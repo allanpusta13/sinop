@@ -19,7 +19,7 @@ class InTransitInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Grid::make(['default' => 1, 'md' => 3, 'xl' => 3])->schema([
+            Grid::make(['default' => 1, 'md' => 3, 'xl' => 3])->columnSpanFull()->schema([
                 Section::make(__('resources.in_transits.infolist.cargo'))
                     ->icon(Heroicon::Truck)
                     ->columnSpanFull()

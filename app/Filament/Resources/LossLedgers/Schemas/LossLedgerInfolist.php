@@ -15,7 +15,7 @@ class LossLedgerInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Grid::make(['default' => 1, 'md' => 2, 'xl' => 2])->schema([
+            Grid::make(['default' => 1, 'md' => 2, 'xl' => 2])->columnSpanFull()->schema([
                 Section::make(__('resources.loss_ledgers.infolist.record'))
                     ->icon(Heroicon::ExclamationTriangle)
                     ->columnSpan(['default' => 1, 'md' => 1, 'xl' => 1])

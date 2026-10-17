@@ -18,7 +18,7 @@ class SalesOrderInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Grid::make(['default' => 1, 'md' => 3, 'xl' => 3])->schema([
+            Grid::make(['default' => 1, 'md' => 3, 'xl' => 3])->columnSpanFull()->schema([
                 Section::make(__('resources.sales_orders.infolist.profile'))
                     ->icon(Heroicon::DocumentText)
                     ->columnSpan(['default' => 1, 'md' => 2, 'xl' => 2])

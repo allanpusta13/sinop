@@ -18,7 +18,7 @@ class StockMovementInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Grid::make(['default' => 1, 'md' => 2, 'xl' => 2])->schema([
+            Grid::make(['default' => 1, 'md' => 2, 'xl' => 2])->columnSpanFull()->schema([
                 Section::make(__('resources.stock_movements.infolist.movement'))
                     ->icon(Heroicon::QueueList)
                     ->columnSpanFull()
