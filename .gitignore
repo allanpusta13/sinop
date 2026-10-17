@@ -46,3 +46,5 @@ yarn-error.log
 .devswarm-temp/
 .issue-tmp/
 /ui-ux-audit*/
+/storage/debugbar/
+/test-results/
