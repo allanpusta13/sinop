@@ -90,6 +90,9 @@ return [
             'quick_adjustment_heading' => 'Quick stock adjustment', // TODO(i18n): translate
             'quick_adjustment_description' => 'Record a manual stock adjustment.', // TODO(i18n): translate
             'more_actions' => 'More actions', // TODO(i18n): translate
+            'import' => 'Import', // TODO(i18n): translate
+            'import_heading' => 'Import Products and Families', // TODO(i18n): translate
+            'import_description' => 'Controlled import for product families and variants with preview and verification.', // TODO(i18n): translate
         ],
         'notifications' => [
             'created' => 'Nalikha ng matagumpay ang product.',
@@ -98,6 +101,93 @@ return [
             'adjustment_recorded' => 'Adjustment recorded.', // TODO(i18n): translate
             'family_updated' => 'Family updated.', // TODO(i18n): translate
             'family_missing' => 'Product family is missing.', // TODO(i18n): translate
+            'import_completed_title' => 'Import Completed', // TODO(i18n): translate
+            'import_completed_body' => 'Created: :created, Updated: :updated, Rejected: :rejected, Skipped: :skipped.', // TODO(i18n): translate
+            'import_queued_title' => 'Import Queued', // TODO(i18n): translate
+            'import_queued' => ':count rows queued for background processing.', // TODO(i18n): translate
+            'import_failed_title' => 'Import Failed', // TODO(i18n): translate
+        ],
+        'errors' => [
+            'file_missing' => 'The import file could not be found or read.', // TODO(i18n): translate
+            'update_confirmation_required' => 'Variant updates require explicit confirmation before execution.', // TODO(i18n): translate
+            'counts_mismatch' => 'Database state changed since preview. Expected [Create: :expected_create, Update: :expected_update, Reject: :expected_reject], but found [Create: :actual_create, Update: :actual_update, Reject: :actual_reject]. Please review and re-confirm.', // TODO(i18n): translate
+        ],
+        'import' => [
+            'submit_label' => 'Confirm & Import', // TODO(i18n): translate
+            'step_upload' => 'Upload & Mode', // TODO(i18n): translate
+            'step_upload_desc' => 'Choose import mode and upload your CSV or XLSX file.', // TODO(i18n): translate
+            'mode_label' => 'Import Mode', // TODO(i18n): translate
+            'mode_families' => 'Product Families', // TODO(i18n): translate
+            'mode_families_desc' => 'Import parent product family groups (Name and optional Category).', // TODO(i18n): translate
+            'mode_variants' => 'Product Variants', // TODO(i18n): translate
+            'mode_variants_desc' => 'Import SKU-bearing product variants associated with existing families.', // TODO(i18n): translate
+            'download_csv_template' => 'Download CSV Template', // TODO(i18n): translate
+            'download_xlsx_template' => 'Download XLSX Template', // TODO(i18n): translate
+            'file_label' => 'Spreadsheet File (CSV or XLSX)', // TODO(i18n): translate
+            'file_helper' => 'Upload CSV or XLSX file containing header row and data rows.', // TODO(i18n): translate
+            'step_mapping' => 'Column Mapping', // TODO(i18n): translate
+            'step_mapping_desc' => 'Map the spreadsheet columns to product fields.', // TODO(i18n): translate
+            'mapping_families_fieldset' => 'Family Column Mapping', // TODO(i18n): translate
+            'mapping_variants_fieldset' => 'Variant Column Mapping', // TODO(i18n): translate
+            'map_family_id' => 'Family ID (optional)', // TODO(i18n): translate
+            'map_family_name' => 'Family Name', // TODO(i18n): translate
+            'map_family_category' => 'Family Category (optional)', // TODO(i18n): translate
+            'map_sku' => 'SKU', // TODO(i18n): translate
+            'map_variant_name' => 'Variant Name', // TODO(i18n): translate
+            'map_base_unit' => 'Base Unit Name', // TODO(i18n): translate
+            'map_barcode' => 'Barcode (optional)', // TODO(i18n): translate
+            'map_reorder_point' => 'Reorder Point (optional)', // TODO(i18n): translate
+            'map_attributes' => 'Attributes (optional)', // TODO(i18n): translate
+            'map_is_active' => 'Active Status (optional)', // TODO(i18n): translate
+            'step_preview' => 'Preview & Verification', // TODO(i18n): translate
+            'step_preview_desc' => 'Review validation results and verify row actions before saving.', // TODO(i18n): translate
+            'confirm_updates_checkbox' => 'I explicitly confirm updating the matched product variants', // TODO(i18n): translate
+            'confirm_updates_help' => 'Existing variants with matching SKUs will have their fields updated with the values from this file.', // TODO(i18n): translate
+            'total_rows' => 'Total Rows', // TODO(i18n): translate
+            'to_create' => 'To Create', // TODO(i18n): translate
+            'to_update' => 'To Update', // TODO(i18n): translate
+            'to_reject' => 'To Reject', // TODO(i18n): translate
+            'update_warning_title' => 'Updates Detected', // TODO(i18n): translate
+            'update_warning_body' => 'Some rows match existing variant SKUs. Explicit confirmation is required to update them.', // TODO(i18n): translate
+            'col_row' => 'Row', // TODO(i18n): translate
+            'col_status' => 'Status', // TODO(i18n): translate
+            'col_identifier' => 'Identifier', // TODO(i18n): translate
+            'col_details' => 'Details', // TODO(i18n): translate
+            'col_validation' => 'Validation / Notes', // TODO(i18n): translate
+            'badge_create' => 'CREATE', // TODO(i18n): translate
+            'badge_update' => 'UPDATE', // TODO(i18n): translate
+            'badge_reject' => 'REJECT', // TODO(i18n): translate
+            'msg_ready_create' => 'Ready to create', // TODO(i18n): translate
+            'msg_ready_update' => 'Ready to update existing variant', // TODO(i18n): translate
+            'no_rows' => 'No valid rows found to preview.', // TODO(i18n): translate
+            'desc_family_id' => 'Optional explicit family identifier. Leave blank to resolve the family by name.', // TODO(i18n): translate
+            'desc_family_name' => 'The existing family name to resolve, or the name to create on family imports. Family imports never update by name.', // TODO(i18n): translate
+            'desc_family_category' => 'Optional category for the family. Blank keeps the existing or default value.', // TODO(i18n): translate
+            'desc_sku' => 'The variant SKU (unique). Existing variants match by SKU and update only after confirmation.', // TODO(i18n): translate
+            'desc_variant_name' => 'The display name of the variant.', // TODO(i18n): translate
+            'desc_base_unit' => 'The variant base unit name, e.g. Bag, Box, Kg.', // TODO(i18n): translate
+            'desc_barcode' => 'Optional EAN-13 barcode. Must be unique across variants when present.', // TODO(i18n): translate
+            'desc_reorder_point' => 'Optional non-negative integer reorder point.', // TODO(i18n): translate
+            'desc_attributes' => 'Optional JSON object of variant attributes, e.g. {"Roast":"Medium"}.', // TODO(i18n): translate
+            'desc_is_active' => 'Optional active flag: 1 or 0. Blank defaults to active (1).', // TODO(i18n): translate
+            'errors' => [
+                'family_name_required' => 'Family name is required.', // TODO(i18n): translate
+                'family_duplicate_in_file' => 'Duplicate family name ":name" in the uploaded file.', // TODO(i18n): translate
+                'family_name_exists' => 'A product family named ":name" already exists. Automatic update by name is not permitted; review the existing family.', // TODO(i18n): translate
+                'family_id_not_found' => 'Family ID ":family_id" does not identify an existing family.', // TODO(i18n): translate
+                'family_name_no_match' => 'Family name ":name" does not match any existing product family.', // TODO(i18n): translate
+                'family_name_ambiguous' => 'Family name ":name" is ambiguous; matches :count product families.', // TODO(i18n): translate
+                'family_reference_missing' => 'Variant row must provide an explicit family ID or family name.', // TODO(i18n): translate
+                'sku_required' => 'SKU is required.', // TODO(i18n): translate
+                'variant_name_required' => 'Variant name is required.', // TODO(i18n): translate
+                'base_unit_required' => 'Base unit name is required.', // TODO(i18n): translate
+                'sku_duplicate_in_file' => 'Duplicate SKU ":sku" in the uploaded file. Rejected for review.', // TODO(i18n): translate
+                'barcode_multiple_in_file' => 'Barcode ":barcode" is used by multiple different SKUs in the uploaded file.', // TODO(i18n): translate
+                'barcode_conflict' => 'Barcode ":barcode" is already associated with a different SKU (:sku).', // TODO(i18n): translate
+                'reorder_point_invalid' => 'Reorder point must be a non-negative integer.', // TODO(i18n): translate
+                'attributes_invalid_json' => 'Attributes must be valid JSON.', // TODO(i18n): translate
+                'family_identifier_mapping_required' => 'At least one family mapping column is required: Family ID or Family Name.', // TODO(i18n): translate
+            ],
         ],
     ],
     'transfer_requisitions' => [
@@ -473,6 +563,20 @@ return [
             'view' => 'View', // TODO(i18n): translate
             'delete' => 'Delete', // TODO(i18n): translate
             'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'import' => 'Import', // TODO(i18n): translate
+            'import_heading' => 'Import warehouses', // TODO(i18n): translate
+            'import_description' => 'Controlled import with template download, column mapping, row preview and confirmation.', // TODO(i18n): translate
+        ],
+        'import' => [
+            'desc_code' => 'Unique warehouse code, e.g. WH-0001. Existing warehouses match by code for confirmed updates.', // TODO(i18n): translate
+            'desc_name' => 'Warehouse display name.', // TODO(i18n): translate
+            'desc_location' => 'Optional free-text location.', // TODO(i18n): translate
+            'errors' => [
+                'code_required' => 'Warehouse code is required.', // TODO(i18n): translate
+                'name_required' => 'Warehouse name is required.', // TODO(i18n): translate
+                'duplicate_code_in_file' => 'Duplicate warehouse code ":code" in the uploaded file. Rejected for review.', // TODO(i18n): translate
+                'name_conflict' => 'No warehouse with code ":code", but a warehouse named ":name" already exists (:count match(es)). Imports never merge by name — use the existing code to update it.', // TODO(i18n): translate
+            ],
         ],
     ],
     'users' => [
@@ -655,6 +759,21 @@ return [
             'delete' => 'Delete', // TODO(i18n): translate
             'restore' => 'Restore', // TODO(i18n): translate
             'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'import' => 'Import', // TODO(i18n): translate
+            'import_heading' => 'Import suppliers', // TODO(i18n): translate
+            'import_description' => 'Controlled import with template download, column mapping, row preview and confirmation.', // TODO(i18n): translate
+        ],
+        'import' => [
+            'desc_name' => 'Supplier name. Potential matches with existing records are flagged for review and never merged.', // TODO(i18n): translate
+            'desc_contact_person' => 'Optional contact person.', // TODO(i18n): translate
+            'desc_phone' => 'Optional phone number.', // TODO(i18n): translate
+            'desc_email' => 'Optional email address.', // TODO(i18n): translate
+            'desc_address' => 'Optional address.', // TODO(i18n): translate
+            'errors' => [
+                'name_required' => 'Supplier name is required.', // TODO(i18n): translate
+                'duplicate_name_in_file' => 'Duplicate supplier name ":name" in the uploaded file. Rejected for review.', // TODO(i18n): translate
+                'possible_match' => 'A supplier named ":name" already exists (id :id). Flagged for review — imports never merge or update by name.', // TODO(i18n): translate
+            ],
         ],
     ],
     'sales_orders' => [
@@ -800,6 +919,21 @@ return [
             'delete' => 'Delete', // TODO(i18n): translate
             'restore' => 'Restore', // TODO(i18n): translate
             'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'import' => 'Import', // TODO(i18n): translate
+            'import_heading' => 'Import customers', // TODO(i18n): translate
+            'import_description' => 'Controlled import with template download, column mapping, row preview and confirmation.', // TODO(i18n): translate
+        ],
+        'import' => [
+            'desc_name' => 'Customer name. Potential matches with existing records are flagged for review and never merged.', // TODO(i18n): translate
+            'desc_contact_person' => 'Optional contact person.', // TODO(i18n): translate
+            'desc_phone' => 'Optional phone number.', // TODO(i18n): translate
+            'desc_email' => 'Optional email address.', // TODO(i18n): translate
+            'desc_address' => 'Optional address.', // TODO(i18n): translate
+            'errors' => [
+                'name_required' => 'Customer name is required.', // TODO(i18n): translate
+                'duplicate_name_in_file' => 'Duplicate customer name ":name" in the uploaded file. Rejected for review.', // TODO(i18n): translate
+                'possible_match' => 'A customer named ":name" already exists (id :id). Flagged for review — imports never merge or update by name.', // TODO(i18n): translate
+            ],
         ],
     ],
 ];

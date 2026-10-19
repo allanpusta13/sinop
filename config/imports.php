@@ -1,6 +1,11 @@
 <?php
 
 declare(strict_types=1);
+use App\Services\Import\Definitions\CustomerImportDefinition;
+use App\Services\Import\Definitions\ProductFamilyImportDefinition;
+use App\Services\Import\Definitions\ProductVariantImportDefinition;
+use App\Services\Import\Definitions\SupplierImportDefinition;
+use App\Services\Import\Definitions\WarehouseImportDefinition;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +22,11 @@ declare(strict_types=1);
 return [
 
     'definitions' => [
-        // Wave 1 feature definitions are registered here.
+        'products.families' => ProductFamilyImportDefinition::class,
+        'products.variants' => ProductVariantImportDefinition::class,
+        'warehouses' => WarehouseImportDefinition::class,
+        'suppliers' => SupplierImportDefinition::class,
+        'customers' => CustomerImportDefinition::class,
     ],
 
 ];
