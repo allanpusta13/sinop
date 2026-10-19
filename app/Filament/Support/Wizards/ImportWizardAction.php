@@ -13,9 +13,9 @@ use App\Services\Import\ImportService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
@@ -130,9 +130,9 @@ abstract class ImportWizardAction
 
                 if ($headerOptions === []) {
                     return [
-                        Placeholder::make('mapping_notice')
+                        TextEntry::make('mapping_notice')
                             ->label(__('imports.wizard.step_mapping'))
-                            ->content(__('imports.errors.file_missing')),
+                            ->state(__('imports.errors.file_missing')),
                     ];
                 }
 
