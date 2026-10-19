@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Customers\Pages;
 
+use App\Filament\Resources\Customers\Actions\ImportCustomersAction;
 use App\Filament\Resources\Customers\CustomerResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -16,6 +17,7 @@ class ListCustomers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ImportCustomersAction::make(),
             CreateAction::make()
                 ->label(__('resources.customers.actions.create'))
                 ->icon(Heroicon::OutlinedUserGroup),
