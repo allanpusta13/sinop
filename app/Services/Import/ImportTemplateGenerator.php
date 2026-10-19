@@ -1,0 +1,123 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services\Import;
+
+use InvalidArgumentException;
+use League\Csv\Writer as CsvWriter;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
+use SplTempFileObject;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+/**
+ * ImportTemplateGenerator — produces downloadable CSV and XLSX import
+ * templates for any definition: localized headers, one clearly marked
+ * sample row, and short field descriptions.
+ *
+ * The CSV description block sits after a blank row; every row of it
+ * starts with "#" in its first cell so the ImportParser treats it as a
+ * comment block when the template is uploaded back. XLSX templates put
+ * descriptions on a second sheet, which the parser never reads.
+ */
+class ImportTemplateGenerator
+{
+    public function streamDownload(ImportDefinition $definition, string $format): StreamedResponse
+    {
+        $format = strtolower($format);
+
+        if (! in_array($format, ['csv', 'xlsx'], true)) {
+            throw new InvalidArgumentException(__('imports.errors.unsupported_format'));
+        }
+
+        [$headers, $sample, $descriptions] = $this->templateData($definition);
+
+        $filename = 'sinop_import_'.str_replace('.', '_', $definition->key())."_template.{$format}";
+
+        if ($format === 'xlsx') {
+            return $this->xlsxResponse($headers, $sample, $descriptions, $filename);
+        }
+
+        return $this->csvResponse($headers, $sample, $descriptions, $filename);
+    }
+
+    /**
+     * @return array{0: array<int, string>, 1: array<int, string>, 2: array<int, array{0: string, 1: string}>}
+     */
+    protected function templateData(ImportDefinition $definition): array
+    {
+        $headers = [];
+        $sample = [];
+        $descriptions = [];
+
+        foreach ($definition->columns() as $column) {
+            $headers[] = $column->label();
+            $sample[] = $column->sample;
+            $descriptions[] = [$column->label(), $column->description()];
+        }
+
+        return [$headers, $sample, $descriptions];
+    }
+
+    /**
+     * @param  array<int, string>  $headers
+     * @param  array<int, string>  $sample
+     * @param  array<int, array{0: string, 1: string}>  $descriptions
+     */
+    protected function csvResponse(array $headers, array $sample, array $descriptions, string $filename): StreamedResponse
+    {
+        return response()->streamDownload(function () use ($headers, $sample, $descriptions) {
+            $csv = CsvWriter::createFromFileObject(new SplTempFileObject);
+            $csv->setNewline("\n");
+            $csv->insertOne($headers);
+            $csv->insertOne($sample);
+            $csv->insertOne([]);
+            $csv->insertOne([ImportParser::COMMENT_MARKER, __('imports.template.field'), __('imports.template.description')]);
+
+            foreach ($descriptions as [$label, $description]) {
+                $csv->insertOne([ImportParser::COMMENT_MARKER, $label, $description]);
+            }
+
+            $csv->output();
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    /**
+     * @param  array<int, string>  $headers
+     * @param  array<int, string>  $sample
+     * @param  array<int, array{0: string, 1: string}>  $descriptions
+     */
+    protected function xlsxResponse(array $headers, array $sample, array $descriptions, string $filename): StreamedResponse
+    {
+        return response()->streamDownload(function () use ($headers, $sample, $descriptions) {
+            $tempPath = tempnam(sys_get_temp_dir(), 'sinop_tpl_');
+            $writer = new XlsxWriter;
+            $writer->openToFile($tempPath);
+            $writer->addRow(Row::fromValues($headers));
+            $writer->addRow(Row::fromValues($sample));
+
+            $descriptionSheet = $writer->getCurrentSheet();
+            $descriptionSheet->setName(__('imports.template.descriptions_sheet'));
+            $writer->addRow(Row::fromValues([
+                __('imports.template.field'),
+                __('imports.template.description'),
+            ], (new Style)->setFontBold()));
+            $writer->addRow(Row::fromValues([]));
+
+            foreach ($descriptions as [$label, $description]) {
+                $writer->addRow(Row::fromValues([$label, $description]));
+            }
+
+            $writer->close();
+
+            readfile($tempPath);
+            @unlink($tempPath);
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+}
