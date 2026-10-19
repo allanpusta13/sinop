@@ -16,6 +16,9 @@
 > 7. **Extended** §25 — `imports.php` added to the required locale set, wizard views added, suite files declared via §28.7.
 > 8. **Extended** Section 27 with the imports & exports change table.
 > 9. **Polished** the wizard UI — mode selector switched to icon-capable `ToggleButtons` (per-definition icon, description tooltip + selected-description helper), preview count cards/row badges/update-warning gained status icons, and the CSV/XLSX template buttons now carry distinct icons.
+> 10. **Fixed** mapping-guess hydration — wizard steps render lazily, so the mapping selects' `->default(guessMappings())` never passed through Filament's mount-time `fill()` and the selects rendered empty; the file and mode fields now re-seed `columnMap` via `afterStateUpdated` (§28.3).
+> 11. **Fixed** import error translation params — every suite context passed colon-prefixed keys (inherited from the §6.3 `DomainRuleViolationException` docblock example), but Laravel's translator prepends the colon itself, so no placeholder ever substituted; all suite contexts plus `errors.warehouse_assignment_count` now use bare keys and the docblock example was corrected (§27).
+> 12. **Added** browser E2E coverage — `tests/Browser/import-wizard.spec.ts` (mode selector + template links, families end-to-end, warehouse `name_conflict` reject path with database proof) plus the `tmp-for-tests` disk in `config/filesystems.php` that lets Livewire file uploads persist under `artisan serve` with `APP_ENV=testing`.
 
 > **Changelog v0.1:**
 > 1. **Added** Principle **1B.1a** — Navigation badges are scoped by **role + warehouse assignment**, not by warehouse membership alone.
@@ -20405,6 +20408,9 @@ Open items surfaced by Council review, not yet closed:
 | 11 | File map | §25 amended — `imports.php` in both locale trees, wizard views added, suite declared via §28.7 | Governance |
 | 12 | Blueprint | Added Section 28 (Import & Export Suite contract) | Governance |
 | 13 | Wizard icons | Mode selector switched from `Radio` (no icon support in Filament v5) to `ToggleButtons` with per-definition icons, description tooltips, and a selected-mode helper text; preview count cards, row status badges, and the update warning gained status icons; CSV/XLSX template buttons given distinct icons | P2 |
+| 14 | Mapping guess hydration | Wizard steps render lazily, so the mapping selects never existed at the action's single mount-time `fill()` and their `guessMappings()` defaults rendered empty in the browser (the server-side service tests never exercised render-time hydration); the file and mode fields now re-seed `columnMap` through `afterStateUpdated`, preserving manual edits until the file or mode actually changes | P1 |
+| 15 | Error param convention | Suite contexts passed `':placeholder' =>` keys (inherited from the `DomainRuleViolationException` docblock example), but Laravel prepends the colon itself — no placeholder substituted anywhere; switched all five definitions, `ImportService`, and `errors.warehouse_assignment_count` to bare keys, updated the affected test assertions, corrected the docblock | P1 |
+| 16 | Browser E2E | Added `tests/Browser/import-wizard.spec.ts` (3 scenarios: mode selector + mode-aware template links, families end-to-end with database proof, warehouse `name_conflict` reject path) and the `tmp-for-tests` disk in `config/filesystems.php` mirroring Livewire's test-disk rule so uploads persist under `artisan serve` with `APP_ENV=testing` | Test |
 
 ---
 
@@ -20440,7 +20446,7 @@ Abstract Filament action shared by all imports; resource actions extend it imple
 
 - **Visibility:** shown when any definition key `can($user)`.
 - **Step 1 — upload:** live required mode `ToggleButtons` selector (per-definition icon, description as per-option tooltip + selected-mode helper text; Filament v5 `Radio` has no icon support) when a resource carries >1 definition, template download links per format with format-distinct icons, `FileUpload::make('file')->required()` (CSV/XLSX accepted types).
-- **Step 2 — mapping:** one `Select` per `ImportColumn` (required columns labelled `*` and `->required()`), options = parsed headers, defaults = `guessMappings()`. When headers cannot be read (missing/unreadable file) the step renders the `ImportMappingNotice` component instead of the select grid.
+- **Step 2 — mapping:** one `Select` per `ImportColumn` (required columns labelled `*` and `->required()`), options = parsed headers, defaults = `guessMappings()`. Because wizard steps render lazily, the selects do not exist when the action mounts and their defaults never pass through Filament's mount-time `fill()` — the file and mode fields therefore re-seed `columnMap` via `afterStateUpdated` whenever they change, which is what makes the guessed defaults visible in the UI; manual edits survive until the file or mode changes. When headers cannot be read (missing/unreadable file) the step renders the `ImportMappingNotice` component instead of the select grid.
 - **Step 3 — preview & confirm:** frozen preview rows via `filament.wizards.import-preview`; `confirm_updates` checkbox required when `has_updates`; classification counts shown before commit.
 - **Freeze contract:** the mapping step's `afterValidation` writes the frozen preview (`ImportFileStore::writePreview()`), sweeping stale files; only `ValidationException` is rethrown. Preview and execution both re-classify from the file and abort if counts drift from the frozen preview.
 - **Mapping notice embed:** `App\Livewire\Wizards\ImportMappingNotice` is embedded through `resources/views/filament/wizards/mapping-notice.blade.php` (`<livewire:wizards.import-mapping-notice key="…">` with a **per-render unique key**). The unique key is load-bearing, not decoration: Livewire spoofs mounts of previously-rendered children with an empty stub (`SupportNestingComponents::pre-mount`), and Filament's partial rendering retains stale child keys across update cycles (`keepRenderedChildren`) — a conditionally re-appearing child with a stable key renders as a dead empty div. `Filament\Schemas\Components\Livewire::make()` (the house pattern for *persistent* children, e.g. §7K.1 `AssignedUsersList`) is therefore the wrong tool for this conditionally re-appearing notice.
@@ -20526,7 +20532,9 @@ tests/Feature/
 
 ### 28.8 Tests
 
-130 tests across the five suite test trees at the Wave-1 close. The `ImportEngine` tree is the contract suite for every shared class (including `Fixtures/` — a fixture definition + fixture wizard action used by engine tests); each entity tree covers definition classification, wizard action flow, server-side authorization, template download, and execution semantics (including the queued path and transactional rollback).
+130 Pest tests across the five suite test trees at the Wave-1 close. The `ImportEngine` tree is the contract suite for every shared class (including `Fixtures/` — a fixture definition + fixture wizard action used by engine tests); each entity tree covers definition classification, wizard action flow, server-side authorization, template download, and execution semantics (including the queued path and transactional rollback).
+
+Browser E2E: `tests/Browser/import-wizard.spec.ts` — three serial chromium scenarios driving the real modal through `artisan serve` (APP_ENV=testing): upload-step mode selector (icons + mode-aware template links), a families import end to end (upload → guessed mapping → preview counts → run → database proof via `tinker()`), and the warehouse `name_conflict` reject path (rejected row rendered with a substituted message, accepted row written, rejected row never written). File uploads under `artisan serve` require the `tmp-for-tests` disk in `config/filesystems.php` — Livewire's own test-disk fallback is in-process and does not persist across requests.
 
 ### 28.9 Deferred Follow-ups
 
