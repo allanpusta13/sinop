@@ -6,6 +6,16 @@
 
 ---
 
+> **Changelog v0.1:** (imports & exports suite — Waves 0–1)
+> 1. **Added** Section 28 — the Import & Export Suite contract: shared engine, wizard flow, definitions registry, classification rules, hard exclusions, file/test inventories, and deferred follow-ups.
+> 2. **Added** the shared import engine (`app/Services/Import/**`) — parser, per-user file store, template generator, service orchestrator, queued execution job, template route, and the `ImportDefinition` / `ImportColumn` contracts (issue #219).
+> 3. **Added** the three-step import wizard (`ImportWizardAction`) registered on Products (#219), Warehouses (#220), and Suppliers/Customers (#223), with header-guessing mapping, frozen previews, and the `ImportMappingNotice` Livewire embed.
+> 4. **Added** five import definitions: `products.families`, `products.variants` (issue #219), `warehouses` (issue #220), `suppliers`, `customers` (issue #223), registered in `config/imports.php`.
+> 5. **Replaced** the deprecated `Placeholder` in the wizard mapping step — first with `TextEntry`, then with the `App\Livewire\Wizards\ImportMappingNotice` component (Filament v5 `View` wrapper, per-render child key, §28.3).
+> 6. **Deleted** the legacy product-import stack (pre-engine template import) with its four legacy tests — owner-approved removal.
+> 7. **Extended** §25 — `imports.php` added to the required locale set, wizard views added, suite files declared via §28.7.
+> 8. **Extended** Section 27 with the imports & exports change table.
+
 > **Changelog v0.1:**
 > 1. **Added** Principle **1B.1a** — Navigation badges are scoped by **role + warehouse assignment**, not by warehouse membership alone.
 > 2. **Added** `App\Filament\Support\Concerns\ScopesNavigationBadges` trait — single canonical resolver for badge warehouse scoping.
@@ -146,7 +156,8 @@ lang/
 │   ├── common.php
 │   ├── wizards.php       # __('wizards.*') — §18.3 review views
 │   ├── stn.php           # __('stn.*') — §21 print/scan views
-│   └── dashboard.php     # __('dashboard.*') — §10 widgets
+│   ├── dashboard.php     # __('dashboard.*') — §10 widgets
+│   └── imports.php       # __('imports.*') — §28 import wizard/engine strings
 └── <locale>/
     └── same file set as en/
 ```
@@ -19957,7 +19968,9 @@ resources/views/filament/wizards/
 ├── transfer-review.blade.php
 ├── purchase-order-review.blade.php
 ├── sales-order-review.blade.php
-└── direct-transfer-review.blade.php  # iterates items
+├── direct-transfer-review.blade.php  # iterates items
+├── import-preview.blade.php  # frozen import preview rows (§28.3)
+└── mapping-notice.blade.php  # wraps the ImportMappingNotice Livewire child (§28.3)
 
 resources/views/filament/widgets/
 └── quick-actions.blade.php  # QuickActionsWidget view (§10)
@@ -19967,6 +19980,9 @@ resources/views/components/layouts/
 
 resources/views/livewire/stn/
 └── scan-form.blade.php
+
+resources/views/livewire/wizards/
+└── import-mapping-notice.blade.php  # mapping-step notice child (§28.3)
 
 resources/views/stn/
 ├── print.blade.php
@@ -19991,7 +20007,8 @@ lang/   # required locale tree per §0A.2 — every locale carries the same key 
 │   ├── common.php
 │   ├── wizards.php       # __('wizards.*') — §18.3 review views
 │   ├── stn.php           # __('stn.*') — §21 print/scan views
-│   └── dashboard.php     # __('dashboard.*') — §10 widgets
+│   ├── dashboard.php     # __('dashboard.*') — §10 widgets
+│   └── imports.php       # __('imports.*') — §28 import wizard/engine strings
 └── <locale>/
     └── same file set as en/
 
@@ -20023,6 +20040,14 @@ Runtime support (application code, not Resource scaffolding):
 - `app/Http/Middleware/ApplySecurityHeaders.php` — response-hardening headers; registered in `bootstrap/app.php`.
 - `app/Livewire/Warehouses/AssignedUsersList.php` — read-only warehouse↔user pivot embedded by `WarehouseForm` (§7K.1).
 - `app/Filament/Support/Filters/AdminReviewFilters.php` — the §9 admin-review filter set.
+
+Import & Export Suite (§28) — declared here as one block; the per-feature contract and full inventory live in §28.7:
+
+- `app/Services/Import/**` — engine services (`ImportParser`, `ImportFileStore`, `ImportTemplateGenerator`, `ImportService`), the `ImportDefinition` / `ImportColumn` contracts, and the five `Definitions/*ImportDefinition.php` classes.
+- `app/Filament/Support/Wizards/ImportWizardAction.php` and `app/Livewire/Wizards/ImportMappingNotice.php` — shared wizard action + mapping-notice component.
+- `app/Filament/Resources/{Products,Warehouses,Suppliers,Customers}/Actions/Import*Action.php` — per-resource wizard entry points.
+- `app/Http/Controllers/ImportTemplateController.php`, `app/Jobs/ProcessImportJob.php`, `config/imports.php`, and the `imports.template` route in `routes/web.php`.
+- `tests/Feature/{ImportEngine,ProductImport,WarehouseImport,SupplierImport,CustomerImport}/**` — the five suite test trees (§28.8).
 
 Widget, page, and print views:
 
@@ -20362,6 +20387,151 @@ Open items surfaced by Council review, not yet closed:
 | 19 | Card tables declared unusable bulk actions | Bulk actions removed; F30 added | Low |
 | 20 | `user_warehouse` pivot dual edit surfaces | `WarehouseForm` users field made read-only; editing documented as UserResource-only | Low |
 
+### Imports & Exports Suite Change Table (Waves 0–1)
+
+| # | Area | Resolution | Severity |
+|---|---|---|---|
+| 1 | Shared import engine | Added `ImportParser`, `ImportFileStore`, `ImportTemplateGenerator`, `ImportService` (`QUEUE_THRESHOLD = 100`), `ProcessImportJob`, `ImportTemplateController` + authenticated `imports.template` route | P0 |
+| 2 | Definition contracts | Added `ImportDefinition` abstract (key/labelKey/columns/authorize/validate/persist + overridable mapping gate) and `ImportColumn` value object | P0 |
+| 3 | Import wizard | Added `ImportWizardAction` — three steps (upload → mapping → preview & confirm), mode radio for multi-definition resources, keyword header guessing, frozen-preview contract, count-drift abort | P0 |
+| 4 | Products import (issue #219) | Added `products.families` (create-only) and `products.variants` (create + confirmed updates) definitions + `ImportProductsAction` | P0 |
+| 5 | Warehouses import (issue #220) | Added `warehouses` definition (code identity, `name_conflict` rejection, `is_active` never written) + `ImportWarehousesAction` | P0 |
+| 6 | Suppliers/customers import (issue #223) | Added `suppliers` and `customers` create-only definitions (first-wins duplicates, `possible_match` rejection) + import actions | P0 |
+| 7 | Mapping notice | Deprecated `Placeholder` replaced by `TextEntry`, then by the `ImportMappingNotice` Livewire embed via `View` wrapper with per-render child key — works around Livewire's empty-stub spoof for previously-rendered children combined with Filament's partial retention of stale child keys (§28.3) | P1 |
+| 8 | Legacy stack removal | Deleted the pre-engine product-import stack and its four legacy tests (owner-approved) | Refactor |
+| 9 | Localisation | Added `lang/{en,es,tl}/imports.php` + `resources.*.import.*` keys; structural parity holds (§0A.15) | P1 |
+| 10 | Tests | Added 130 tests across the five suite test trees (§28.8) | Test |
+| 11 | File map | §25 amended — `imports.php` in both locale trees, wizard views added, suite declared via §28.7 | Governance |
+| 12 | Blueprint | Added Section 28 (Import & Export Suite contract) | Governance |
+
 ---
 
-*End of blueprint v0.1 — post-v0.1 residual closure: §7K.1 `WarehouseForm` Filament v5 fix, §4.1 under-review icon pairing, §5.6 `UserFactory::admin()` empty-pivot restore, §1B.1a fail-closed amendment, §25 untracked-extras declared and `ProductExporter.php` deleted. Retains v0.1 P1 contract-closure: §10 widget type + `$view` corrections, ninth event/listener/notification catalogued, §25 reverse rule. Direct Transfer multi-item support, translation coverage, runtime wiring, and role + warehouse scoped navigation badges fully integrated.*
+## 📥 Section 28: Import & Export Suite (Waves 0–1: Imports)
+
+> **Status:** Waves 0–1 shipped — the shared engine and five imports (issues #219, #220, #223). Export waves are not yet implemented; the v0.1 `ProductExporter` deletion (§25) predates this section — exports will be built against these contracts when their wave is scheduled.
+
+### 28.1 Suite Shape
+
+The suite ships in waves (research → build → verify → full suite → commit per wave):
+
+| Wave | Scope | Issues | Status |
+|---|---|---|---|
+| 0 | Shared engine: parser, file store, template generator, wizard, registry, engine tests | #219 (lead) | Shipped |
+| 1 | Imports: `products.families`, `products.variants`, `warehouses`, `suppliers`, `customers` | #219, #220, #223 | Shipped |
+| 2+ | Exports | TBD | Not started |
+
+One wizard serves every import: an import is a definition class + a registry entry + a one-line action on its List page.
+
+### 28.2 Engine Contracts (`app/Services/Import/`)
+
+- `ImportParser::parse(string $filePath, ?string $originalName = null): array{headers: array<int, string>, rows: array<int, array<string, string>>}` — CSV/XLSX by extension; `#`-prefixed lines are comments (`COMMENT_MARKER`); unreadable input returns empty headers and the wizard renders the mapping notice (§28.3).
+- `ImportFileStore` — private per-user upload storage on the `local` disk under `imports/` (`DISK`, `DIRECTORY`): `resolvePhysicalPath()` / `resolveOriginalName()` normalise Livewire upload state to a path/name (`null` when the file is gone — never an exception), `writePreview()` / `readPreview()` persist the frozen preview (`PREVIEW_FILENAME` = `preview.json`), `sweep()` removes non-kept files, `cleanupUser()` clears the directory.
+- `ImportColumn` — readonly value object: `key`, `labelKey`, `required`, `guessKeywords`, `sample`, `descriptionKey`.
+- `ImportDefinition` (abstract) — the per-feature contract: `key()`, `labelKey()`, `columns()` (template order), `authorize(User $user): void` (throws `AuthorizationException`), `validate(array $rows): array{rows: array, counts: array{create: int, update: int, reject: int, total: int}}` (the single classification pass shared by preview and execution), `persist(array $rows): array{created: int, updated: int, skipped: int}` (called inside the engine transaction), `assertMappingsSatisfied()` (overridable mapping gate). `can()` wraps `authorize()` for visibility; `label()` / `description()` route through `labelKey()` / `labelKey().'_desc'`.
+- `ImportService` — orchestrator: `definitions()` (from `config('imports.definitions')`), `resolveDefinition()`, `preview()` (parse → map → classify, zero writes), `executeTransactional()` (re-classify, abort on count drift vs the frozen preview, then persist in one DB transaction), `execute()` (dispatches `ProcessImportJob` when `create + update > QUEUE_THRESHOLD` (100), otherwise transactional), `guessMappings()` (keyword scoring over `ImportColumn::guessKeywords`).
+- `ProcessImportJob` — `ShouldQueue` job re-running the transactional path for queued-size imports.
+- `ImportTemplateGenerator::streamDownload(ImportDefinition $definition, string $format): StreamedResponse` — CSV/XLSX template with translated headers + sample row, served by `ImportTemplateController::download()` on the authenticated `imports.template` route (`/admin/imports/{import}/template/{format}`).
+
+### 28.3 Wizard Contract (`app/Filament/Support/Wizards/ImportWizardAction.php`)
+
+Abstract Filament action shared by all imports; resource actions extend it implementing `name()`, `definitionKeys()`, `translationKeyPrefix()`.
+
+- **Visibility:** shown when any definition key `can($user)`.
+- **Step 1 — upload:** live required mode `Radio` when a resource carries >1 definition, template download links per format, `FileUpload::make('file')->required()` (CSV/XLSX accepted types).
+- **Step 2 — mapping:** one `Select` per `ImportColumn` (required columns labelled `*` and `->required()`), options = parsed headers, defaults = `guessMappings()`. When headers cannot be read (missing/unreadable file) the step renders the `ImportMappingNotice` component instead of the select grid.
+- **Step 3 — preview & confirm:** frozen preview rows via `filament.wizards.import-preview`; `confirm_updates` checkbox required when `has_updates`; classification counts shown before commit.
+- **Freeze contract:** the mapping step's `afterValidation` writes the frozen preview (`ImportFileStore::writePreview()`), sweeping stale files; only `ValidationException` is rethrown. Preview and execution both re-classify from the file and abort if counts drift from the frozen preview.
+- **Mapping notice embed:** `App\Livewire\Wizards\ImportMappingNotice` is embedded through `resources/views/filament/wizards/mapping-notice.blade.php` (`<livewire:wizards.import-mapping-notice key="…">` with a **per-render unique key**). The unique key is load-bearing, not decoration: Livewire spoofs mounts of previously-rendered children with an empty stub (`SupportNestingComponents::pre-mount`), and Filament's partial rendering retains stale child keys across update cycles (`keepRenderedChildren`) — a conditionally re-appearing child with a stable key renders as a dead empty div. `Filament\Schemas\Components\Livewire::make()` (the house pattern for *persistent* children, e.g. §7K.1 `AssignedUsersList`) is therefore the wrong tool for this conditionally re-appearing notice.
+
+### 28.4 Definitions & Classification Rules
+
+Registry: `config/imports.php` → `definitions` (dot-key ⇒ class).
+
+| Definition | Modes | Identity & classification rules |
+|---|---|---|
+| `products.families` (#219) | create-only | Normalized-name identity; an existing family or an in-file duplicate name rejects the row — never updates or merges by name |
+| `products.variants` (#219) | create + confirmed updates | SKU identity; existing SKU → `update` (requires `confirm_updates`), new SKU → `create`; family resolved by Family ID *or* Family Name (at-least-one mapping group); in-file duplicate SKUs and barcode conflicts rejected; reorder point must match `^\d+$` |
+| `warehouses` (#220) | create + confirmed updates | Code identity; code match → `update` (confirmation required); imports never match or merge by name — a create row whose normalized name exists under another code is rejected `name_conflict`; `is_active` is not importable and never written |
+| `suppliers` (#223) | create-only | Blank name → reject; in-file duplicate names first-wins (later rows rejected); an existing record with the same normalized name is rejected `possible_match` so a human resolves it; blank-name rows never reserve codes |
+| `customers` (#223) | create-only | Same contract as `suppliers` |
+
+Shared rules (owner-resolved ambiguities):
+
+- In-file duplicate precedence is **first occurrence wins** within a file.
+- **Update rows may rename freely** (code/SKU is the only identity axis).
+- **Soft-deleted rows count as "existing"** for matching (legacy behavior parity — flagged for owner review, §28.9).
+- A mapped-but-blank cell persists `''` and is distinct from an unmapped column (omitted key).
+
+### 28.5 Hard Exclusions
+
+- `Product.is_active` and warehouse `is_active` are never importable columns and are never written.
+- Variant images and spec-silent fields are excluded from every import/export.
+- Imports never write `stock_movements` or price tables directly — no ledger or price side effects from the suite.
+
+### 28.6 Localisation
+
+- `lang/{en,es,tl}/imports.php` — wizard + engine strings (`imports.wizard.*`, `imports.errors.*`); declared in both the §0A.2 and §25 locale trees.
+- Per-definition strings live under `resources.{products,warehouses,suppliers,customers}.import.*` in the existing resource files.
+- Cross-locale structural parity is enforced by `TranslationKeyParityTest` (§0A.15); translation content is the separate O-PARITY workstream.
+
+### 28.7 File Inventory (§25 reverse-rule declaration)
+
+```text
+app/
+├── Services/Import/
+│   ├── ImportColumn.php
+│   ├── ImportDefinition.php
+│   ├── ImportFileStore.php
+│   ├── ImportParser.php
+│   ├── ImportService.php
+│   ├── ImportTemplateGenerator.php
+│   └── Definitions/
+│       ├── CustomerImportDefinition.php
+│       ├── ProductFamilyImportDefinition.php
+│       ├── ProductVariantImportDefinition.php
+│       ├── SupplierImportDefinition.php
+│       └── WarehouseImportDefinition.php
+├── Filament/Support/Wizards/
+│   └── ImportWizardAction.php
+├── Filament/Resources/
+│   ├── Products/Actions/ImportProductsAction.php
+│   ├── Warehouses/Actions/ImportWarehousesAction.php
+│   ├── Suppliers/Actions/ImportSuppliersAction.php
+│   └── Customers/Actions/ImportCustomersAction.php
+├── Livewire/Wizards/
+│   └── ImportMappingNotice.php
+├── Http/Controllers/
+│   └── ImportTemplateController.php
+└── Jobs/
+    └── ProcessImportJob.php
+
+config/imports.php
+
+resources/views/filament/wizards/{import-preview,mapping-notice}.blade.php
+resources/views/livewire/wizards/import-mapping-notice.blade.php
+
+lang/{en,es,tl}/imports.php + resources.*.import.* keys
+
+routes/web.php — `imports.template` route
+
+tests/Feature/
+├── ImportEngine/        # engine contract suite (parser, store, service, job, route, template, wizard)
+├── ProductImport/       # #219 — families/variants classification + action flow
+├── WarehouseImport/     # #220 — classification, authorization, execution, templates
+├── SupplierImport/      # #223 — classification + action flow
+└── CustomerImport/      # #223 — classification + action flow
+```
+
+### 28.8 Tests
+
+130 tests across the five suite test trees at the Wave-1 close. The `ImportEngine` tree is the contract suite for every shared class (including `Fixtures/` — a fixture definition + fixture wizard action used by engine tests); each entity tree covers definition classification, wizard action flow, server-side authorization, template download, and execution semantics (including the queued path and transactional rollback).
+
+### 28.9 Deferred Follow-ups
+
+- **Chunked catalog loads** — variant imports load family catalogs eagerly; revisit if production family counts make single-pass resolution slow.
+- **Shared name-keyed definition base** — supplier/customer classification is duplicated deliberately; extract a shared base only if a third name-keyed import appears.
+- **Soft-deleted "existing" parity** — soft-deleted rows counting as existing is legacy parity, not a designed choice; owner review pending.
+
+---
+
+*End of blueprint v0.1 — post-v0.1 residual closure: §7K.1 `WarehouseForm` Filament v5 fix, §4.1 under-review icon pairing, §5.6 `UserFactory::admin()` empty-pivot restore, §1B.1a fail-closed amendment, §25 untracked-extras declared and `ProductExporter.php` deleted. Retains v0.1 P1 contract-closure: §10 widget type + `$view` corrections, ninth event/listener/notification catalogued, §25 reverse rule. Direct Transfer multi-item support, translation coverage, runtime wiring, and role + warehouse scoped navigation badges fully integrated. Import & Export Suite (§28): shared import engine + Wave-1 imports (#219/#220/#223) documented, file-mapped, and change-tabled.*
