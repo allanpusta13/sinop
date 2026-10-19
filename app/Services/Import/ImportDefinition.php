@@ -89,7 +89,7 @@ abstract class ImportDefinition
 
     public function description(): string
     {
-        return __($this->labelKey().'.description');
+        return __($this->labelKey().'_desc');
     }
 
     public function can(User $user): bool

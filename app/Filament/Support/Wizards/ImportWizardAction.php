@@ -12,17 +12,18 @@ use App\Services\Import\ImportParser;
 use App\Services\Import\ImportService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Wizard\Step;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Validation\ValidationException;
@@ -72,13 +73,13 @@ abstract class ImportWizardAction
 
         return Action::make($instance->name())
             ->label(fn (): string => __($instance->translationKeyPrefix()))
-            ->modalHeading(fn (): string => __($instance->translationKeyPrefix().'.heading'))
-            ->modalDescription(fn (): string => __($instance->translationKeyPrefix().'.description'))
+            ->modalHeading(fn (): string => __($instance->translationKeyPrefix().'_heading'))
+            ->modalDescription(fn (): string => __($instance->translationKeyPrefix().'_description'))
             ->icon(Heroicon::OutlinedArrowUpTray)
             ->color('primary')
             ->modalWidth(Width::SevenExtraLarge)
             ->modalSubmitActionLabel(__('imports.wizard.submit_label'))
-            ->modalCancelAction(fn (Action $cancelAction) => $cancelAction->action(
+            ->modalCancelAction(fn (Action $action) => $action->action(
                 static fn () => app(ImportFileStore::class)->cleanupUser((int) auth()->id()),
             ))
             ->steps([
@@ -107,7 +108,7 @@ abstract class ImportWizardAction
 
                 return false;
             })
-            ->action(static fn (array $data, Set $set) => $instance->runImport($data, $set));
+            ->action(static fn (array $data, Schema $schema) => $instance->runImport($data, $schema));
     }
 
     protected function uploadStep(): Step
@@ -129,10 +130,9 @@ abstract class ImportWizardAction
 
                 if ($headerOptions === []) {
                     return [
-                        TextEntry::make('mapping_notice')
+                        Placeholder::make('mapping_notice')
                             ->label(__('imports.wizard.step_mapping'))
-                            ->content(__('imports.errors.file_missing'))
-                            ->disabled(),
+                            ->content(__('imports.errors.file_missing')),
                     ];
                 }
 
@@ -158,7 +158,7 @@ abstract class ImportWizardAction
                         ->columnSpanFull(),
                 ];
             })
-            ->afterValidation(fn (Get $get, Set $set) => $this->freezePreview($get, $set));
+            ->afterValidation(fn (Get $get) => $this->freezePreview($get));
     }
 
     protected function previewStep(): Step
@@ -248,7 +248,7 @@ abstract class ImportWizardAction
      * preview.json so step 3 and the execution share one source of
      * truth for the confirmed counts.
      */
-    protected function freezePreview(Get $get, Set $set): void
+    protected function freezePreview(Get $get): void
     {
         /** @var User $user */
         $user = auth()->user();
@@ -298,7 +298,7 @@ abstract class ImportWizardAction
             ];
     }
 
-    protected function runImport(array $data, Set $set): void
+    protected function runImport(array $data, Schema $schema): void
     {
         $user = auth()->user();
 
@@ -325,7 +325,7 @@ abstract class ImportWizardAction
 
         if (! is_array($preview)) {
             throw ValidationException::withMessages([
-                'confirm_updates' => __('imports.errors.preview_expired'),
+                $schema->getStatePath().'.confirm_updates' => __('imports.errors.preview_expired'),
             ]);
         }
 
@@ -344,7 +344,7 @@ abstract class ImportWizardAction
                 $user,
             );
         } catch (DomainRuleViolationException $exception) {
-            throw $this->handleDomainViolation($exception, $set, $filePath, $originalName, $definitionKey, $columnMap, $user);
+            throw $this->handleDomainViolation($exception, $schema, $filePath, $originalName, $definitionKey, $columnMap, $user);
         }
 
         if ($result['status'] === 'queued') {
@@ -381,7 +381,7 @@ abstract class ImportWizardAction
      */
     protected function handleDomainViolation(
         DomainRuleViolationException $exception,
-        Set $set,
+        Schema $schema,
         string $filePath,
         ?string $originalName,
         string $definitionKey,
@@ -410,10 +410,16 @@ abstract class ImportWizardAction
             app(ImportFileStore::class)->writePreview((int) $user->getKey(), $fresh);
         }
 
-        $set('confirm_updates', null);
+        $checkbox = $schema->getComponent(
+            static fn (Component $component): bool => $component->getName() === 'confirm_updates',
+            withActions: false,
+            withHidden: true,
+        );
+
+        $checkbox?->makeSetUtility()($checkbox, null);
 
         throw ValidationException::withMessages([
-            $field => __($exception->translationKey().'.body', $exception->context()),
+            $schema->getStatePath().'.'.$field => __($exception->translationKey().'.body', $exception->context()),
         ]);
     }
 
