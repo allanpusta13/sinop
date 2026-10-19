@@ -118,7 +118,7 @@ class CustomerImportDefinition extends ImportDefinition
 
             if (isset($seen[$normalized])) {
                 $result['rows'][] = $this->makeRow($row['row_number'], 'reject', $name, $data, [
-                    ['key' => 'resources.customers.import.errors.duplicate_name_in_file', 'params' => [':name' => $name]],
+                    ['key' => 'resources.customers.import.errors.duplicate_name_in_file', 'params' => ['name' => $name]],
                 ]);
                 $result['counts']['reject']++;
 
@@ -131,7 +131,7 @@ class CustomerImportDefinition extends ImportDefinition
 
             if ($existingId !== null) {
                 $result['rows'][] = $this->makeRow($row['row_number'], 'reject', "existing id:{$existingId}", $data, [
-                    ['key' => 'resources.customers.import.errors.possible_match', 'params' => [':name' => $name, ':id' => $existingId]],
+                    ['key' => 'resources.customers.import.errors.possible_match', 'params' => ['name' => $name, 'id' => $existingId]],
                 ]);
                 $result['counts']['reject']++;
 

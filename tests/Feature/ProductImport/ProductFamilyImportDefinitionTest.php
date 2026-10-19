@@ -51,12 +51,12 @@ it('previews family rows with counts and translation-keyed errors', function () 
         ->and($preview['rows'][0]['identifier'])->toBe('specialty arabica')
         ->and($preview['rows'][0]['errors'][0])->toBe([
             'key' => 'resources.products.import.errors.family_name_exists',
-            'params' => [':name' => 'specialty arabica'],
+            'params' => ['name' => 'specialty arabica'],
         ])
         ->and($preview['rows'][1]['status'])->toBe('reject')
         ->and($preview['rows'][1]['errors'][0])->toBe([
             'key' => 'resources.products.import.errors.family_duplicate_in_file',
-            'params' => [':name' => 'Brand New Family'],
+            'params' => ['name' => 'Brand New Family'],
         ])
         ->and($preview['rows'][2]['errors'][0]['key'])->toBe('resources.products.import.errors.family_duplicate_in_file')
         ->and($preview['rows'][3]['status'])->toBe('create')

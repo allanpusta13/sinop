@@ -216,7 +216,7 @@ class ProductVariantImportDefinition extends ImportDefinition
             }
 
             if ($sku !== '' && ($skuCounts[$sku] ?? 0) > 1) {
-                $errors[] = $this->rowError('resources.products.import.errors.sku_duplicate_in_file', [':sku' => $sku]);
+                $errors[] = $this->rowError('resources.products.import.errors.sku_duplicate_in_file', ['sku' => $sku]);
             }
 
             $errors = [...$errors, ...$this->barcodeErrors($barcode, $sku, $barcodeSkuSets, $variantsByBarcode)];
@@ -392,7 +392,7 @@ class ProductVariantImportDefinition extends ImportDefinition
     {
         if ($familyIdRaw !== '') {
             if (! ctype_digit($familyIdRaw) || ! isset($familiesById[(int) $familyIdRaw])) {
-                return [null, [$this->rowError('resources.products.import.errors.family_id_not_found', [':family_id' => $familyIdRaw])]];
+                return [null, [$this->rowError('resources.products.import.errors.family_id_not_found', ['family_id' => $familyIdRaw])]];
             }
 
             return [(int) $familyIdRaw, []];
@@ -405,13 +405,13 @@ class ProductVariantImportDefinition extends ImportDefinition
         $matches = $familiesByName[mb_strtolower($familyNameRaw)] ?? [];
 
         if ($matches === []) {
-            return [null, [$this->rowError('resources.products.import.errors.family_name_no_match', [':name' => $familyNameRaw])]];
+            return [null, [$this->rowError('resources.products.import.errors.family_name_no_match', ['name' => $familyNameRaw])]];
         }
 
         if (count($matches) > 1) {
             return [null, [$this->rowError('resources.products.import.errors.family_name_ambiguous', [
-                ':name' => $familyNameRaw,
-                ':count' => count($matches),
+                'name' => $familyNameRaw,
+                'count' => count($matches),
             ])]];
         }
 
@@ -435,15 +435,15 @@ class ProductVariantImportDefinition extends ImportDefinition
         $errors = [];
 
         if (isset($barcodeSkuSets[$barcode]) && count($barcodeSkuSets[$barcode]) > 1) {
-            $errors[] = $this->rowError('resources.products.import.errors.barcode_multiple_in_file', [':barcode' => $barcode]);
+            $errors[] = $this->rowError('resources.products.import.errors.barcode_multiple_in_file', ['barcode' => $barcode]);
         }
 
         $conflicting = $variantsByBarcode[$barcode] ?? null;
 
         if ($conflicting !== null && strtoupper(trim((string) $conflicting->sku)) !== $sku) {
             $errors[] = $this->rowError('resources.products.import.errors.barcode_conflict', [
-                ':barcode' => $barcode,
-                ':sku' => (string) $conflicting->sku,
+                'barcode' => $barcode,
+                'sku' => (string) $conflicting->sku,
             ]);
         }
 

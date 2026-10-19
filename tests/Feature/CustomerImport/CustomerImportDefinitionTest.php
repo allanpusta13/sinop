@@ -52,21 +52,21 @@ test('classifies the full preview matrix with exact counts and error keys', func
         ])
         ->and($result['rows'][2]['status'])->toBe('reject')
         ->and($result['rows'][2]['errors'])->toBe([
-            ['key' => 'resources.customers.import.errors.duplicate_name_in_file', 'params' => [':name' => 'globex']],
+            ['key' => 'resources.customers.import.errors.duplicate_name_in_file', 'params' => ['name' => 'globex']],
         ])
         ->and($result['rows'][3]['status'])->toBe('reject')
         ->and($result['rows'][3]['identifier'])->toBe("existing id:{$existing->getKey()}")
         ->and($result['rows'][3]['errors'])->toBe([
-            ['key' => 'resources.customers.import.errors.possible_match', 'params' => [':name' => 'ACME  Retail', ':id' => $existing->getKey()]],
+            ['key' => 'resources.customers.import.errors.possible_match', 'params' => ['name' => 'ACME  Retail', 'id' => $existing->getKey()]],
         ])
         ->and($result['rows'][4]['status'])->toBe('reject')
         ->and($result['rows'][4]['errors'])->toBe([
-            ['key' => 'resources.customers.import.errors.duplicate_name_in_file', 'params' => [':name' => 'Acme Retail']],
+            ['key' => 'resources.customers.import.errors.duplicate_name_in_file', 'params' => ['name' => 'Acme Retail']],
         ])
         ->and($result['rows'][5]['status'])->toBe('reject')
         ->and($result['rows'][5]['identifier'])->toBe("existing id:{$deleted->getKey()}")
         ->and($result['rows'][5]['errors'])->toBe([
-            ['key' => 'resources.customers.import.errors.possible_match', 'params' => [':name' => 'Ghost Ltd', ':id' => $deleted->getKey()]],
+            ['key' => 'resources.customers.import.errors.possible_match', 'params' => ['name' => 'Ghost Ltd', 'id' => $deleted->getKey()]],
         ])
         ->and($result['rows'][6]['status'])->toBe('create');
 });

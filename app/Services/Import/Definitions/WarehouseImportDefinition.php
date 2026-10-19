@@ -133,7 +133,7 @@ class WarehouseImportDefinition extends ImportDefinition
 
             if (isset($seenCodes[$normalizedCode])) {
                 $result['rows'][] = $this->makeRow($row['row_number'], 'reject', $code, [
-                    $this->error('resources.warehouses.import.errors.duplicate_code_in_file', [':code' => $code]),
+                    $this->error('resources.warehouses.import.errors.duplicate_code_in_file', ['code' => $code]),
                 ], $data);
                 $result['counts']['reject']++;
 
@@ -163,9 +163,9 @@ class WarehouseImportDefinition extends ImportDefinition
             if ($nameMatches > 0) {
                 $result['rows'][] = $this->makeRow($row['row_number'], 'reject', $code, [
                     $this->error('resources.warehouses.import.errors.name_conflict', [
-                        ':code' => $code,
-                        ':name' => $name,
-                        ':count' => $nameMatches,
+                        'code' => $code,
+                        'name' => $name,
+                        'count' => $nameMatches,
                     ]),
                 ], $data);
                 $result['counts']['reject']++;

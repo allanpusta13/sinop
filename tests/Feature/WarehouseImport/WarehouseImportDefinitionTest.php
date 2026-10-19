@@ -47,12 +47,12 @@ test('classifies creates, code updates, in-file duplicates, name conflicts and b
         ->and($rows[2]['status'])->toBe('reject')
         ->and($rows[2]['errors'])->toBe([[
             'key' => 'resources.warehouses.import.errors.duplicate_code_in_file',
-            'params' => [':code' => 'WH-0002'],
+            'params' => ['code' => 'WH-0002'],
         ]])
         ->and($rows[3]['status'])->toBe('reject')
         ->and($rows[3]['errors'])->toBe([[
             'key' => 'resources.warehouses.import.errors.name_conflict',
-            'params' => [':code' => 'WH-0003', ':name' => 'South Depot', ':count' => 1],
+            'params' => ['code' => 'WH-0003', 'name' => 'South Depot', 'count' => 1],
         ]])
         ->and($rows[4]['status'])->toBe('reject')
         ->and($rows[4]['identifier'])->toBe('-')
@@ -95,7 +95,7 @@ test('rejects a create whose normalized name exists under any other code and rep
         ->and($result['rows'][0]['status'])->toBe('reject')
         ->and($result['rows'][0]['errors'])->toBe([[
             'key' => 'resources.warehouses.import.errors.name_conflict',
-            'params' => [':code' => 'B-1', ':name' => 'MAIN STORE', ':count' => 2],
+            'params' => ['code' => 'B-1', 'name' => 'MAIN STORE', 'count' => 2],
         ]]);
 });
 
@@ -113,7 +113,7 @@ test('rejects the second and later occurrences of a code even when it matches an
         ->and($result['rows'][1]['status'])->toBe('reject')
         ->and($result['rows'][1]['errors'])->toBe([[
             'key' => 'resources.warehouses.import.errors.duplicate_code_in_file',
-            'params' => [':code' => 'WH-0020'],
+            'params' => ['code' => 'WH-0020'],
         ]]);
 });
 
@@ -130,7 +130,7 @@ test('rejects in-file duplicate codes case-insensitively', function () {
         ->and($result['rows'][1]['status'])->toBe('reject')
         ->and($result['rows'][1]['errors'])->toBe([[
             'key' => 'resources.warehouses.import.errors.duplicate_code_in_file',
-            'params' => [':code' => 'wh-0021'],
+            'params' => ['code' => 'wh-0021'],
         ]]);
 });
 
@@ -147,7 +147,7 @@ test('collapses internal whitespace when comparing names for conflicts', functio
         ->and($result['rows'][0]['status'])->toBe('reject')
         ->and($result['rows'][0]['errors'])->toBe([[
             'key' => 'resources.warehouses.import.errors.name_conflict',
-            'params' => [':code' => 'B-5', ':name' => 'Main   Store', ':count' => 1],
+            'params' => ['code' => 'B-5', 'name' => 'Main   Store', 'count' => 1],
         ]]);
 });
 

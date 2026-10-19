@@ -90,15 +90,15 @@ it('rejects invalid family references with translation-keyed errors', function (
     expect($preview['counts']['reject'])->toBe(4)
         ->and($preview['rows'][0]['errors'][0])->toBe([
             'key' => 'resources.products.import.errors.family_id_not_found',
-            'params' => [':family_id' => '99999'],
+            'params' => ['family_id' => '99999'],
         ])
         ->and($preview['rows'][1]['errors'][0])->toBe([
             'key' => 'resources.products.import.errors.family_name_no_match',
-            'params' => [':name' => 'Unknown Family'],
+            'params' => ['name' => 'Unknown Family'],
         ])
         ->and($preview['rows'][2]['errors'][0])->toBe([
             'key' => 'resources.products.import.errors.family_name_ambiguous',
-            'params' => [':name' => 'Blend Series', ':count' => 2],
+            'params' => ['name' => 'Blend Series', 'count' => 2],
         ])
         ->and($preview['rows'][3]['errors'][0]['key'])->toBe('resources.products.import.errors.family_reference_missing');
 });
@@ -258,7 +258,7 @@ it('rejects barcodes already associated with a different SKU', function () {
     expect($preview['counts']['reject'])->toBe(1)
         ->and($preview['rows'][0]['errors'][0])->toBe([
             'key' => 'resources.products.import.errors.barcode_conflict',
-            'params' => [':barcode' => '8888888888888', ':sku' => 'SKU-OTHER'],
+            'params' => ['barcode' => '8888888888888', 'sku' => 'SKU-OTHER'],
         ]);
 });
 
@@ -276,7 +276,7 @@ it('rejects a barcode shared by multiple SKUs within the file', function () {
     expect($preview['counts']['reject'])->toBe(2)
         ->and($preview['rows'][0]['errors'][0])->toBe([
             'key' => 'resources.products.import.errors.barcode_multiple_in_file',
-            'params' => [':barcode' => '7777777777777'],
+            'params' => ['barcode' => '7777777777777'],
         ])
         ->and($preview['rows'][1]['errors'][0]['key'])->toBe('resources.products.import.errors.barcode_multiple_in_file');
 });
@@ -296,7 +296,7 @@ it('rejects duplicate SKUs within the uploaded file', function () {
     expect($preview['counts'])->toBe(['create' => 1, 'update' => 0, 'reject' => 2, 'total' => 3])
         ->and($preview['rows'][0]['errors'][0])->toBe([
             'key' => 'resources.products.import.errors.sku_duplicate_in_file',
-            'params' => [':sku' => 'SKU-DUP'],
+            'params' => ['sku' => 'SKU-DUP'],
         ]);
 });
 

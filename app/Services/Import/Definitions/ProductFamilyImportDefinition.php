@@ -108,11 +108,11 @@ class ProductFamilyImportDefinition extends ImportDefinition
                 $errors[] = $this->rowError('resources.products.import.errors.family_name_required');
             } else {
                 if (($nameCounts[$lower] ?? 0) > 1) {
-                    $errors[] = $this->rowError('resources.products.import.errors.family_duplicate_in_file', [':name' => $name]);
+                    $errors[] = $this->rowError('resources.products.import.errors.family_duplicate_in_file', ['name' => $name]);
                 }
 
                 if (isset($existingNames[$lower])) {
-                    $errors[] = $this->rowError('resources.products.import.errors.family_name_exists', [':name' => $name]);
+                    $errors[] = $this->rowError('resources.products.import.errors.family_name_exists', ['name' => $name]);
                 }
             }
 

@@ -265,7 +265,7 @@ class ImportService
     {
         if (($expectedCounts['update'] ?? 0) > 0 && ! $confirmUpdates) {
             throw new DomainRuleViolationException('errors.import_update_confirmation_required', [
-                ':updates' => $expectedCounts['update'],
+                'updates' => $expectedCounts['update'],
             ]);
         }
     }
@@ -279,12 +279,12 @@ class ImportService
         foreach (['create', 'update', 'reject'] as $bucket) {
             if ((int) ($expected[$bucket] ?? 0) !== (int) $actual[$bucket]) {
                 throw new DomainRuleViolationException('errors.import_counts_mismatch', [
-                    ':expected_create' => $expected['create'] ?? 0,
-                    ':expected_update' => $expected['update'] ?? 0,
-                    ':expected_reject' => $expected['reject'] ?? 0,
-                    ':actual_create' => $actual['create'],
-                    ':actual_update' => $actual['update'],
-                    ':actual_reject' => $actual['reject'],
+                    'expected_create' => $expected['create'] ?? 0,
+                    'expected_update' => $expected['update'] ?? 0,
+                    'expected_reject' => $expected['reject'] ?? 0,
+                    'actual_create' => $actual['create'],
+                    'actual_update' => $actual['update'],
+                    'actual_reject' => $actual['reject'],
                 ]);
             }
         }

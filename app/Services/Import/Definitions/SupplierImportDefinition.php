@@ -122,7 +122,7 @@ class SupplierImportDefinition extends ImportDefinition
 
             if (isset($seen[$normalized])) {
                 $result['rows'][] = $this->makeRow($row['row_number'], 'reject', $name, $data, [
-                    ['key' => 'resources.suppliers.import.errors.duplicate_name_in_file', 'params' => [':name' => $name]],
+                    ['key' => 'resources.suppliers.import.errors.duplicate_name_in_file', 'params' => ['name' => $name]],
                 ]);
                 $result['counts']['reject']++;
 
@@ -135,7 +135,7 @@ class SupplierImportDefinition extends ImportDefinition
 
             if ($existingId !== null) {
                 $result['rows'][] = $this->makeRow($row['row_number'], 'reject', "existing id:{$existingId}", $data, [
-                    ['key' => 'resources.suppliers.import.errors.possible_match', 'params' => [':name' => $name, ':id' => $existingId]],
+                    ['key' => 'resources.suppliers.import.errors.possible_match', 'params' => ['name' => $name, 'id' => $existingId]],
                 ]);
                 $result['counts']['reject']++;
 
