@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
@@ -203,6 +204,9 @@ abstract class ImportWizardAction
                 ->default($definitionKeys[0])
                 ->columnSpanFull()
                 ->live()
+                ->afterStateUpdated(function (Get $get, Set $set): void {
+                    $this->applyMappingGuesses($get, $set);
+                })
                 ->required();
         }
 
@@ -243,6 +247,9 @@ abstract class ImportWizardAction
             ->visibility('private')
             ->required()
             ->live()
+            ->afterStateUpdated(function (Get $get, Set $set): void {
+                $this->applyMappingGuesses($get, $set);
+            })
             ->columnSpanFull();
 
         return $schema;
@@ -461,6 +468,33 @@ abstract class ImportWizardAction
             'customers' => Heroicon::UserGroup,
             default => Heroicon::RectangleStack,
         };
+    }
+
+    /**
+     * Seed the mapping selects from guessMappings() whenever the file
+     * or the import mode changes.
+     *
+     * Wizard steps render lazily, so the mapping selects do not exist
+     * when the action mounts and their ->default() values never pass
+     * through the one fill() hydration Filament performs at mount —
+     * applying the guesses here, at the moment the inputs that drive
+     * them actually change, is what makes the spec'd
+     * "defaults = guessMappings()" (§28.3) visible in the UI. Manual
+     * edits survive until the user changes the file or the mode, which
+     * is exactly when re-guessing is wanted.
+     */
+    protected function applyMappingGuesses(Get $get, Set $set): void
+    {
+        $definition = $this->currentDefinition($get('mode'));
+        $headers = $this->headersFromFile($get('file'));
+
+        $guesses = $headers === []
+            ? []
+            : app(ImportService::class)->guessMappings($definition, $headers);
+
+        foreach ($definition->columns() as $column) {
+            $set('columnMap.'.$column->key, $guesses[$column->key] ?? null);
+        }
     }
 
     /** @return array<int, string> */
