@@ -13,8 +13,8 @@ use App\Services\Import\ImportService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
@@ -188,24 +188,33 @@ abstract class ImportWizardAction
         if (count($definitionKeys) > 1) {
             $service = app(ImportService::class);
 
-            $schema[] = Radio::make('mode')
+            $schema[] = ToggleButtons::make('mode')
                 ->label(__('imports.wizard.mode_label'))
                 ->options(static fn (): array => collect($definitionKeys)
                     ->mapWithKeys(static fn (string $key): array => [$key => $service->resolveDefinition($key)->label()])
                     ->all())
-                ->descriptions(static fn (): array => collect($definitionKeys)
+                ->icons(static fn (): array => collect($definitionKeys)
+                    ->mapWithKeys(static fn (string $key): array => [$key => static::modeIcon($key)])
+                    ->all())
+                ->tooltips(static fn (): array => collect($definitionKeys)
                     ->mapWithKeys(static fn (string $key): array => [$key => $service->resolveDefinition($key)->description()])
                     ->all())
+                ->helperText(fn (Get $get): string => $this->currentDefinition($get('mode'))->description())
                 ->default($definitionKeys[0])
-                ->inline()
+                ->columnSpanFull()
                 ->live()
                 ->required();
         }
 
+        $formatIcons = [
+            'csv' => Heroicon::DocumentText,
+            'xlsx' => Heroicon::TableCells,
+        ];
+
         foreach (['csv' => 'imports.wizard.download_csv_template', 'xlsx' => 'imports.wizard.download_xlsx_template'] as $format => $labelKey) {
             $templateButtons[] = Action::make('download_'.$format.'_template')
                 ->label(__($labelKey))
-                ->icon(Heroicon::DocumentArrowDown)
+                ->icon($formatIcons[$format])
                 ->color('gray')
                 ->url(fn (Get $get) => route('imports.template', [
                     'import' => $this->currentDefinitionKey($get('mode')),
@@ -437,6 +446,21 @@ abstract class ImportWizardAction
         }
 
         return in_array($mode, $keys, true) ? $mode : $keys[0];
+    }
+
+    /**
+     * Presentation-only icon per definition key for the upload-step
+     * mode selector; unknown keys fall back to the stack icon.
+     */
+    protected static function modeIcon(string $key): Heroicon
+    {
+        return match ($key) {
+            'products.variants' => Heroicon::Swatch,
+            'warehouses' => Heroicon::BuildingStorefront,
+            'suppliers' => Heroicon::Truck,
+            'customers' => Heroicon::UserGroup,
+            default => Heroicon::RectangleStack,
+        };
     }
 
     /** @return array<int, string> */

@@ -15,6 +15,7 @@
 > 6. **Deleted** the legacy product-import stack (pre-engine template import) with its four legacy tests — owner-approved removal.
 > 7. **Extended** §25 — `imports.php` added to the required locale set, wizard views added, suite files declared via §28.7.
 > 8. **Extended** Section 27 with the imports & exports change table.
+> 9. **Polished** the wizard UI — mode selector switched to icon-capable `ToggleButtons` (per-definition icon, description tooltip + selected-description helper), preview count cards/row badges/update-warning gained status icons, and the CSV/XLSX template buttons now carry distinct icons.
 
 > **Changelog v0.1:**
 > 1. **Added** Principle **1B.1a** — Navigation badges are scoped by **role + warehouse assignment**, not by warehouse membership alone.
@@ -20403,6 +20404,7 @@ Open items surfaced by Council review, not yet closed:
 | 10 | Tests | Added 130 tests across the five suite test trees (§28.8) | Test |
 | 11 | File map | §25 amended — `imports.php` in both locale trees, wizard views added, suite declared via §28.7 | Governance |
 | 12 | Blueprint | Added Section 28 (Import & Export Suite contract) | Governance |
+| 13 | Wizard icons | Mode selector switched from `Radio` (no icon support in Filament v5) to `ToggleButtons` with per-definition icons, description tooltips, and a selected-mode helper text; preview count cards, row status badges, and the update warning gained status icons; CSV/XLSX template buttons given distinct icons | P2 |
 
 ---
 
@@ -20437,7 +20439,7 @@ One wizard serves every import: an import is a definition class + a registry ent
 Abstract Filament action shared by all imports; resource actions extend it implementing `name()`, `definitionKeys()`, `translationKeyPrefix()`.
 
 - **Visibility:** shown when any definition key `can($user)`.
-- **Step 1 — upload:** live required mode `Radio` when a resource carries >1 definition, template download links per format, `FileUpload::make('file')->required()` (CSV/XLSX accepted types).
+- **Step 1 — upload:** live required mode `ToggleButtons` selector (per-definition icon, description as per-option tooltip + selected-mode helper text; Filament v5 `Radio` has no icon support) when a resource carries >1 definition, template download links per format with format-distinct icons, `FileUpload::make('file')->required()` (CSV/XLSX accepted types).
 - **Step 2 — mapping:** one `Select` per `ImportColumn` (required columns labelled `*` and `->required()`), options = parsed headers, defaults = `guessMappings()`. When headers cannot be read (missing/unreadable file) the step renders the `ImportMappingNotice` component instead of the select grid.
 - **Step 3 — preview & confirm:** frozen preview rows via `filament.wizards.import-preview`; `confirm_updates` checkbox required when `has_updates`; classification counts shown before commit.
 - **Freeze contract:** the mapping step's `afterValidation` writes the frozen preview (`ImportFileStore::writePreview()`), sweeping stale files; only `ValidationException` is rethrown. Preview and execution both re-classify from the file and abort if counts drift from the frozen preview.

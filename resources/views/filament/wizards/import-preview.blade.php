@@ -4,6 +4,12 @@
     $rows = $preview['rows'] ?? [];
     $hasUpdates = $preview['has_updates'] ?? false;
 
+    $badgeIcons = [
+        'create' => \Filament\Support\Icons\Heroicon::Check,
+        'update' => \Filament\Support\Icons\Heroicon::PencilSquare,
+        'reject' => \Filament\Support\Icons\Heroicon::XMark,
+    ];
+
     /**
      * Row-level error reasons may be translation keys with parameters
      * (preferred, per §0A.10) or plain strings during migration.
@@ -21,28 +27,31 @@
     {{-- Summary Cards --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            <div class="text-xs text-zinc-500 uppercase tracking-wider">{{ __('imports.preview.total_rows') }}</div>
+            <div class="flex items-center gap-1.5 text-xs text-zinc-500 uppercase tracking-wider"><x-filament::icon :icon="\Filament\Support\Icons\Heroicon::RectangleStack" class="h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500" />{{ __('imports.preview.total_rows') }}</div>
             <div class="text-xl font-bold text-zinc-800 dark:text-zinc-100">{{ $counts['total'] }}</div>
         </div>
         <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-lg border border-emerald-200 dark:border-emerald-800">
-            <div class="text-xs text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-semibold">{{ __('imports.preview.to_create') }}</div>
+            <div class="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-semibold"><x-filament::icon :icon="\Filament\Support\Icons\Heroicon::CheckCircle" class="h-4 w-4 shrink-0 text-emerald-500 dark:text-emerald-400" />{{ __('imports.preview.to_create') }}</div>
             <div class="text-xl font-bold text-emerald-700 dark:text-emerald-300">{{ $counts['create'] }}</div>
         </div>
         <div class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800">
-            <div class="text-xs text-amber-600 dark:text-amber-400 uppercase tracking-wider font-semibold">{{ __('imports.preview.to_update') }}</div>
+            <div class="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 uppercase tracking-wider font-semibold"><x-filament::icon :icon="\Filament\Support\Icons\Heroicon::PencilSquare" class="h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400" />{{ __('imports.preview.to_update') }}</div>
             <div class="text-xl font-bold text-amber-700 dark:text-amber-300">{{ $counts['update'] }}</div>
         </div>
         <div class="p-3 bg-rose-50 dark:bg-rose-950/40 rounded-lg border border-rose-200 dark:border-rose-800">
-            <div class="text-xs text-rose-600 dark:text-rose-400 uppercase tracking-wider font-semibold">{{ __('imports.preview.to_reject') }}</div>
+            <div class="flex items-center gap-1.5 text-xs text-rose-600 dark:text-rose-400 uppercase tracking-wider font-semibold"><x-filament::icon :icon="\Filament\Support\Icons\Heroicon::XCircle" class="h-4 w-4 shrink-0 text-rose-500 dark:text-rose-400" />{{ __('imports.preview.to_reject') }}</div>
             <div class="text-xl font-bold text-rose-700 dark:text-rose-300">{{ $counts['reject'] }}</div>
         </div>
     </div>
 
     {{-- Update Warning --}}
     @if ($hasUpdates)
-        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800">
-            <div class="text-xs text-amber-600 dark:text-amber-400 uppercase tracking-wider font-semibold">{{ __('imports.preview.update_warning_title') }}</div>
-            <div class="text-sm text-amber-800 dark:text-amber-200">{{ __('imports.preview.update_warning_body', ['count' => $counts['update']]) }}</div>
+        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800 flex items-start gap-2">
+            <x-filament::icon :icon="\Filament\Support\Icons\Heroicon::ExclamationTriangle" class="h-4 w-4 shrink-0 mt-0.5 text-amber-500 dark:text-amber-400" />
+            <div>
+                <div class="text-xs text-amber-600 dark:text-amber-400 uppercase tracking-wider font-semibold">{{ __('imports.preview.update_warning_title') }}</div>
+                <div class="text-sm text-amber-800 dark:text-amber-200">{{ __('imports.preview.update_warning_body', ['count' => $counts['update']]) }}</div>
+            </div>
         </div>
     @endif
 
@@ -76,7 +85,10 @@
                         <tr class="{{ $status === 'reject' ? 'bg-rose-50/50 dark:bg-rose-950/20' : '' }}">
                             <td class="px-3 py-2 text-zinc-700 dark:text-zinc-200">{{ $row['row_number'] ?? '-' }}</td>
                             <td class="px-3 py-2">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold {{ $statusClasses }}">{{ $statusLabel }}</span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold {{ $statusClasses }}">
+                                    <x-filament::icon :icon="$badgeIcons[$status] ?? $badgeIcons['reject']" class="h-3 w-3 shrink-0" />
+                                    {{ $statusLabel }}
+                                </span>
                             </td>
                             <td class="px-3 py-2 text-zinc-700 dark:text-zinc-200">{{ $row['identifier'] ?? '-' }}</td>
                             <td class="px-3 py-2">
