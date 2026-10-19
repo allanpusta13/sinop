@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Import Queue Connection
+    |--------------------------------------------------------------------------
+    |
+    | Imports larger than the inline row threshold run on this queue
+    | connection. Falls back to the default connection when unset.
+    |
+    */
+
+    'import_connection' => env('QUEUE_IMPORT_CONNECTION', env('QUEUE_CONNECTION', 'database')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Queue Connections
     |--------------------------------------------------------------------------
     |

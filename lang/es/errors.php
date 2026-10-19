@@ -139,4 +139,12 @@ return [
         'title' => 'Código de referencia agotado',
         'body' => 'No se pudo generar un código de referencia :prefix único después de :attempts intentos.',
     ],
+    'import_counts_mismatch' => [
+        'title' => 'El archivo cambió desde la vista previa',
+        'body' => 'La vista previa mostraba :expected_create por crear, :expected_update por actualizar y :expected_reject por rechazar; ahora la base de datos da :actual_create, :actual_update y :actual_reject. Revise la vista previa actualizada y confirme de nuevo.',
+    ],
+    'import_update_confirmation_required' => [
+        'title' => 'Se requiere confirmación de actualización',
+        'body' => ':updates fila(s) actualizarán registros existentes. Marque la casilla de confirmación para continuar.',
+    ],
 ];

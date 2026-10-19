@@ -185,4 +185,15 @@ return [
         'title' => 'Reference code exhausted',
         'body' => 'Could not generate a unique :prefix reference code after :attempts attempts.',
     ],
+
+    // Import suite — shared engine confirmation guard.
+    'import_counts_mismatch' => [
+        'title' => 'File changed since preview',
+        'body' => 'The preview showed :expected_create to create, :expected_update to update and :expected_reject to reject; the database now gives :actual_create, :actual_update and :actual_reject. Review the refreshed preview and confirm again.',
+    ],
+
+    'import_update_confirmation_required' => [
+        'title' => 'Update confirmation required',
+        'body' => ':updates row(s) will update existing records. Tick the confirmation checkbox to proceed.',
+    ],
 ];

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ImportTemplateController;
 use App\Http\Controllers\STNManifestController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/widgets/recent-movements', function () {
         return view('filament.widgets.recent-movements');
     })->name('widgets.recent-movements');
+
+    Route::get('/admin/imports/{import}/template/{format}', [ImportTemplateController::class, 'download'])
+        ->whereIn('format', ['csv', 'xlsx'])
+        ->name('imports.template');
 });
 
 Route::middleware(['auth', 'signed'])->group(function () {
