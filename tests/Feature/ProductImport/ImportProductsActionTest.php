@@ -87,6 +87,28 @@ it('freezes the preview server-side when the mapping step completes', function (
         ->and($preview['counts']['total'])->toBe(1);
 });
 
+it('shows the mapping notice when the uploaded file can no longer be found', function () {
+    $admin = User::factory()->admin()->create();
+
+    $file = UploadedFile::fake()->createWithContent('products.csv', "Family Name,Category\nAeropress Roast,Equipment\n");
+
+    $testable = Livewire::actingAs($admin)
+        ->test(ListProducts::class)
+        ->mountAction('importProducts')
+        ->setActionData([
+            'mode' => 'products.families',
+            'file' => $file,
+        ])
+        ->goToNextWizardStep()
+        ->setActionData([
+            'mode' => 'products.families',
+            'file' => null,
+        ]);
+
+    expect($testable->getMountedActionModalHtml())
+        ->toContain(__('imports.errors.file_missing'));
+});
+
 it('executes a family import through the wizard modal', function () {
     $admin = User::factory()->admin()->create();
 
