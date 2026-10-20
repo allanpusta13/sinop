@@ -31,6 +31,8 @@ return [
         'download_label' => 'Descargar archivo',
         'failed_title' => 'Falló la exportación',
         'failed_body' => 'No se pudo generar la exportación. Inténtalo de nuevo.',
+        'scope_lost_title' => 'Exportación cancelada',
+        'scope_lost_body' => 'Tu acceso a los almacenes cambió mientras se generaba la exportación de :type y ya no queda ninguno del que leer. No se creó ningún archivo.',
     ],
 
     'errors' => [

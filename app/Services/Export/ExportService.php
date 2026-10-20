@@ -8,6 +8,7 @@ use App\Jobs\ProcessExportJob;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
 
@@ -40,6 +41,20 @@ class ExportService
      * second gate.
      */
     public const SUPPORTED_FORMATS = ['csv', 'xlsx'];
+
+    /**
+     * Prefix of the hidden snapshot columns that place a row inside a
+     * warehouse. They are selected alongside the real ones so the queued
+     * job can re-narrow the snapshot, and the generator ignores them
+     * because it only ever writes declared column keys.
+     */
+    public const SCOPE_ALIAS_PREFIX = '__scope_wh_';
+
+    /**
+     * Alias the narrowed snapshot is wrapped in when the queued job
+     * intersects it with the user's live warehouse scope.
+     */
+    public const SCOPE_ALIAS = '__export_scope';
 
     public function __construct(
         protected ExportGenerator $generator,
@@ -85,7 +100,7 @@ class ExportService
 
         $exportQuery = $definition->query($tableQuery);
         $rows = $this->rowCount($exportQuery);
-        [$sql, $bindings] = $this->snapshot($exportQuery);
+        [$sql, $bindings] = $this->snapshot($definition, $exportQuery);
 
         $userId = (int) $user->getKey();
         $this->fileStore->ensureUserDirectory($userId);
@@ -116,10 +131,16 @@ class ExportService
      * `toBase()` applies global scopes, so soft-deleted rows stay out
      * of the file exactly as they stay out of the table.
      *
+     * The definition travels with the query because a snapshot is not
+     * just the columns: it also carries the hidden warehouse columns a
+     * queued job re-narrows against, and those have to be part of the
+     * compiled SQL rather than something the job adds afterwards.
+     *
      * @return array{0: string, 1: array<int, mixed>}
      */
-    public function snapshot(Builder $query): array
+    public function snapshot(ExportDefinition $definition, Builder $query): array
     {
+        $this->exposeWarehouseScope($definition, $query);
         $this->qualifyAmbiguousColumns($query);
 
         $base = $query->toBase();
@@ -257,6 +278,129 @@ class ExportService
         return is_string($column)
             && $column !== ''
             && ! str_contains($column, '.');
+    }
+
+    /**
+     * The warehouses the user holds *right now* — re-derived live, never
+     * carried in the snapshot, because the point is that they may have
+     * changed while a job waited.
+     *
+     * Returns `null` when there is nothing to narrow: an export with no
+     * warehouse scope of its own (master data), or an unrestricted user,
+     * whose file the dispatch snapshot already bounds. Returns the id
+     * list otherwise, which is empty exactly when the user has lost
+     * every warehouse and must not be handed a file at all.
+     *
+     * @return array<int, int>|null
+     */
+    public function currentWarehouseScope(ExportDefinition $definition, User $user): ?array
+    {
+        if ($definition->warehouseScope() === []) {
+            return null;
+        }
+
+        // Admin and auditor reach every warehouse in every resource, so
+        // there is no scope to apply — and applying one would only risk
+        // handing back a narrower file than they are entitled to.
+        if ($user->isAdmin() || $user->isAuditor()) {
+            return null;
+        }
+
+        return $user->warehouses()
+            ->pluck('warehouses.id')
+            ->map(static fn ($id): int => (int) $id)
+            ->all();
+    }
+
+    /**
+     * Intersect a snapshot with the warehouses the user holds now.
+     *
+     * The snapshot is wrapped, not rewritten: it already carries the
+     * dispatch-time scope, every filter the table applied and the user's
+     * chosen sort, and an intersection can only ever remove rows — so
+     * warehouses granted while the job waited cannot widen the file.
+     * Paging still lands on the wrapper, because the engine appends its
+     * `limit`/`offset` to whatever SQL it is given.
+     *
+     * @param  array<int, mixed>  $bindings
+     * @param  array<int, int|string>  $warehouseIds
+     * @return array{0: string, 1: array<int, mixed>}
+     */
+    public function narrowToScope(string $sql, array $bindings, ExportDefinition $definition, array $warehouseIds): array
+    {
+        $grammar = DB::getQueryGrammar();
+        $wrapped = $grammar->wrap(self::SCOPE_ALIAS);
+
+        // An empty id list would compile to an empty `in ()`, which no
+        // engine accepts; a snapshot matching nothing is the honest
+        // result anyway.
+        if ($warehouseIds === []) {
+            return ['select * from ('.$sql.') as '.$wrapped.' where 1 = 0', $bindings];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($warehouseIds), '?'));
+        $columns = $this->scopeColumnNames($definition);
+        $groups = [];
+        $extra = [];
+
+        foreach ($definition->warehouseScope() as $group) {
+            $terms = [];
+
+            foreach ($group as $column) {
+                $terms[] = $grammar->wrap(self::SCOPE_ALIAS.'.'.self::SCOPE_ALIAS_PREFIX.$columns[$column])
+                    .' in ('.$placeholders.')';
+
+                $extra = array_merge($extra, $warehouseIds);
+            }
+
+            // A group is "either of these columns"; the groups are
+            // "and"ed, which is what separates a requisition's either
+            // endpoint from a direct transfer's both.
+            $groups[] = '('.implode(' or ', $terms).')';
+        }
+
+        return [
+            'select * from ('.$sql.') as '.$wrapped.' where '.implode(' and ', $groups),
+            array_merge($bindings, $extra),
+        ];
+    }
+
+    /**
+     * Select the warehouse columns a queued export needs to be
+     * re-narrowed, aliased out of the way of the declared ones.
+     *
+     * Always selected, queued or not, so that one snapshot serves both
+     * paths; the inline path simply never reads them.
+     */
+    protected function exposeWarehouseScope(ExportDefinition $definition, Builder $query): void
+    {
+        $index = 0;
+
+        foreach ($definition->warehouseScope() as $group) {
+            foreach ($group as $column) {
+                $query->addSelect($column.' as '.self::SCOPE_ALIAS_PREFIX.$index);
+                $index++;
+            }
+        }
+    }
+
+    /**
+     * Every scope column of a definition, in selection order, so a
+     * column can be looked up by the alias it was given.
+     *
+     * @return array<string, int>
+     */
+    protected function scopeColumnNames(ExportDefinition $definition): array
+    {
+        $columns = [];
+
+        foreach ($definition->warehouseScope() as $group) {
+            foreach ($group as $column) {
+                $columns[$column] = count($columns);
+            }
+        }
+
+        return $columns;
     }
 
     /**

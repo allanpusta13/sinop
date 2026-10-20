@@ -37,10 +37,11 @@ if (! function_exists('exportSnapshotFromPage')) {
         }
 
         $service = app(ExportService::class);
+        $definition = $service->resolveDefinition($key);
 
         return $service->snapshot(
-            $service->resolveDefinition($key)
-                ->query($testable->instance()->getTableQueryForExport()),
+            $definition,
+            $definition->query($testable->instance()->getTableQueryForExport()),
         );
     }
 }
@@ -90,10 +91,11 @@ test('qualifies a bare sort column against the definition own table', function (
     seedExportGraph();
 
     $service = app(ExportService::class);
+    $definition = $service->resolveDefinition('stock_movements');
 
     [$sql] = $service->snapshot(
-        $service->resolveDefinition('stock_movements')
-            ->query(StockMovement::query()->orderBy('created_at', 'desc')),
+        $definition,
+        $definition->query(StockMovement::query()->orderBy('created_at', 'desc')),
     );
 
     $order = substr($sql, (int) strpos($sql, 'order by'));
@@ -106,6 +108,7 @@ test('leaves a relationship sort untouched', function () {
     seedExportGraph();
 
     $service = app(ExportService::class);
+    $definition = $service->resolveDefinition('stock_movements');
 
     // Filament sorts by a relationship with a sub-select, which arrives as
     // an already-compiled Expression rather than a column name.
@@ -113,8 +116,8 @@ test('leaves a relationship sort untouched', function () {
         ->whereColumn('product_variants.id', 'stock_movements.product_variant_id');
 
     [$sql, $bindings] = $service->snapshot(
-        $service->resolveDefinition('stock_movements')
-            ->query(StockMovement::query()->orderBy($subquery, 'asc')),
+        $definition,
+        $definition->query(StockMovement::query()->orderBy($subquery, 'asc')),
     );
 
     expect(DB::select($sql, $bindings))->toBeArray();
@@ -125,11 +128,13 @@ test('appends the primary key so paged generation is deterministic', function ()
 
     $service = app(ExportService::class);
     $key = 'transfer_requisitions.items';
+    $definition = $service->resolveDefinition($key);
 
     // A child definition builds a fresh builder with no sort of its own,
     // so limit/offset paging would otherwise have nothing to hold onto.
     [$sql] = $service->snapshot(
-        $service->resolveDefinition($key)->query(exportTableQueryFor($key)),
+        $definition,
+        $definition->query(exportTableQueryFor($key)),
     );
 
     $order = substr($sql, (int) strpos($sql, 'order by'));
@@ -143,12 +148,14 @@ test('keeps a user chosen sort ahead of the primary key tiebreaker', function ()
     seedExportGraph();
 
     $service = app(ExportService::class);
+    $definition = $service->resolveDefinition('stock_movements');
 
     // A definition served from its own List page carries the table's sort
     // through, so the tiebreaker has to land behind it rather than
     // replace it.
     [$sql] = $service->snapshot(
-        $service->resolveDefinition('stock_movements')->query(
+        $definition,
+        $definition->query(
             StockMovement::query()->orderBy('created_at', 'desc'),
         ),
     );
@@ -196,9 +203,11 @@ test('exports only the in-transits rows a warehouse scoped user can see', functi
     actingAsStaff($mine);
 
     $service = app(ExportService::class);
+    $definition = $service->resolveDefinition('in_transits');
 
     [$sql, $bindings] = $service->snapshot(
-        $service->resolveDefinition('in_transits')->query(InTransitResource::getEloquentQuery()),
+        $definition,
+        $definition->query(InTransitResource::getEloquentQuery()),
     );
 
     $requisitionIds = array_map(
@@ -247,4 +256,41 @@ test('carries the in-transits table filters into the file', function () {
 
     expect($rows)->toHaveCount(1)
         ->and($rows[0]->status)->toBe(InTransitStatus::Cleared->value);
+});
+
+test('can narrow every export that declares a warehouse scope', function () {
+    actingAsAdmin();
+    seedExportGraph();
+
+    $service = app(ExportService::class);
+    $narrowed = [];
+
+    foreach ($service->definitions() as $key => $class) {
+        $definition = $service->resolveDefinition($key);
+        $scope = $definition->warehouseScope();
+
+        if ($scope === []) {
+            continue;
+        }
+
+        $narrowed[] = $key;
+
+        [$sql, $bindings] = $service->snapshot($definition, $definition->query(exportTableQueryFor($key)));
+        [$sql, $bindings] = $service->narrowToScope($sql, $bindings, $definition, [1]);
+
+        // Proves the scope columns really are selected by the definition
+        // — a missing join alias or a misnamed column surfaces here as a
+        // query error rather than as a quietly over-broad file.
+        expect(DB::select($sql, $bindings))->toBeArray();
+    }
+
+    expect($narrowed)->not->toBeEmpty();
+});
+
+test('leaves the master data exports with no warehouse scope at all', function () {
+    $service = app(ExportService::class);
+
+    foreach (['products.families', 'products.variants', 'products.current_prices', 'products.unit_conversions', 'suppliers', 'customers'] as $key) {
+        expect($service->resolveDefinition($key)->warehouseScope())->toBe([]);
+    }
 });

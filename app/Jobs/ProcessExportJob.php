@@ -21,13 +21,16 @@ use Throwable;
 /**
  * ProcessExportJob — generic queued execution for exports above the
  * inline row threshold. Re-authorizes server-side so the snapshot is
- * never trusted on its own, then reports the finished file back as a
- * database notification with its download link.
+ * never trusted on its own, re-narrows the snapshot against the
+ * warehouses the user holds at execution time, and reports the
+ * finished file back as a database notification with its download
+ * link.
  *
- * The query itself travels as SQL plus bindings — the exact scoped and
- * filtered query the user was looking at — so the file matches the
- * table and the job never re-derives the user's warehouse scope from
- * whatever it happens to be at execution time.
+ * The query travels as SQL plus bindings — the exact scoped and
+ * filtered query the user was looking at. Scope is the one thing
+ * deliberately *not* frozen with it: it is re-derived here, so a
+ * warehouse taken away while the job waited shrinks the file and one
+ * granted does not grow it (§28.12).
  */
 class ProcessExportJob implements ShouldQueue
 {
@@ -58,15 +61,45 @@ class ProcessExportJob implements ShouldQueue
                 throw new InvalidArgumentException(__('exports.errors.invalid_filename'));
             }
 
-            $fileStore->ensureUserDirectory((int) $this->user->getKey());
+            $userId = (int) $this->user->getKey();
 
-            $rows = $generator->generate(
-                $definition,
-                $this->sql,
-                $this->bindings,
-                $this->format,
-                $fileStore->absolutePath((int) $this->user->getKey(), $this->filename),
-            );
+            // Scope is re-derived rather than trusted from the snapshot:
+            // the assignment the export was dispatched with may no longer
+            // be the one the user holds. It may only narrow while the job
+            // waits, so what is left is intersected with the snapshot —
+            // and a user with nothing left is told plainly and handed no
+            // file at all.
+            $scope = $service->currentWarehouseScope($definition, $this->user);
+
+            if ($scope === []) {
+                Notification::make()
+                    ->danger()
+                    ->title(__('exports.notifications.scope_lost_title'))
+                    ->body(__('exports.notifications.scope_lost_body', [
+                        'type' => __($definition->labelKey()),
+                    ]))
+                    ->sendToDatabase($this->user);
+
+                return;
+            }
+
+            [$sql, $bindings] = $scope === null
+                ? [$this->sql, $this->bindings]
+                : $service->narrowToScope($this->sql, $this->bindings, $definition, $scope);
+
+            $fileStore->ensureUserDirectory($userId);
+            $path = $fileStore->absolutePath($userId, $this->filename);
+
+            try {
+                $rows = $generator->generate($definition, $sql, $bindings, $this->format, $path);
+            } catch (Throwable $exception) {
+                // The header row is already on disk by now, and a
+                // half-written file would still be served by its own
+                // download link until the next sweep.
+                $fileStore->discard($userId, $this->filename);
+
+                throw $exception;
+            }
 
             Notification::make()
                 ->success()

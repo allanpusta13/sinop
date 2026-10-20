@@ -35,6 +35,8 @@ return [
         'download_label' => 'Download file',
         'failed_title' => 'Export failed',
         'failed_body' => 'The export could not be generated. Please try again.',
+        'scope_lost_title' => 'Export cancelled',
+        'scope_lost_body' => 'Your warehouse access changed while the :type export was being generated, and no warehouses are left for it to read from. No file was produced.',
     ],
 
     'errors' => [

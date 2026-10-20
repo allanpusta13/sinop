@@ -31,6 +31,8 @@ return [
         'download_label' => 'I-download ang file',
         'failed_title' => 'Nabigo ang export',
         'failed_body' => 'Hindi magawa ang export. Subukan muli.',
+        'scope_lost_title' => 'Nakansela ang export',
+        'scope_lost_body' => 'Nagbago ang iyong access sa mga warehouse habang ginagawa ang export ng :type, at wala nang natitirang warehouse na mababasa. Walang file ang nabuo.',
     ],
 
     'errors' => [

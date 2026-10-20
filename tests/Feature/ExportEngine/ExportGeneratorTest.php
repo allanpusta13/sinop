@@ -103,7 +103,7 @@ test('pages past the generator page size', function () {
 
     $service = app(ExportService::class);
     $definition = $service->resolveDefinition('warehouses');
-    [$sql, $bindings] = $service->snapshot($definition->query(Warehouse::query()));
+    [$sql, $bindings] = $service->snapshot($definition, $definition->query(Warehouse::query()));
 
     $fileStore = app(ExportFileStore::class);
     $fileStore->ensureUserDirectory((int) $user->getKey());
