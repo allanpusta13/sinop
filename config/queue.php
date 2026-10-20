@@ -27,6 +27,8 @@ return [
 
     'import_connection' => env('QUEUE_IMPORT_CONNECTION', env('QUEUE_CONNECTION', 'database')),
 
+    'export_connection' => env('QUEUE_EXPORT_CONNECTION', env('QUEUE_CONNECTION', 'database')),
+
     /*
     |--------------------------------------------------------------------------
     | Queue Connections
