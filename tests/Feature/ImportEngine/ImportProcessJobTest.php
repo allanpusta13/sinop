@@ -45,7 +45,16 @@ test('processes a queued import, notifies the counts and cleans up the user file
     expect(Product::query()->count())->toBe(2)
         ->and($disk->directoryExists("imports/{$user->getKey()}"))->toBeFalse();
 
-    $this->assertDatabaseCount('notifications', 1);
+    $notifications = $user->notifications()->get();
+
+    expect($notifications)->toHaveCount(1)
+        ->and($notifications->first()->data['title'])->toBe(__('imports.notifications.completed_title'))
+        ->and($notifications->first()->data['body'])->toBe(__('imports.notifications.completed_body', [
+            'created' => 2,
+            'updated' => 0,
+            'rejected' => 0,
+            'skipped' => 0,
+        ]));
 });
 
 test('re-authorizes inside the job and reports failures', function () {
@@ -70,10 +79,13 @@ test('re-authorizes inside the job and reports failures', function () {
         $job->handle(app(ImportService::class), app(ImportFileStore::class));
         $this->fail('Expected AuthorizationException was not thrown.');
     } catch (AuthorizationException) {
-        expect(Product::query()->count())->toBe(0)
-            ->and($disk->directoryExists("imports/{$staff->getKey()}"))->toBeFalse();
+        $notifications = $staff->notifications()->get();
 
-        $this->assertDatabaseCount('notifications', 1);
+        expect(Product::query()->count())->toBe(0)
+            ->and($disk->directoryExists("imports/{$staff->getKey()}"))->toBeFalse()
+            ->and($notifications)->toHaveCount(1)
+            ->and($notifications->first()->data['title'])->toBe(__('imports.notifications.failed_title'))
+            ->and($notifications->first()->data['body'])->toContain('unauthorized');
     }
 });
 
@@ -98,10 +110,14 @@ test('reports a counts mismatch as a domain failure without writing', function (
         $job->handle(app(ImportService::class), app(ImportFileStore::class));
         $this->fail('Expected DomainRuleViolationException was not thrown.');
     } catch (DomainRuleViolationException $exception) {
-        expect($exception->translationKey())->toBe('errors.import_counts_mismatch')
-            ->and(Product::query()->count())->toBe(1);
+        $notifications = $user->notifications()->get();
 
-        $this->assertDatabaseCount('notifications', 1);
+        expect($exception->translationKey())->toBe('errors.import_counts_mismatch')
+            ->and(Product::query()->count())->toBe(1)
+            ->and($notifications)->toHaveCount(1)
+            ->and($notifications->first()->data['title'])->toBe(__('errors.import_counts_mismatch.title'))
+            ->and($notifications->first()->data['body'])
+            ->toBe(__('errors.import_counts_mismatch.body', $exception->context()));
     }
 });
 
