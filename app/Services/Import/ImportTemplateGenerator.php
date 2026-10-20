@@ -20,7 +20,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * The CSV description block sits after a blank row; every row of it
  * starts with "#" in its first cell so the ImportParser treats it as a
  * comment block when the template is uploaded back. XLSX templates put
- * descriptions on a second sheet, which the parser never reads.
+ * descriptions on a second sheet, which the parser never reads. The
+ * sample row carries the "#" marker in its first cell in both formats,
+ * so a freshly downloaded template parsed back yields headers only.
  */
 class ImportTemplateGenerator
 {
@@ -62,6 +64,22 @@ class ImportTemplateGenerator
     }
 
     /**
+     * Prefix the sample row with the comment marker so uploading a freshly
+     * downloaded template feeds headers only into the wizard instead of one
+     * bogus data row. The marker lands in the first cell even when that
+     * sample is empty, because ImportParser reads the first non-empty cell.
+     *
+     * @param  array<int, string>  $sample
+     * @return array<int, string>
+     */
+    protected function markSampleRow(array $sample): array
+    {
+        $sample[0] = ImportParser::COMMENT_MARKER.((string) ($sample[0] ?? '') !== '' ? ' '.$sample[0] : '');
+
+        return $sample;
+    }
+
+    /**
      * @param  array<int, string>  $headers
      * @param  array<int, string>  $sample
      * @param  array<int, array{0: string, 1: string}>  $descriptions
@@ -72,7 +90,7 @@ class ImportTemplateGenerator
             $csv = CsvWriter::createFromFileObject(new SplTempFileObject);
             $csv->setNewline("\n");
             $csv->insertOne($headers);
-            $csv->insertOne($sample);
+            $csv->insertOne($this->markSampleRow($sample));
             $csv->insertOne([]);
             $csv->insertOne([ImportParser::COMMENT_MARKER, __('imports.template.field'), __('imports.template.description')]);
 
@@ -98,15 +116,14 @@ class ImportTemplateGenerator
             $writer = new XlsxWriter;
             $writer->openToFile($tempPath);
             $writer->addRow(Row::fromValues($headers));
-            $writer->addRow(Row::fromValues($sample));
+            $writer->addRow(Row::fromValues($this->markSampleRow($sample)));
 
-            $descriptionSheet = $writer->getCurrentSheet();
-            $descriptionSheet->setName(__('imports.template.descriptions_sheet'));
+            $writer->addNewSheetAndMakeItCurrent();
+            $writer->getCurrentSheet()->setName(__('imports.template.descriptions_sheet'));
             $writer->addRow(Row::fromValues([
                 __('imports.template.field'),
                 __('imports.template.description'),
             ], (new Style)->setFontBold()));
-            $writer->addRow(Row::fromValues([]));
 
             foreach ($descriptions as [$label, $description]) {
                 $writer->addRow(Row::fromValues([$label, $description]));
