@@ -81,7 +81,10 @@ abstract class ImportWizardAction
             ->modalWidth(Width::SevenExtraLarge)
             ->modalSubmitActionLabel(__('imports.wizard.submit_label'))
             ->modalCancelAction(fn (Action $action) => $action->action(
-                static fn () => app(ImportFileStore::class)->cleanupUser((int) auth()->id()),
+                // Cancelling drops only stale leftovers: a queued import's
+                // source file shares this directory, and the upload just
+                // staged here is swept too once it reaches the stale horizon.
+                static fn () => app(ImportFileStore::class)->sweep((int) auth()->id()),
             ))
             ->steps([
                 $instance->uploadStep(),

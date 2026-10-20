@@ -14,8 +14,9 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 /**
  * ImportFileStore — private-disk storage concerns for the import
  * suite: resolving Livewire upload state to physical paths, freezing
- * the preview JSON per user, and cleaning user import files up when an
- * import finishes or is cancelled.
+ * the preview JSON per user, sweeping stale leftovers on the shared
+ * 24-hour horizon, and cleaning user import files up when an import
+ * finishes.
  *
  * Files live under `private/imports/{userId}` on the `local` disk with
  * generated (hash) names tied to the uploading user; the frozen
@@ -28,6 +29,11 @@ class ImportFileStore
     public const DIRECTORY = 'imports';
 
     public const PREVIEW_FILENAME = 'preview.json';
+
+    /**
+     * Stale-file horizon in hours; files older than this are swept.
+     */
+    public const STALE_HOURS = 24;
 
     public function userDirectory(int $userId): string
     {
@@ -130,9 +136,11 @@ class ImportFileStore
     }
 
     /**
-     * Delete every file in the user's import directory except the
-     * physical paths given in `$keep` (the currently referenced source
-     * file). Idempotent.
+     * Delete every stale file (older than STALE_HOURS) in the user's
+     * import directory except the physical paths given in `$keep` (the
+     * currently referenced source file). Fresh files are left alone so a
+     * queued import's source and a just-staged upload survive the sweep.
+     * Idempotent.
      *
      * @param  array<int, string|null>  $keep
      */
@@ -149,6 +157,8 @@ class ImportFileStore
             $keep,
         ));
 
+        $cutoff = now()->subHours(self::STALE_HOURS)->getTimestamp();
+
         foreach (File::files($directory) as $file) {
             $physical = $file->getPathname();
 
@@ -156,13 +166,16 @@ class ImportFileStore
                 continue;
             }
 
-            File::delete($physical);
+            if ($file->getMTime() < $cutoff) {
+                File::delete($physical);
+            }
         }
     }
 
     /**
      * Delete the user's whole import directory (source files, frozen
-     * preview). Called when an import finishes or is cancelled.
+     * preview). Called when an import finishes — never on cancel, so a
+     * queued import's source file is not pulled out from under its job.
      */
     public function cleanupUser(int $userId): void
     {

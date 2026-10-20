@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Import\ImportFileStore;
 use App\Services\Import\ImportService;
 use Filament\Notifications\Notification;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -46,6 +47,8 @@ class ProcessImportJob implements ShouldQueue
     {
         $user = User::findOrFail($this->userId);
 
+        $release = false;
+
         try {
             $counts = $importService->executeTransactional(
                 $this->filePath,
@@ -56,6 +59,8 @@ class ProcessImportJob implements ShouldQueue
                 $this->confirmUpdates,
                 $user,
             );
+
+            $release = true;
 
             Notification::make()
                 ->success()
@@ -68,6 +73,8 @@ class ProcessImportJob implements ShouldQueue
                 ]))
                 ->sendToDatabase($user);
         } catch (DomainErrorException $exception) {
+            $release = true;
+
             Notification::make()
                 ->danger()
                 ->title(__($exception->translationKey().'.title'))
@@ -76,6 +83,11 @@ class ProcessImportJob implements ShouldQueue
 
             throw $exception;
         } catch (Throwable $exception) {
+            // Losing authorization is final, so the source file goes with the
+            // run. Anything else stays on disk: a retry has to re-read it, and
+            // the stale sweep clears it when the import is never retried.
+            $release = $exception instanceof AuthorizationException;
+
             Notification::make()
                 ->danger()
                 ->title(__('imports.notifications.failed_title'))
@@ -84,7 +96,9 @@ class ProcessImportJob implements ShouldQueue
 
             throw $exception;
         } finally {
-            $fileStore->cleanupUser($this->userId);
+            if ($release) {
+                $fileStore->cleanupUser($this->userId);
+            }
         }
     }
 }

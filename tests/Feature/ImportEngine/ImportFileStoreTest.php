@@ -25,20 +25,29 @@ test('writes and reads back the frozen preview per user', function () {
         ->and($preview['has_updates'])->toBeTrue();
 });
 
-test('sweep deletes every user file except the kept source', function () {
+test('sweep deletes stale user files except the kept source', function () {
     $store = app(ImportFileStore::class);
     $disk = Storage::disk('local');
 
     $disk->put('imports/1/current.csv', 'current');
     $disk->put('imports/1/stale.csv', 'stale');
     $disk->put('imports/1/preview.json', '{}');
+    $disk->put('imports/1/queued.csv', 'queued');
     $disk->put('imports/2/other-user.csv', 'other');
+
+    foreach (['stale.csv', 'preview.json'] as $staleFile) {
+        touch(
+            $disk->path('imports/1/'.$staleFile),
+            time() - (ImportFileStore::STALE_HOURS * 60 * 60) - 60,
+        );
+    }
 
     $store->sweep(1, [$disk->path('imports/1/current.csv')]);
 
     expect($disk->exists('imports/1/current.csv'))->toBeTrue()
         ->and($disk->exists('imports/1/stale.csv'))->toBeFalse()
         ->and($disk->exists('imports/1/preview.json'))->toBeFalse()
+        ->and($disk->exists('imports/1/queued.csv'))->toBeTrue()
         ->and($disk->exists('imports/2/other-user.csv'))->toBeTrue();
 });
 

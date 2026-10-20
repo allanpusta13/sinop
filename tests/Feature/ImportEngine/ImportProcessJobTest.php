@@ -104,3 +104,30 @@ test('reports a counts mismatch as a domain failure without writing', function (
         $this->assertDatabaseCount('notifications', 1);
     }
 });
+
+test('keeps the user files when the job fails unexpectedly so a retry can read them', function () {
+    $user = auth()->user();
+    $disk = Storage::disk('local');
+
+    $file = importFixtureCsv([['Robusta', 'Beverages']]);
+
+    $disk->put("imports/{$user->getKey()}/source.csv", 'Name,Category');
+
+    $job = new ProcessImportJob(
+        filePath: $file,
+        originalName: 'products.csv',
+        definitionKey: 'fixture.unknown_definition',
+        columnMap: ['name' => 'Name', 'category' => 'Category'],
+        expectedCounts: ['create' => 1, 'update' => 0, 'reject' => 0, 'total' => 1],
+        confirmUpdates: false,
+        userId: (int) $user->getKey(),
+    );
+
+    expect(fn () => $job->handle(app(ImportService::class), app(ImportFileStore::class)))
+        ->toThrow(InvalidArgumentException::class);
+
+    expect($disk->directoryExists("imports/{$user->getKey()}"))->toBeTrue()
+        ->and($disk->exists("imports/{$user->getKey()}/source.csv"))->toBeTrue();
+
+    $this->assertDatabaseCount('notifications', 1);
+});
