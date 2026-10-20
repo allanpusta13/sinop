@@ -97,7 +97,7 @@ async function exportToFile(
 /** The seeded warehouse codes, in the order the seeder made them. */
 function seededWarehouseCodes(): string[] {
     const out = tinker(`
-      echo implode('|', \\App\\Models\\Warehouse::query()->limit(3)->pluck('code')->all());
+      echo implode('|', \\App\\Models\\Warehouse::query()->orderBy('id')->limit(3)->pluck('code')->all());
     `);
 
     return lastOutputLine(out).split("|");
