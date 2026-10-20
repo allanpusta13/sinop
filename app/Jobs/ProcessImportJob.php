@@ -84,9 +84,10 @@ class ProcessImportJob implements ShouldQueue
             throw $exception;
         } catch (Throwable $exception) {
             // Losing authorization is final, so the source file goes with the
-            // run. Anything else stays on disk: a retry has to re-read it, and
-            // the stale sweep clears it when the import is never retried.
-            $release = $exception instanceof AuthorizationException;
+            // run. Anything else stays on disk: a retry has to re-read it,
+            // and it ages into the stale sweep once the user next opens the
+            // wizard (nothing sweeps on a schedule in this app).
+            $release = $release || $exception instanceof AuthorizationException;
 
             Notification::make()
                 ->danger()

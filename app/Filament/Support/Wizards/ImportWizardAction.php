@@ -261,9 +261,9 @@ abstract class ImportWizardAction
 
     /**
      * Freeze the preview server-side when the mapping step completes:
-     * build it from the current file + mapping + database, sweep every
-     * other file in the user's import directory, then store it as
-     * preview.json so step 3 and the execution share one source of
+     * build it from the current file + mapping + database, sweep the
+     * stale leftovers around it (fresh files are kept), then store it
+     * as preview.json so step 3 and the execution share one source of
      * truth for the confirmed counts.
      */
     protected function freezePreview(Get $get): void

@@ -205,7 +205,7 @@ it('refreshes the preview and asks for a fresh confirmation when the database dr
 
     $testable
         ->assertHasActionErrors(['confirm_updates'])
-        ->assertActionDataSet(fn (array $state) => ['confirm_updates' => null]);
+        ->assertActionDataSet(fn (array $state) => ['confirm_updates' => false]);
 
     // The preview is re-frozen from the live database instead of being left
     // at the stale counts the user just confirmed.
