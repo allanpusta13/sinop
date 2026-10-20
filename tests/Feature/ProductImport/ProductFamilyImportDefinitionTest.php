@@ -45,7 +45,7 @@ it('previews family rows with counts and translation-keyed errors', function () 
 
     $preview = app(ImportService::class)->preview($file, 'families.csv', 'products.families', familyImportColumnMap(), auth()->user());
 
-    expect($preview['counts'])->toBe(['create' => 1, 'update' => 0, 'reject' => 4, 'total' => 5])
+    expect($preview['counts'])->toBe(['create' => 2, 'update' => 0, 'reject' => 3, 'total' => 5])
         ->and($preview['has_updates'])->toBeFalse()
         ->and($preview['rows'][0]['status'])->toBe('reject')
         ->and($preview['rows'][0]['identifier'])->toBe('specialty arabica')
@@ -53,11 +53,8 @@ it('previews family rows with counts and translation-keyed errors', function () 
             'key' => 'resources.products.import.errors.family_name_exists',
             'params' => ['name' => 'specialty arabica'],
         ])
-        ->and($preview['rows'][1]['status'])->toBe('reject')
-        ->and($preview['rows'][1]['errors'][0])->toBe([
-            'key' => 'resources.products.import.errors.family_duplicate_in_file',
-            'params' => ['name' => 'Brand New Family'],
-        ])
+        ->and($preview['rows'][1]['status'])->toBe('create')
+        ->and($preview['rows'][1]['errors'])->toBe([])
         ->and($preview['rows'][2]['errors'][0]['key'])->toBe('resources.products.import.errors.family_duplicate_in_file')
         ->and($preview['rows'][3]['status'])->toBe('create')
         ->and($preview['rows'][3]['identifier'])->toBe('Unique Family')

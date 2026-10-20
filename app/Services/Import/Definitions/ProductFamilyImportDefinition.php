@@ -67,23 +67,16 @@ class ProductFamilyImportDefinition extends ImportDefinition
     }
 
     /**
-     * Classify family rows — create-only, matched by normalized name.
+     * Classify family rows — create-only, matched by normalized name. The
+     * first occurrence of a name in the file claims it; only later rows
+     * carrying that name are in-file duplicates.
      *
      * @param  array<int, array{row_number: int, data: array<string, mixed>}>  $rows
      * @return array{rows: array<int, array<string, mixed>>, counts: array{create: int, update: int, reject: int, total: int}}
      */
     public function validate(array $rows): array
     {
-        $nameCounts = [];
-
-        foreach ($rows as $row) {
-            $name = trim((string) ($row['data']['name'] ?? ''));
-
-            if ($name !== '') {
-                $lower = mb_strtolower($name);
-                $nameCounts[$lower] = ($nameCounts[$lower] ?? 0) + 1;
-            }
-        }
+        $seenNames = [];
 
         $existingNames = [];
 
@@ -107,8 +100,10 @@ class ProductFamilyImportDefinition extends ImportDefinition
             if ($name === '') {
                 $errors[] = $this->rowError('resources.products.import.errors.family_name_required');
             } else {
-                if (($nameCounts[$lower] ?? 0) > 1) {
+                if (isset($seenNames[$lower])) {
                     $errors[] = $this->rowError('resources.products.import.errors.family_duplicate_in_file', ['name' => $name]);
+                } else {
+                    $seenNames[$lower] = true;
                 }
 
                 if (isset($existingNames[$lower])) {

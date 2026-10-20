@@ -139,23 +139,21 @@ class ProductVariantImportDefinition extends ImportDefinition
 
     /**
      * Classify variant rows: family resolution, required fields,
-     * in-file duplicates, barcode conflicts and SKU matching.
+     * in-file duplicates, barcode conflicts and SKU matching. The first
+     * occurrence of a SKU in the file claims it; only later rows
+     * carrying that SKU are in-file duplicates.
      *
      * @param  array<int, array{row_number: int, data: array<string, mixed>}>  $rows
      * @return array{rows: array<int, array<string, mixed>>, counts: array{create: int, update: int, reject: int, total: int}}
      */
     public function validate(array $rows): array
     {
-        $skuCounts = [];
+        $seenSkus = [];
         $barcodeSkuSets = [];
 
         foreach ($rows as $row) {
             $data = $row['data'];
             $sku = strtoupper(trim((string) ($data['sku'] ?? '')));
-
-            if ($sku !== '') {
-                $skuCounts[$sku] = ($skuCounts[$sku] ?? 0) + 1;
-            }
 
             $barcode = trim((string) ($data['barcode'] ?? ''));
 
@@ -215,8 +213,10 @@ class ProductVariantImportDefinition extends ImportDefinition
                 $errors[] = $this->rowError('resources.products.import.errors.base_unit_required');
             }
 
-            if ($sku !== '' && ($skuCounts[$sku] ?? 0) > 1) {
+            if ($sku !== '' && isset($seenSkus[$sku])) {
                 $errors[] = $this->rowError('resources.products.import.errors.sku_duplicate_in_file', ['sku' => $sku]);
+            } elseif ($sku !== '') {
+                $seenSkus[$sku] = true;
             }
 
             $errors = [...$errors, ...$this->barcodeErrors($barcode, $sku, $barcodeSkuSets, $variantsByBarcode)];

@@ -281,7 +281,7 @@ it('rejects a barcode shared by multiple SKUs within the file', function () {
         ->and($preview['rows'][1]['errors'][0]['key'])->toBe('resources.products.import.errors.barcode_multiple_in_file');
 });
 
-it('rejects duplicate SKUs within the uploaded file', function () {
+it('keeps the first in-file SKU and rejects later duplicates', function () {
     $family = Product::factory()->create(['name' => 'Syrups']);
 
     $file = importTempFile(implode("\n", [
@@ -293,8 +293,11 @@ it('rejects duplicate SKUs within the uploaded file', function () {
 
     $preview = app(ImportService::class)->preview($file, 'variants.csv', 'products.variants', variantImportColumnMap(), auth()->user());
 
-    expect($preview['counts'])->toBe(['create' => 1, 'update' => 0, 'reject' => 2, 'total' => 3])
-        ->and($preview['rows'][0]['errors'][0])->toBe([
+    expect($preview['counts'])->toBe(['create' => 2, 'update' => 0, 'reject' => 1, 'total' => 3])
+        ->and($preview['rows'][0]['status'])->toBe('create')
+        ->and($preview['rows'][0]['errors'])->toBe([])
+        ->and($preview['rows'][1]['status'])->toBe('reject')
+        ->and($preview['rows'][1]['errors'][0])->toBe([
             'key' => 'resources.products.import.errors.sku_duplicate_in_file',
             'params' => ['sku' => 'SKU-DUP'],
         ]);
