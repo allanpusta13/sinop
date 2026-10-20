@@ -72,15 +72,27 @@ test('sweep never touches another user directory', function () {
     expect(Storage::disk('local')->exists('exports/99/sinop_export_other.csv'))->toBeTrue();
 });
 
-test('cleanup removes the whole user directory', function () {
+test('discard removes one file and leaves the rest of the directory alone', function () {
     $store = app(ExportFileStore::class);
     $user = User::factory()->create();
 
     $store->ensureUserDirectory((int) $user->getKey());
-    Storage::disk('local')->put('exports/'.$user->getKey().'/sinop_export_x.csv', 'x');
+    Storage::disk('local')->put('exports/'.$user->getKey().'/sinop_export_partial.csv', 'x');
+    Storage::disk('local')->put('exports/'.$user->getKey().'/sinop_export_done.csv', 'y');
 
-    $store->cleanupUser((int) $user->getKey());
+    $store->discard((int) $user->getKey(), 'sinop_export_partial.csv');
 
-    expect($store->exists((int) $user->getKey(), 'sinop_export_x.csv'))->toBeFalse()
-        ->and(Storage::disk('local')->exists('exports/'.$user->getKey()))->toBeFalse();
+    expect($store->exists((int) $user->getKey(), 'sinop_export_partial.csv'))->toBeFalse()
+        ->and($store->exists((int) $user->getKey(), 'sinop_export_done.csv'))->toBeTrue();
+});
+
+test('discard is a no-op for a file that was never written', function () {
+    $store = app(ExportFileStore::class);
+    $user = User::factory()->create();
+
+    $store->ensureUserDirectory((int) $user->getKey());
+
+    $store->discard((int) $user->getKey(), 'sinop_export_never_existed.csv');
+
+    expect(Storage::disk('local')->exists('exports/'.$user->getKey()))->toBeTrue();
 });

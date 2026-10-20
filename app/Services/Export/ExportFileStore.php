@@ -108,15 +108,18 @@ class ExportFileStore
     }
 
     /**
-     * Delete the user's whole export directory. Called when a user
-     * starts a fresh export.
+     * Delete one file from the user's directory.
+     *
+     * Generation writes the header row before the first page is read,
+     * so a failure part-way would otherwise leave a partial export
+     * sitting on disk — download-able by its link until the next sweep.
      */
-    public function cleanupUser(int $userId): void
+    public function discard(int $userId, string $filename): void
     {
-        $directory = $this->absolutePath($userId, '');
+        $path = $this->absolutePath($userId, $filename);
 
-        if (is_dir($directory)) {
-            File::deleteDirectory($directory);
+        if (is_file($path)) {
+            File::delete($path);
         }
     }
 }
