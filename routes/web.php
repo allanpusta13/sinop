@@ -3,6 +3,7 @@
 use App\Http\Controllers\ExportDownloadController;
 use App\Http\Controllers\ImportTemplateController;
 use App\Http\Controllers\STNManifestController;
+use Filament\Http\Middleware\Authenticate as AuthenticatePanel;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -25,6 +26,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('imports.template');
 
     Route::get('/admin/exports/{file}/download', ExportDownloadController::class)
+        // `auth` alone only proves a session exists; the panel's own
+        // middleware also re-runs `canAccessPanel()`, so a deactivated
+        // account is turned away here rather than handed its files.
+        ->middleware(AuthenticatePanel::class)
         ->where('file', '[A-Za-z0-9._-]+')
         ->name('exports.download');
 });

@@ -49,6 +49,18 @@ test('404s for a file carrying an extension the generator never writes', functio
         ->assertNotFound();
 });
 
+test('turns away a user the panel no longer accepts', function () {
+    // A live session alone is not enough: the panel re-runs
+    // canAccessPanel(), so a deactivated account is refused its own
+    // files rather than handed them.
+    $user = actingAsAdmin(['is_active' => false]);
+
+    Storage::disk('local')->put('exports/'.$user->getKey().'/sinop_export_warehouses_20260101_000000_abcdefgh.csv', 'x');
+
+    $this->get(route('exports.download', ['file' => 'sinop_export_warehouses_20260101_000000_abcdefgh.csv']))
+        ->assertForbidden();
+});
+
 test('404s when the filename belongs to another user', function () {
     $user = actingAsAdmin();
     $other = User::factory()->create();
