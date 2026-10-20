@@ -189,6 +189,17 @@ test('reports nothing to narrow for an unrestricted user', function () {
         ->toBeNull();
 });
 
+test('does not narrow the file for an auditor, even one holding warehouses', function () {
+    $mine = Warehouse::factory()->create();
+    $auditor = actingAsAuditor();
+    $auditor->warehouses()->attach($mine->getKey());
+
+    $service = app(ExportService::class);
+
+    expect($service->currentWarehouseScope($service->resolveDefinition('stock_movements'), $auditor))
+        ->toBeNull();
+});
+
 test('re-derives the warehouses a restricted user holds', function () {
     $mine = Warehouse::factory()->create();
     $staff = actingAsStaff($mine);
