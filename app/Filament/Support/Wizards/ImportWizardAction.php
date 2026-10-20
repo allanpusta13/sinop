@@ -12,6 +12,7 @@ use App\Services\Import\ImportParser;
 use App\Services\Import\ImportService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ToggleButtons;
@@ -425,12 +426,15 @@ abstract class ImportWizardAction
         }
 
         $checkbox = $schema->getComponent(
-            static fn (Component $component): bool => $component->getName() === 'confirm_updates',
+            static fn (Component $component): bool => $component instanceof Field
+                && $component->getName() === 'confirm_updates',
             withActions: false,
             withHidden: true,
         );
 
-        $checkbox?->makeSetUtility()($checkbox, null);
+        if ($checkbox instanceof Field) {
+            $checkbox->makeSetUtility()($checkbox, null);
+        }
 
         throw ValidationException::withMessages([
             $schema->getStatePath().'.'.$field => __($exception->translationKey().'.body', $exception->context()),

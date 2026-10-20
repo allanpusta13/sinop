@@ -169,6 +169,52 @@ it('executes a confirmed variant update through the wizard modal', function () {
     expect($existing->refresh()->name)->toBe('New Pour Over');
 });
 
+it('refreshes the preview and asks for a fresh confirmation when the database drifts', function () {
+    $admin = User::factory()->admin()->create();
+
+    $family = Product::factory()->create(['name' => 'Drift Beans']);
+    ProductVariant::factory()->create([
+        'product_id' => $family->id,
+        'sku' => 'SKU-DRIFT-1',
+        'name' => 'Drift Bag',
+    ]);
+
+    $csv = "Family ID,SKU,Variant Name,Base Unit Name\n{$family->id},SKU-DRIFT-1,Drift Bag,Bag\n";
+    $file = UploadedFile::fake()->createWithContent('variants.csv', $csv);
+    $columnMap = [
+        'family_id' => 'Family ID',
+        'sku' => 'SKU',
+        'name' => 'Variant Name',
+        'base_unit_name' => 'Base Unit Name',
+    ];
+
+    freezeProductImportPreview($file, 'products.variants', $columnMap, $admin);
+
+    // Drift: the variant disappears between the preview and the run, so the
+    // frozen "update 1" becomes "create 1" once the preview is re-derived.
+    ProductVariant::where('sku', 'SKU-DRIFT-1')->first()->forceDelete();
+
+    $testable = Livewire::actingAs($admin)
+        ->test(ListProducts::class)
+        ->callAction('importProducts', data: [
+            'mode' => 'products.variants',
+            'file' => $file,
+            'columnMap' => $columnMap,
+            'confirm_updates' => true,
+        ]);
+
+    $testable
+        ->assertHasActionErrors(['confirm_updates'])
+        ->assertActionDataSet(fn (array $state) => ['confirm_updates' => null]);
+
+    // The preview is re-frozen from the live database instead of being left
+    // at the stale counts the user just confirmed.
+    expect(app(ImportFileStore::class)->readPreview((int) $admin->getKey())['counts'])
+        ->toBe(['create' => 1, 'update' => 0, 'reject' => 0, 'total' => 1]);
+
+    $this->assertDatabaseMissing('product_variants', ['sku' => 'SKU-DRIFT-1']);
+});
+
 it('refuses to import when no frozen preview exists', function () {
     $admin = User::factory()->admin()->create();
 
