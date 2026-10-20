@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Suppliers\Pages;
 
+use App\Filament\Resources\Suppliers\Actions\ExportSuppliersAction;
 use App\Filament\Resources\Suppliers\Actions\ImportSuppliersAction;
 use App\Filament\Resources\Suppliers\SupplierResource;
 use Filament\Actions\CreateAction;
@@ -18,6 +19,7 @@ class ListSuppliers extends ListRecords
     {
         return [
             ImportSuppliersAction::make(),
+            ExportSuppliersAction::make(),
             CreateAction::make()
                 ->label(__('resources.suppliers.actions.create'))
                 ->icon(Heroicon::OutlinedBuildingStorefront),

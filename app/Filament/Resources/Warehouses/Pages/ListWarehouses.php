@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Warehouses\Pages;
 
+use App\Filament\Resources\Warehouses\Actions\ExportWarehousesAction;
 use App\Filament\Resources\Warehouses\Actions\ImportWarehousesAction;
 use App\Filament\Resources\Warehouses\WarehouseResource;
 use Filament\Actions\CreateAction;
@@ -18,6 +19,7 @@ class ListWarehouses extends ListRecords
     {
         return [
             ImportWarehousesAction::make(),
+            ExportWarehousesAction::make(),
             CreateAction::make()
                 ->label(__('resources.warehouses.actions.create'))
                 ->icon(Heroicon::OutlinedBuildingOffice),

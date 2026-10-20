@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\DirectTransfers\Pages;
 
+use App\Filament\Resources\DirectTransfers\Actions\ExportDirectTransfersAction;
 use App\Filament\Resources\DirectTransfers\DirectTransferResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -16,6 +17,7 @@ class ListDirectTransfers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ExportDirectTransfersAction::make(),
             CreateAction::make()
                 ->label(__('resources.direct_transfers.actions.create'))
                 ->icon(Heroicon::OutlinedArrowPath),

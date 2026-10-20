@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Products\Pages;
 
+use App\Filament\Resources\Products\Actions\ExportProductsAction;
 use App\Filament\Resources\Products\Actions\ImportProductsAction;
 use App\Filament\Resources\Products\ProductResource;
 use Filament\Actions\CreateAction;
@@ -18,6 +19,7 @@ class ListProducts extends ListRecords
     {
         return [
             ImportProductsAction::make(),
+            ExportProductsAction::make(),
             CreateAction::make()
                 ->label(__('resources.products.actions.create'))
                 ->icon(Heroicon::OutlinedCube),
