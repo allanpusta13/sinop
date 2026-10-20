@@ -66,6 +66,34 @@ abstract class ExportDefinition
      */
     abstract public function query(Builder $tableQuery): Builder;
 
+    /**
+     * Columns that place a row inside a warehouse, as OR-groups: a row
+     * is in scope when *every* group holds at least one column
+     * containing a warehouse the user is assigned to.
+     *
+     * One group of one column is the ordinary `warehouse_id in (…)` of
+     * the ledger and order tables. One group of two columns is the
+     * "either endpoint" shape of a transfer requisition, and two
+     * single-column groups the stricter "both endpoints" shape of a
+     * direct transfer (§20.1) — the grouping, not the engine, is what
+     * says which.
+     *
+     * Empty when the export carries no warehouse scope at all (master
+     * data): there is nothing to narrow, and the snapshot already
+     * bounds the file to what the user was looking at.
+     *
+     * Read only on the queued path, where the export re-narrows its
+     * dispatch-time snapshot against the warehouses the user holds
+     * *now* — so a scope may only shrink while a job waits, never
+     * grow.
+     *
+     * @return array<int, array<int, string>>
+     */
+    public function warehouseScope(): array
+    {
+        return [];
+    }
+
     /** Default `can()` gate used by the action's ->authorize() visibility. */
     public function can(User $user): bool
     {

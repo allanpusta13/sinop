@@ -80,4 +80,18 @@ class DirectTransferExportDefinition extends ExportDefinition
             ->leftJoin('users as u', 'u.id', '=', 'direct_transfers.transferred_by')
             ->withCount('items');
     }
+
+    /**
+     * §20.1 — a direct transfer moves stock between two warehouses, so a
+     * non-privileged user must hold BOTH endpoints, exactly as
+     * `DirectTransferResource` scopes the page. Hence two groups: each
+     * must match, rather than either.
+     */
+    public function warehouseScope(): array
+    {
+        return [
+            ['direct_transfers.from_warehouse_id'],
+            ['direct_transfers.to_warehouse_id'],
+        ];
+    }
 }

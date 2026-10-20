@@ -96,4 +96,10 @@ class StockMovementExportDefinition extends ExportDefinition
             ->join('warehouses as wh', 'wh.id', '=', 'stock_movements.warehouse_id')
             ->leftJoin('users as u', 'u.id', '=', 'stock_movements.created_by');
     }
+
+    /** One ledger entry belongs to exactly one warehouse. */
+    public function warehouseScope(): array
+    {
+        return [['stock_movements.warehouse_id']];
+    }
 }

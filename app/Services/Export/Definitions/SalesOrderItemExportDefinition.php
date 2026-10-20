@@ -77,4 +77,10 @@ class SalesOrderItemExportDefinition extends ExportDefinition
             ->join('product_variants as pv', 'pv.id', '=', 'sales_order_items.product_variant_id')
             ->whereIn('sales_order_items.sales_order_id', $this->parentIdsQuery($tableQuery));
     }
+
+    /** An item inherits the one warehouse of its sales order. */
+    public function warehouseScope(): array
+    {
+        return [['so.warehouse_id']];
+    }
 }

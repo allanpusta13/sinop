@@ -68,4 +68,14 @@ class WarehouseExportDefinition extends ExportDefinition
             ])
             ->withCount(['users', 'stockMovements']);
     }
+
+    /**
+     * The export *is* the warehouse table, so a row is in scope when its
+     * own id is one the user is assigned to — the same predicate
+     * `WarehouseResource::getEloquentQuery()` applies to the page.
+     */
+    public function warehouseScope(): array
+    {
+        return [['warehouses.id']];
+    }
 }

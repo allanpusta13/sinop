@@ -76,4 +76,10 @@ class PurchaseOrderItemExportDefinition extends ExportDefinition
             ->join('product_variants as pv', 'pv.id', '=', 'purchase_order_items.product_variant_id')
             ->whereIn('purchase_order_items.purchase_order_id', $this->parentIdsQuery($tableQuery));
     }
+
+    /** An item inherits the one warehouse of its purchase order. */
+    public function warehouseScope(): array
+    {
+        return [['po.warehouse_id']];
+    }
 }

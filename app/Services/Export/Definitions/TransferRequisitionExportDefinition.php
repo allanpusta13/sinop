@@ -93,4 +93,14 @@ class TransferRequisitionExportDefinition extends ExportDefinition
             ->leftJoin('users as uu', 'uu.id', '=', 'transfer_requisitions.received_by')
             ->withCount('items');
     }
+
+    /**
+     * A requisition belongs to either endpoint, so one group holding
+     * both columns — the same either-endpoint shape
+     * `TransferRequisitionResource` applies to the page.
+     */
+    public function warehouseScope(): array
+    {
+        return [['transfer_requisitions.from_warehouse_id', 'transfer_requisitions.to_warehouse_id']];
+    }
 }

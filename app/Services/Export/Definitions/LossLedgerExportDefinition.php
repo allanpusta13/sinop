@@ -90,4 +90,10 @@ class LossLedgerExportDefinition extends ExportDefinition
             ->leftJoin('transfer_requisitions as tr', 'tr.id', '=', 'loss_ledgers.transfer_requisition_id')
             ->leftJoin('users as u', 'u.id', '=', 'loss_ledgers.recorded_by');
     }
+
+    /** One write-off belongs to exactly one warehouse. */
+    public function warehouseScope(): array
+    {
+        return [['loss_ledgers.warehouse_id']];
+    }
 }

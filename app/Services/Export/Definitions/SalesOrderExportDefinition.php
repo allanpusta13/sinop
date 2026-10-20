@@ -87,4 +87,10 @@ class SalesOrderExportDefinition extends ExportDefinition
             ->leftJoin('users as ud', 'ud.id', '=', 'sales_orders.dispatched_by')
             ->withCount('items');
     }
+
+    /** One sales order is raised against exactly one warehouse. */
+    public function warehouseScope(): array
+    {
+        return [['sales_orders.warehouse_id']];
+    }
 }

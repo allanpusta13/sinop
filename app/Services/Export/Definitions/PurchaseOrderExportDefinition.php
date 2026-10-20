@@ -88,4 +88,10 @@ class PurchaseOrderExportDefinition extends ExportDefinition
             ->leftJoin('users as ur', 'ur.id', '=', 'purchase_orders.received_by')
             ->withCount('items');
     }
+
+    /** One purchase order is raised against exactly one warehouse. */
+    public function warehouseScope(): array
+    {
+        return [['purchase_orders.warehouse_id']];
+    }
 }

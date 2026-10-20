@@ -92,4 +92,14 @@ class TransferRequisitionItemRevisionExportDefinition extends ExportDefinition
                 ->select('transfer_requisition_items.id')
                 ->whereIn('transfer_requisition_items.transfer_requisition_id', $this->parentIdsQuery($tableQuery)));
     }
+
+    /**
+     * A revision belongs to an item, which belongs to a requisition —
+     * two hops, but the same either-endpoint shape either way, and the
+     * requisition is already joined as `tr`.
+     */
+    public function warehouseScope(): array
+    {
+        return [['tr.from_warehouse_id', 'tr.to_warehouse_id']];
+    }
 }

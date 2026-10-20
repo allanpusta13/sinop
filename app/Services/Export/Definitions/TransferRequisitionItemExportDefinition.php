@@ -90,4 +90,13 @@ class TransferRequisitionItemExportDefinition extends ExportDefinition
             ->leftJoin('product_variants as spv', 'spv.id', '=', 'transfer_requisition_items.substitute_product_variant_id')
             ->whereIn('transfer_requisition_items.transfer_requisition_id', $this->parentIdsQuery($tableQuery));
     }
+
+    /**
+     * An item carries no warehouse either; it inherits its requisition's
+     * (joined as `tr`) either-endpoint shape.
+     */
+    public function warehouseScope(): array
+    {
+        return [['tr.from_warehouse_id', 'tr.to_warehouse_id']];
+    }
 }

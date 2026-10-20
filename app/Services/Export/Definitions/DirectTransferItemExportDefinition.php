@@ -79,4 +79,16 @@ class DirectTransferItemExportDefinition extends ExportDefinition
             ->join('product_variants as pv', 'pv.id', '=', 'direct_transfer_items.product_variant_id')
             ->whereIn('direct_transfer_items.direct_transfer_id', $this->parentIdsQuery($tableQuery));
     }
+
+    /**
+     * An item inherits its direct transfer's both-endpoints rule
+     * (§20.1) — two groups, not one.
+     */
+    public function warehouseScope(): array
+    {
+        return [
+            ['dt.from_warehouse_id'],
+            ['dt.to_warehouse_id'],
+        ];
+    }
 }

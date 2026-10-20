@@ -78,4 +78,14 @@ class InTransitExportDefinition extends ExportDefinition
             ->join('transfer_requisitions as tr', 'tr.id', '=', 'in_transits.transfer_requisition_id')
             ->join('product_variants as pv', 'pv.id', '=', 'in_transits.product_variant_id');
     }
+
+    /**
+     * An in-transit record carries no warehouse of its own — it is
+     * derived from the requisition it joined as `tr`, and inherits that
+     * record's either-endpoint shape.
+     */
+    public function warehouseScope(): array
+    {
+        return [['tr.from_warehouse_id', 'tr.to_warehouse_id']];
+    }
 }
