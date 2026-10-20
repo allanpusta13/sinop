@@ -104,7 +104,9 @@ return [
         ],
         'import' => [
             'mode_families' => 'Product Families', // TODO(i18n): translate
+            'mode_families_desc' => 'Import parent product family groups (Name and optional Category).', // TODO(i18n): translate
             'mode_variants' => 'Product Variants', // TODO(i18n): translate
+            'mode_variants_desc' => 'Import SKU-bearing product variants associated with existing families.', // TODO(i18n): translate
             'map_family_id' => 'Family ID (optional)', // TODO(i18n): translate
             'map_family_name' => 'Family Name', // TODO(i18n): translate
             'map_family_category' => 'Family Category (optional)', // TODO(i18n): translate
@@ -469,6 +471,7 @@ return [
         'model' => [
             'singular' => 'Almacén',
             'plural' => 'Almacenes',
+            'singular_desc' => 'Import warehouse records (Code, Name, Location).', // TODO(i18n): translate
         ],
         'navigation' => [
             'label' => 'Warehouses', // TODO(i18n): translate
@@ -679,6 +682,7 @@ return [
         'model' => [
             'singular' => 'Proveedor',
             'plural' => 'Proveedores',
+            'singular_desc' => 'Import supplier records (Name, Contact Person, Phone, Email, Address).', // TODO(i18n): translate
         ],
         'navigation' => [
             'label' => 'Suppliers', // TODO(i18n): translate
@@ -839,6 +843,7 @@ return [
         'model' => [
             'singular' => 'Cliente',
             'plural' => 'Clientes',
+            'singular_desc' => 'Import customer records (Name, Contact Person, Phone, Email, Address).', // TODO(i18n): translate
         ],
         'navigation' => [
             'label' => 'Customers', // TODO(i18n): translate

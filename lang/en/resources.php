@@ -114,7 +114,9 @@ return [
         ],
         'import' => [
             'mode_families' => 'Product Families',
+            'mode_families_desc' => 'Import parent product family groups (Name and optional Category).',
             'mode_variants' => 'Product Variants',
+            'mode_variants_desc' => 'Import SKU-bearing product variants associated with existing families.',
             'map_family_id' => 'Family ID (optional)',
             'map_family_name' => 'Family Name',
             'map_family_category' => 'Family Category (optional)',
@@ -462,7 +464,7 @@ return [
     // SYSTEM ADMIN — Warehouses
     // =====================================================================
     'warehouses' => [
-        'model' => ['singular' => 'Warehouse', 'plural' => 'Warehouses'],
+        'model' => ['singular' => 'Warehouse', 'plural' => 'Warehouses', 'singular_desc' => 'Import warehouse records (Code, Name, Location).'],
         'navigation' => ['label' => 'Warehouses'],
         'fields' => [
             'code' => 'Code',
@@ -659,7 +661,7 @@ return [
     // PURCHASING — Suppliers
     // =====================================================================
     'suppliers' => [
-        'model' => ['singular' => 'Supplier', 'plural' => 'Suppliers'],
+        'model' => ['singular' => 'Supplier', 'plural' => 'Suppliers', 'singular_desc' => 'Import supplier records (Name, Contact Person, Phone, Email, Address).'],
         'navigation' => ['label' => 'Suppliers'],
         'fields' => [
             'name' => 'Name',
@@ -809,7 +811,7 @@ return [
     // SALES — Customers
     // =====================================================================
     'customers' => [
-        'model' => ['singular' => 'Customer', 'plural' => 'Customers'],
+        'model' => ['singular' => 'Customer', 'plural' => 'Customers', 'singular_desc' => 'Import customer records (Name, Contact Person, Phone, Email, Address).'],
         'navigation' => ['label' => 'Customers'],
         'fields' => [
             'name' => 'Name',
