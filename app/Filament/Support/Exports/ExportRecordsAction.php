@@ -213,7 +213,13 @@ abstract class ExportRecordsAction
             $notification->actions([
                 Action::make('download')
                     ->label(__('exports.notifications.download_label'))
-                    ->url(route('exports.download', ['file' => $result['filename']])),
+                    // Filament's SPA mode (->spa()) marks every in-panel
+                    // link `wire:navigate`, which fetches the URL with
+                    // fetch() and swaps the CSV text into the page instead
+                    // of downloading it. A new tab skips that interception
+                    // — the same escape hatch ImportWizardAction already
+                    // uses for its template downloads.
+                    ->url(route('exports.download', ['file' => $result['filename']]), shouldOpenInNewTab: true),
             ]);
         }
 

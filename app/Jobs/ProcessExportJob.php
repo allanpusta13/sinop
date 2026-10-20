@@ -111,7 +111,10 @@ class ProcessExportJob implements ShouldQueue
                 ->actions([
                     Action::make('download')
                         ->label(__('exports.notifications.download_label'))
-                        ->url(route('exports.download', ['file' => $this->filename])),
+                        // Same SPA-mode escape hatch as ExportRecordsAction:
+                        // `wire:navigate` would fetch the CSV into the page
+                        // instead of downloading it (see ImportWizardAction).
+                        ->url(route('exports.download', ['file' => $this->filename]), shouldOpenInNewTab: true),
                 ])
                 ->sendToDatabase($this->user);
         } catch (Throwable $exception) {
