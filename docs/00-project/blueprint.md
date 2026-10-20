@@ -6,6 +6,16 @@
 
 ---
 
+> **Changelog v0.1:** (imports & exports suite — Wave 2: exports)
+> 1. **Added** the shared export engine (`app/Services/Export/**`) — the `ExportDefinition` / `ExportColumn` contracts, a SQL-and-bindings snapshot compiler, a paged CSV/XLSX generator, a per-user file store with a 24-hour stale sweep, the service orchestrator, the queued execution job, and the authenticated download route (issues #225, #226).
+> 2. **Added** `ExportRecordsAction` — the shared "Export" header action registered on all eleven List pages, showing a type selector where a page offers more than one exportable type plus a CSV/XLSX format choice, gated server-side by the same `viewAny` the page itself requires.
+> 3. **Added** nineteen export definitions — master data (#225) and transactions + stock ledger (#226) — registered in `config/exports.php`.
+> 4. **Added** `exports.php` to the required locale set in all three languages (`action.*`, `notifications.*`, `errors.*`, `types.*`, `columns.*`).
+> 5. **Extended** Section 28 with the export engine, action, definition, and scope contracts (§28.9–§28.12); deferred follow-ups renumbered to §28.13.
+> 6. **Fixed** the engine defects surfaced by writing the definitions and then by reviewing them — aliased joins (`join('users u', …)`) compiled to a single quoted identifier that no engine could resolve; bare table sorts and Filament's own compiled search clauses turned ambiguous the moment a definition joined a table carrying the same column; `in_transits` was scoped against the wrong key space and dropped the page's filters; child exports paged with no stable order; and five dotted type labels never resolved out of the locale files (§27 rows 23–27, §28.9).
+> 7. **Hardened** the export output and its delivery — CSV formula injection is escaped, XLSX writes decimals as real numbers, the download response carries `nosniff` and serves only the two extensions the generator writes, the queued job re-validates its filename, and an unsupported format is rejected before anything is allocated or dispatched (§27 rows 28–30).
+> 8. **Added** 120 tests in `tests/Feature/ExportEngine/**` covering the registry, the definition column contracts, label resolution across all three locales, the service, the generator, the file store, the header action, the queued job, the download route, and a suite that drives the engine from real Filament List pages with search, filters and relationship sorts applied (§27 row 31).
+
 > **Changelog v0.1:** (imports & exports suite — Waves 0–1)
 > 1. **Added** Section 28 — the Import & Export Suite contract: shared engine, wizard flow, definitions registry, classification rules, hard exclusions, file/test inventories, and deferred follow-ups.
 > 2. **Added** the shared import engine (`app/Services/Import/**`) — parser, per-user file store, template generator, service orchestrator, queued execution job, template route, and the `ImportDefinition` / `ImportColumn` contracts (issue #219).
@@ -161,7 +171,8 @@ lang/
 │   ├── wizards.php       # __('wizards.*') — §18.3 review views
 │   ├── stn.php           # __('stn.*') — §21 print/scan views
 │   ├── dashboard.php     # __('dashboard.*') — §10 widgets
-│   └── imports.php       # __('imports.*') — §28 import wizard/engine strings
+│   ├── imports.php       # __('imports.*') — §28 import wizard/engine strings
+│   └── exports.php       # __('exports.*') — §28 export action/engine/column strings
 └── <locale>/
     └── same file set as en/
 ```
@@ -20012,7 +20023,8 @@ lang/   # required locale tree per §0A.2 — every locale carries the same key 
 │   ├── wizards.php       # __('wizards.*') — §18.3 review views
 │   ├── stn.php           # __('stn.*') — §21 print/scan views
 │   ├── dashboard.php     # __('dashboard.*') — §10 widgets
-│   └── imports.php       # __('imports.*') — §28 import wizard/engine strings
+│   ├── imports.php       # __('imports.*') — §28 import wizard/engine strings
+│   └── exports.php       # __('exports.*') — §28 export action/engine/column strings
 └── <locale>/
     └── same file set as en/
 
@@ -20051,7 +20063,12 @@ Import & Export Suite (§28) — declared here as one block; the per-feature con
 - `app/Filament/Support/Wizards/ImportWizardAction.php` and `app/Livewire/Wizards/ImportMappingNotice.php` — shared wizard action + mapping-notice component.
 - `app/Filament/Resources/{Products,Warehouses,Suppliers,Customers}/Actions/Import*Action.php` — per-resource wizard entry points.
 - `app/Http/Controllers/ImportTemplateController.php`, `app/Jobs/ProcessImportJob.php`, `config/imports.php`, and the `imports.template` route in `routes/web.php`.
-- `tests/Feature/{ImportEngine,ProductImport,WarehouseImport,SupplierImport,CustomerImport}/**` — the five suite test trees (§28.8).
+- `app/Services/Export/**` — engine services (`ExportService`, `ExportGenerator`, `ExportFileStore`), the `ExportDefinition` / `ExportColumn` contracts, and the nineteen `Definitions/*ExportDefinition.php` classes (§28.9).
+- `app/Filament/Support/Exports/ExportRecordsAction.php` — shared header action (§28.10).
+- `app/Filament/Resources/{Products,Warehouses,Suppliers,Customers,StockMovements,LossLedgers,TransferRequisitions,InTransits,PurchaseOrders,SalesOrders,DirectTransfers}/Actions/Export*Action.php` — per-resource export entry points.
+- `app/Http/Controllers/ExportDownloadController.php`, `app/Jobs/ProcessExportJob.php`, `config/exports.php`, the `export_connection` entry in `config/queue.php`, and the `exports.download` route in `routes/web.php`.
+- `lang/{en,es,tl}/exports.php` — export action, notification, error, type, and column strings (§28.9, §0A.2).
+- `tests/Feature/{ImportEngine,ProductImport,WarehouseImport,SupplierImport,CustomerImport,ExportEngine}/**` — the six suite test trees (§28.8).
 
 Widget, page, and print views:
 
@@ -20411,12 +20428,27 @@ Open items surfaced by Council review, not yet closed:
 | 14 | Mapping guess hydration | Wizard steps render lazily, so the mapping selects never existed at the action's single mount-time `fill()` and their `guessMappings()` defaults rendered empty in the browser (the server-side service tests never exercised render-time hydration); the file and mode fields now re-seed `columnMap` through `afterStateUpdated`, preserving manual edits until the file or mode actually changes | P1 |
 | 15 | Error param convention | Suite contexts passed `':placeholder' =>` keys (inherited from the `DomainRuleViolationException` docblock example), but Laravel prepends the colon itself — no placeholder substituted anywhere; switched all five definitions, `ImportService`, and `errors.warehouse_assignment_count` to bare keys, updated the affected test assertions, corrected the docblock | P1 |
 | 16 | Browser E2E | Added `tests/Browser/import-wizard.spec.ts` (3 scenarios: mode selector + mode-aware template links, families end-to-end with database proof, warehouse `name_conflict` reject path) and the `tmp-for-tests` disk in `config/filesystems.php` mirroring Livewire's test-disk rule so uploads persist under `artisan serve` with `APP_ENV=testing` | Test |
+| 17 | Export engine | Added `app/Services/Export/**` — `ExportDefinition` / `ExportColumn` contracts, `ExportService` (snapshot, authorization, inline-vs-queued at `QUEUE_THRESHOLD` 100), `ExportGenerator` (direct `DB::select` with integer-cast limit/offset paging at 500, CSV via `League\Csv` / XLSX via `OpenSpout`, null → empty cell), and `ExportFileStore` (`exports/{userId}` on `local`, 24-hour stale sweep, per-user cleanup) | P1 |
+| 18 | Export action | Added `ExportRecordsAction` and registered it on all eleven List pages — type selector only where a page offers more than one exportable type, CSV/XLSX format selector, `viewAny` gate, and execution against `getTableQueryForExport()` so table filters, search, and sort carry into the file | P1 |
+| 19 | Export definitions | Added nineteen definitions registered in `config/exports.php` — seven master-data types (#225) and twelve transaction/ledger types (#226), including five child types derived through a `parentIdsQuery()` id sub-select and four product types derived through the variant table | P1 |
+| 20 | Export download | Added `ExportDownloadController` and the authenticated `exports.download` route (`/admin/exports/{file}/download`, constrained to `[A-Za-z0-9._-]+`) — a file is served only from the requesting user's own directory; another user's filename and a missing file are both 404 | P1 |
+| 21 | Export queue | Added `export_connection` to `config/queue.php` (`QUEUE_EXPORT_CONNECTION`, falling back to `QUEUE_CONNECTION`) so export work can use its own queue without disturbing imports; `ProcessExportJob` re-authorizes before generating | P2 |
+| 22 | Export localisation | Added `lang/{en,es,tl}/exports.php` (`action.*`, `notifications.*`, `errors.*`, `types.*`, `columns.*`) with real Spanish and Tagalog translations, plus new `exports.columns.{requested,approved,proposed}_unit` keys where no resource key existed; declared in the §0A.2 and §25 locale trees | Governance |
+| 23 | Join alias fix | Definitions aliased joined tables as `join('users u', …)`, which the grammar wraps into one quoted identifier (`"users u"`) that neither MySQL nor SQLite can resolve; every aliased join now spells the `as` explicitly (§28.9) | P1 |
+| 24 | Ambiguous column qualification | `getTableQueryForExport()` hands the engine bare column references (`created_at desc`, and a search term compiled by Filament itself into `whereRaw('"name" like ? escape '!')`), every one of which turned ambiguous once a definition joined a table carrying the same name. `ExportService::snapshot()` now qualifies bare sort columns and walks the whole where tree — recursing into Filament's nested `or` search group, rewriting the leading column of a raw search clause, and leaving `Expression` sorts and `Exists` relationship searches alone. A bare name is only rewritten when it exists on the definition's own table, so a reference to a joined column is never repointed (§28.9) | P1 |
+| 25 | In-transits scope fix | `InTransitExportDefinition` was written in the child-export shape — a fresh `InTransit::query()` plus `whereIn('in_transits.transfer_requisition_id', parentIdsQuery($tableQuery))` — comparing a requisition foreign key against `in_transits.id`. Two faults compounded: the page's warehouse scope and filters were discarded, and the sub-select compared the wrong key space. It now starts from the page query like every other own-page export, so scope, filters and search carry through (§28.9) | P1 |
+| 26 | Deterministic paging | Paged generation appends `limit`/`offset`, which needs a total order to stay stable across pages; a child export's fresh builder had no sort at all and a `created_at` sort carries ties. `snapshot()` now appends the model's qualified primary key as a tiebreaker, behind a user-chosen sort, and skips it where the sort already carries the key (§28.9) | P1 |
+| 27 | Export localisation nesting | Five dotted type keys (`types.transfer_requisitions.items` and siblings) sat as literal array keys next to their parent string, and Laravel walks dot-segments — all five resolved to the raw key, which reads as a label and never translates. The four parent types now nest a `label` sub-key, and their definitions' `labelKey()` follow (§28.6) | P1 |
+| 28 | Generator output safety | CSV cells that begin a spreadsheet formula (`=`, `+`, `@`, tab, carriage return) are escaped, with a numeric guard so a negative number is never rewritten; XLSX now writes decimal columns as real numbers so a spreadsheet can sum them, while CSV keeps the database's own decimal text; `CAST_DATETIME` normalises the driver's datetime shape | P2 |
+| 29 | Export download hardening | The download response carries `X-Content-Type-Options: nosniff`, serves only the two extensions the generator writes (checked against `ExportService::SUPPORTED_FORMATS`), and `ProcessExportJob` re-validates the filename charset it received through the queue before touching the filesystem (§28.10) | P2 |
+| 30 | Export format validation | `ExportService::export()` rejects an unsupported format after authorization and before a filename is allocated or a job dispatched, so a bad request never reaches the queue; the generator keeps its own check as the second gate (§28.10) | P2 |
+| 31 | Export tests | Added 120 tests in `tests/Feature/ExportEngine/**` — registry and column contracts (including the excluded-field dataset and label resolution across all three locales), service authorization/queuing/sweep/format rejection, generator round-trips in both formats with paging, formula-escape and numeric-typing checks, file store, header action, queued job, download route, and a `ExportTableQueryTest` suite that drives the engine with **real** Filament List-page queries — search term, filter and relationship sort included — because a fixture-built query carries none of the bare column references that turn ambiguous once a definition joins a table | Test |
 
 ---
 
-## 📥 Section 28: Import & Export Suite (Waves 0–1: Imports)
+## 📥 Section 28: Import & Export Suite (Waves 0–2: Imports + Exports)
 
-> **Status:** Waves 0–1 shipped — the shared engine and five imports (issues #219, #220, #223). Export waves are not yet implemented; the v0.1 `ProductExporter` deletion (§25) predates this section — exports will be built against these contracts when their wave is scheduled.
+> **Status:** All three waves shipped — the shared engine (Wave 0), five imports (#219, #220, #223) and nineteen exports (#225, #226). The v0.1 `ProductExporter` deletion (§25) predates this section; exports were rebuilt against these contracts rather than restored.
 
 ### 28.1 Suite Shape
 
@@ -20426,7 +20458,7 @@ The suite ships in waves (research → build → verify → full suite → commi
 |---|---|---|---|
 | 0 | Shared engine: parser, file store, template generator, wizard, registry, engine tests | #219 (lead) | Shipped |
 | 1 | Imports: `products.families`, `products.variants`, `warehouses`, `suppliers`, `customers` | #219, #220, #223 | Shipped |
-| 2+ | Exports | TBD | Not started |
+| 2 | Exports: nineteen definitions across master data, transactions, and the stock ledger, plus the shared export engine and header action | #225, #226 | Shipped |
 
 One wizard serves every import: an import is a definition class + a registry entry + a one-line action on its List page.
 
@@ -20467,7 +20499,7 @@ Shared rules (owner-resolved ambiguities):
 
 - In-file duplicate precedence is **first occurrence wins** within a file.
 - **Update rows may rename freely** (code/SKU is the only identity axis).
-- **Soft-deleted rows count as "existing"** for matching (legacy behavior parity — flagged for owner review, §28.9).
+- **Soft-deleted rows count as "existing"** for matching (legacy behavior parity — flagged for owner review, §28.13).
 - A mapped-but-blank cell persists `''` and is distinct from an unmapped column (omitted key).
 
 ### 28.5 Hard Exclusions
@@ -20479,6 +20511,7 @@ Shared rules (owner-resolved ambiguities):
 ### 28.6 Localisation
 
 - `lang/{en,es,tl}/imports.php` — wizard + engine strings (`imports.wizard.*`, `imports.errors.*`); declared in both the §0A.2 and §25 locale trees.
+- `lang/{en,es,tl}/exports.php` — action, notification, error, type, and column strings (`exports.action.*`, `exports.notifications.*`, `exports.errors.*`, `exports.types.*`, `exports.columns.*`); also declared in both locale trees. Each definition declares its column label key explicitly: it points at the resource's existing `resources.*.table.*` / `resources.*.fields.*` key where one already exists, and at a new `exports.columns.*` key only where it does not (the three transfer-requisition unit columns plus the cross-resource ids).
 - Per-definition strings live under `resources.{products,warehouses,suppliers,customers}.import.*` in the existing resource files.
 - Cross-locale structural parity is enforced by `TranslationKeyParityTest` (§0A.15); translation content is the separate O-PARITY workstream.
 
@@ -20499,49 +20532,167 @@ app/
 │       ├── ProductVariantImportDefinition.php
 │       ├── SupplierImportDefinition.php
 │       └── WarehouseImportDefinition.php
+├── Services/Export/
+│   ├── ExportColumn.php
+│   ├── ExportDefinition.php
+│   ├── ExportFileStore.php
+│   ├── ExportGenerator.php
+│   ├── ExportService.php
+│   └── Definitions/                    # #225 master data, #226 transactions + ledger
+│       ├── CurrentPriceExportDefinition.php
+│       ├── CustomerExportDefinition.php
+│       ├── DirectTransferExportDefinition.php
+│       ├── DirectTransferItemExportDefinition.php
+│       ├── InTransitExportDefinition.php
+│       ├── LossLedgerExportDefinition.php
+│       ├── ProductFamilyExportDefinition.php
+│       ├── ProductVariantExportDefinition.php
+│       ├── PurchaseOrderExportDefinition.php
+│       ├── PurchaseOrderItemExportDefinition.php
+│       ├── SalesOrderExportDefinition.php
+│       ├── SalesOrderItemExportDefinition.php
+│       ├── StockMovementExportDefinition.php
+│       ├── SupplierExportDefinition.php
+│       ├── TransferRequisitionExportDefinition.php
+│       ├── TransferRequisitionItemExportDefinition.php
+│       ├── TransferRequisitionItemRevisionExportDefinition.php
+│       ├── UnitConversionExportDefinition.php
+│       └── WarehouseExportDefinition.php
 ├── Filament/Support/Wizards/
 │   └── ImportWizardAction.php
+├── Filament/Support/Exports/
+│   └── ExportRecordsAction.php
 ├── Filament/Resources/
-│   ├── Products/Actions/ImportProductsAction.php
-│   ├── Warehouses/Actions/ImportWarehousesAction.php
-│   ├── Suppliers/Actions/ImportSuppliersAction.php
-│   └── Customers/Actions/ImportCustomersAction.php
+│   ├── Products/Actions/{Import,Export}ProductsAction.php
+│   ├── Warehouses/Actions/{Import,Export}WarehousesAction.php
+│   ├── Suppliers/Actions/{Import,Export}SuppliersAction.php
+│   ├── Customers/Actions/{Import,Export}CustomersAction.php
+│   ├── StockMovements/Actions/ExportStockMovementsAction.php
+│   ├── LossLedgers/Actions/ExportLossLedgersAction.php
+│   ├── TransferRequisitions/Actions/ExportTransferRequisitionsAction.php
+│   ├── InTransits/Actions/ExportInTransitsAction.php
+│   ├── PurchaseOrders/Actions/ExportPurchaseOrdersAction.php
+│   ├── SalesOrders/Actions/ExportSalesOrdersAction.php
+│   └── DirectTransfers/Actions/ExportDirectTransfersAction.php
 ├── Livewire/Wizards/
 │   └── ImportMappingNotice.php
 ├── Http/Controllers/
-│   └── ImportTemplateController.php
+│   ├── ImportTemplateController.php
+│   └── ExportDownloadController.php
 └── Jobs/
-    └── ProcessImportJob.php
+    ├── ProcessImportJob.php
+    └── ProcessExportJob.php
 
 config/imports.php
+config/exports.php
+config/queue.php                        # `export_connection` entry
 
 resources/views/filament/wizards/{import-preview,mapping-notice}.blade.php
 resources/views/livewire/wizards/import-mapping-notice.blade.php
 
 lang/{en,es,tl}/imports.php + resources.*.import.* keys
+lang/{en,es,tl}/exports.php + exports.columns.* keys
 
-routes/web.php — `imports.template` route
+routes/web.php — `imports.template` and `exports.download` routes
 
 tests/Feature/
 ├── ImportEngine/        # engine contract suite (parser, store, service, job, route, template, wizard)
 ├── ProductImport/       # #219 — families/variants classification + action flow
 ├── WarehouseImport/     # #220 — classification, authorization, execution, templates
 ├── SupplierImport/      # #223 — classification + action flow
-└── CustomerImport/      # #223 — classification + action flow
+├── CustomerImport/      # #223 — classification + action flow
+└── ExportEngine/        # #225/#226 — registry, definitions, service, generator, store, action, job, route
 ```
 
 ### 28.8 Tests
 
-130 Pest tests across the five suite test trees at the Wave-1 close. The `ImportEngine` tree is the contract suite for every shared class (including `Fixtures/` — a fixture definition + fixture wizard action used by engine tests); each entity tree covers definition classification, wizard action flow, server-side authorization, template download, and execution semantics (including the queued path and transactional rollback).
+250 Pest tests across the six suite test trees at the Wave-2 close (130 import, 120 export). The `ImportEngine` and `ExportEngine` trees are the contract suites for their shared classes (each with a `Fixtures/` tree); each entity tree covers definition classification, wizard action flow, server-side authorization, template download, and execution semantics (including the queued path and transactional rollback). `ExportTableQueryTest` is deliberately built on real Filament List pages rather than fixture queries — a fixture query carries none of the bare column references Filament produces, so the ambiguity those references cause only surfaces against the real thing.
 
 Browser E2E: `tests/Browser/import-wizard.spec.ts` — three serial chromium scenarios driving the real modal through `artisan serve` (APP_ENV=testing): upload-step mode selector (icons + mode-aware template links), a families import end to end (upload → guessed mapping → preview counts → run → database proof via `tinker()`), and the warehouse `name_conflict` reject path (rejected row rendered with a substituted message, accepted row written, rejected row never written). File uploads under `artisan serve` require the `tmp-for-tests` disk in `config/filesystems.php` — Livewire's own test-disk fallback is in-process and does not persist across requests.
 
-### 28.9 Deferred Follow-ups
+### 28.9 Export Engine Contracts (`app/Services/Export/`)
+
+An export mirrors an import in shape — a definition class + a registry entry + a one-line header action — but runs in the opposite direction: it reads the page's own table query and writes a file, never a row.
+
+- `ExportColumn` — readonly value object: `key`, `labelKey`, `cast` (`string` | `int` | `float` | `datetime`), plus `label()` which resolves the header through `__()`.
+- `ExportDefinition` (abstract) — the per-feature contract: `key()`, `labelKey()`, `modelClass()`, `columns()` (in file order), `authorize(User $user): void` (throws `AuthorizationException`), and `query(Builder $tableQuery): Builder`, which turns the page's filtered query into the file's select. `can()` wraps `authorize()` for visibility. `parentIdsQuery(Builder $tableQuery): Builder` derives a parent id sub-select (own table's qualified key, order dropped) — the single mechanism child definitions use to scope themselves to their parent's rows.
+- `ExportService` — orchestrator: `definitions()` (from `config('exports.definitions')`), `resolveDefinition()`, `authorize()`, `snapshot(Builder $query): array{0: string, 1: array}` (SQL + bindings, with ambiguous columns qualified and the sort made total — see below), `rowCount()`, and `export()`, which re-authorizes, validates the format, snapshots, and either generates inline or dispatches `ProcessExportJob` when `rows > QUEUE_THRESHOLD` (**100**). The result is `array{status: 'completed'|'queued', rows: int, filename: string|null}`. `SUPPORTED_FORMATS` (**csv**, **xlsx**) is checked before a filename is allocated or a job dispatched, so a bad format never reaches the queue; the generator checks again as the second gate.
+- `ExportGenerator::generate(ExportDefinition $definition, string $sql, array $bindings, string $format, string $path): int` — runs `DB::select` directly (no model hydration) with inline integer-cast `limit`/`offset` paging at `PAGE_SIZE` (**500**), writing CSV via `League\Csv` or XLSX via `OpenSpout`. Returns the row count. Headers come from `columns()`, values are cast and `null` becomes an empty cell.
+- `ExportFileStore` — per-user export storage on the `local` disk under `exports/` (`DISK`, `DIRECTORY`): `allocateFilename(int $userId, string $key, string $format): string` (`sinop_export_{key}.{time}.{random}.{ext}`, dot-safe and route-safe), `absolutePath()`, `exists()`, `ensureUserDirectory()`, `sweep()` (removes files older than `STALE_HOURS` = **24**, never another user's), `cleanupUser()`.
+- `ProcessExportJob` — `ShouldQueue` job carrying the SQL, bindings, definition key, format, and filename. It **re-authorizes** the definition before generating, so a snapshot is never trusted on its own, and reports the outcome as a database notification.
+- `ExportDownloadController` + the `exports.download` route (`/admin/exports/{file}/download`, constrained to `[A-Za-z0-9._-]+`) — serves a file only from the authenticated user's own directory; any other user's filename, or a missing file, is a 404.
+- `config/queue.php` → `export_connection` (`QUEUE_EXPORT_CONNECTION`, falling back to `QUEUE_CONNECTION`) lets export work use its own queue without disturbing imports.
+
+Three engine rules the definitions depend on:
+
+- **Column qualification.** `getTableQueryForExport()` names columns *bare* — a sort arrives as `created_at desc`, and a search term is compiled by Filament itself into `whereRaw('"name" like ? escape \'!\'')`. Every definition joins at least one table carrying its own `created_at`/`updated_at`/`name`, so any unqualified reference turns ambiguous on MySQL and SQLite alike. `ExportService::snapshot()` walks the whole where tree before compiling: bare sort columns are prefixed with the definition model's table; the where tree is recursed into Filament's nested `or` search group (which holds another query builder, not a plain array); the leading column of a raw search clause is repointed the same way — safe because the grammar's quote character makes a prefix such as `sku` unable to match a joined `sku_code`; and `Expression` sorts plus `Exists` relationship searches are left alone. A bare name is only rewritten when it really exists on the definition's own table, so a reference to a joined column is never repointed at the wrong table.
+- **Total sort for paging.** Generation pages with `limit`/`offset`, which needs a stable total order or rows shuffle between pages. `snapshot()` appends the model's qualified primary key as a tiebreaker — behind a user-chosen sort, and skipped where that sort already carries the key, since a unique column anywhere in the order makes the whole order total. This matters most for child definitions, whose fresh builders carry no sort at all.
+- **Join aliases use `as`.** `join('users u', …)` compiles to a single quoted identifier (`"users u"`) that no engine resolves; definitions spell it `join('users as u', …)`.
+
+### 28.10 Export Action Contract (`app/Filament/Support/Exports/ExportRecordsAction.php`)
+
+Abstract Filament action shared by all exports; resource actions extend it implementing `name()` and `definitionKeys()`.
+
+- **Visibility:** shown when any definition key passes `can($user)` — the same `viewAny` gate the page itself uses, so an action never appears on a page its user cannot open.
+- **Modal:** a required `ToggleButtons` type selector (only when the page offers more than one exportable type) and a required CSV/XLSX `ToggleButtons` format selector with per-format icons.
+- **Execution:** `runExport()` guards on `HasTable`, reads `getTableQueryForExport()` — filters, search, and sort applied, no aggregates or eager loading — rejects any type outside the page's own `definitionKeys()`, then delegates to `ExportService::export()`.
+- **Result:** an inline success notification with a "Download file" action button for a completed export, a queued notification otherwise, and a danger notification carrying the failure.
+
+### 28.11 Export Definitions & Column Contracts
+
+Registry: `config/exports.php` → `definitions` (dot-key ⇒ class), in display order.
+
+| Definition | Issue | Source |
+|---|---|---|
+| `products.families` | #225 | `products` derived through the variant table (no separate family List page) |
+| `products.variants` | #225 | `product_variants` + `products` |
+| `products.current_prices` | #225 | current row per variant from `product_variant_prices` |
+| `products.unit_conversions` | #225 | `product_unit_conversions` + `product_variants` |
+| `warehouses` | #225 | `warehouses` + `withCount(['users', 'stockMovements'])` |
+| `suppliers` | #225 | `suppliers` + `withCount('purchaseOrders')` |
+| `customers` | #225 | `customers` + `withCount('salesOrders')` |
+| `stock_movements` | #226 | `stock_movements` + variants, warehouses, users |
+| `loss_ledgers` | #226 | `loss_ledgers` + variants, warehouses, requisitions, users |
+| `transfer_requisitions` | #226 | `transfer_requisitions` + both warehouses, four actors, `withCount('items')` |
+| `transfer_requisitions.items` | #226 | `transfer_requisition_items`, scoped by the parent's id sub-select |
+| `transfer_requisitions.revisions` | #226 | `transfer_requisition_item_revisions`, scoped by item id sub-select |
+| `in_transits` | #226 | `in_transits` + requisition and variant joins |
+| `purchase_orders` | #226 | `purchase_orders` + supplier, warehouse, two actors, `withCount('items')` |
+| `purchase_orders.items` | #226 | `purchase_order_items`, scoped by the parent's id sub-select |
+| `sales_orders` | #226 | `sales_orders` + customer, warehouse, two actors, `withCount('items')` |
+| `sales_orders.items` | #226 | `sales_order_items`, scoped by the parent's id sub-select |
+| `direct_transfers` | #226 | `direct_transfers` + both warehouses, actor, `withCount('items')` |
+| `direct_transfers.items` | #226 | `direct_transfer_items`, scoped by the parent's id sub-select |
+
+Shared column rules:
+
+- Every column is selected explicitly and aliased, so the file's header matches the List page's column label (`exports.columns.*`, falling back to the resource's `resources.*.table.*` keys). Count columns (`items_count`, and the warehouse/supplier/customer counts) are §7 List-page columns backed by `withCount()`; a definition re-declares them via `->select([...])->withCount([...])` so the resource's own sub-selects are dropped first rather than duplicated.
+- **Actor columns export names only** — every `*_by` id is joined to `users` and written as `requested_by`, `approved_by`, and so on.
+- **Enum columns export their backing values** (`StockMovementType::Adjustment->value`), not labels.
+- `TransferRequisitionItemRevision` exports the parent variant's SKU as `parent_sku` per the §7 contract; its own `product_variant_id` is not exported, and its `user_id` is written through the `proposed_by` alias.
+
+### 28.12 Export Scope & Hard Exclusions
+
+- CSV/XLSX only — no PDF, and no other format is accepted by the generator.
+- Exports are **read-only**: no definition writes to any table, and none touches `stock_movements` or the price tables as a side effect.
+- Authorization and warehouse scope are enforced **server-side** in `ExportService::export()` and again inside `ProcessExportJob` — never derived from client-supplied state. The job re-runs `authorize()` against the live user, so a role revoked between dispatch and execution still fails closed.
+- Only the filters the table actually applies are carried into the file; the query snapshot travels as SQL plus bindings, so a queued export produces exactly the rows the user was looking at. **Known trade-off:** because scope is captured at dispatch time, a *warehouse assignment* revoked while the job is queued is not re-derived — the file reflects the scope the user held when they requested it. Re-deriving would need the scope predicate to travel separately from the snapshot; tracked as a follow-up (§28.13) rather than settled here.
+- `Product.is_active`, variant `images`, spec-silent fields, credentials, idempotency keys, and internal control records never appear in a definition's columns (§28.13 lists the follow-ups deferred from this wave).
+
+### 28.13 Deferred Follow-ups
 
 - **Chunked catalog loads** — variant imports load family catalogs eagerly; revisit if production family counts make single-pass resolution slow.
 - **Shared name-keyed definition base** — supplier/customer classification is duplicated deliberately; extract a shared base only if a third name-keyed import appears.
 - **Soft-deleted "existing" parity** — soft-deleted rows counting as existing is legacy parity, not a designed choice; owner review pending.
+- **Export storage lifetime** — files live for 24 hours and are swept on the next export by the same user; a user who never exports again keeps their last file indefinitely. Revisit if disk use becomes a concern.
+- **Export row-count ceiling** — a definition compiles one snapshot and pages through it; a very large table holds the connection for the whole file. Revisit with an explicit `->limit()` or an out-of-band cursor if production ledger sizes make that slow.
+- **`products.families` derivation** — the family set is derived through the variant table because ProductResource has no separate family List page; if a family List page is added, the definition should read that table directly instead.
+- **Queued-export scope re-derivation** — the SQL snapshot carries the warehouse scope it was compiled with; a user whose warehouse assignment changes while their job is queued gets a file from the old scope. Re-deriving needs the scope predicate to travel separately from the snapshot (§28.12). Authorization itself is re-checked in the job, so this is scope drift, not an access widening.
+- **Per-user export rate limiting** — nothing stops a user from queueing many large exports in a row. Out of scope for #225/#226; worth a throttle if export volume becomes a cost concern.
+- **Download route panel re-check** — the route relies on the session's authenticated user, not on re-resolving the Filament panel. Consistent with the rest of the app's authenticated routes; revisit only if a second panel is ever mounted.
+- **Orphan partial file** — a generator that fails mid-file leaves the partial behind until the next export's 24-hour sweep. Low cost, self-healing; noted rather than fixed.
+- **`ExportFileStore::cleanupUser()`** — currently has no caller (stale files are handled by `sweep()`); kept as the documented teardown hook alongside the import engine's equivalent.
 
 ---
 
-*End of blueprint v0.1 — post-v0.1 residual closure: §7K.1 `WarehouseForm` Filament v5 fix, §4.1 under-review icon pairing, §5.6 `UserFactory::admin()` empty-pivot restore, §1B.1a fail-closed amendment, §25 untracked-extras declared and `ProductExporter.php` deleted. Retains v0.1 P1 contract-closure: §10 widget type + `$view` corrections, ninth event/listener/notification catalogued, §25 reverse rule. Direct Transfer multi-item support, translation coverage, runtime wiring, and role + warehouse scoped navigation badges fully integrated. Import & Export Suite (§28): shared import engine + Wave-1 imports (#219/#220/#223) documented, file-mapped, and change-tabled.*
+*End of blueprint v0.1 — post-v0.1 residual closure: §7K.1 `WarehouseForm` Filament v5 fix, §4.1 under-review icon pairing, §5.6 `UserFactory::admin()` empty-pivot restore, §1B.1a fail-closed amendment, §25 untracked-extras declared and `ProductExporter.php` deleted. Retains v0.1 P1 contract-closure: §10 widget type + `$view` corrections, ninth event/listener/notification catalogued, §25 reverse rule. Direct Transfer multi-item support, translation coverage, runtime wiring, and role + warehouse scoped navigation badges fully integrated. Import & Export Suite (§28): shared import engine + Wave-1 imports (#219/#220/#223) documented, file-mapped, and change-tabled; Wave-2 exports (#225/#226) added — shared export engine, `ExportRecordsAction`, nineteen definitions, download route, `export_connection`, locale files, and the `ExportEngine` contract suite (§28.9–§28.12).*
