@@ -57,6 +57,12 @@
 
     {{-- Row-level details --}}
     @if (count($rows) > 0)
+        @if ($preview['rows_truncated'] ?? false)
+            <div class="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-start gap-2">
+                <x-filament::icon :icon="\Filament\Support\Icons\Heroicon::InformationCircle" class="h-4 w-4 shrink-0 mt-0.5 text-zinc-500 dark:text-zinc-400" />
+                <div class="text-sm text-zinc-600 dark:text-zinc-300">{{ __('imports.preview.rows_truncated', ['shown' => count($rows), 'total' => $counts['total']]) }}</div>
+            </div>
+        @endif
         <div class="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
             <table class="w-full text-sm">
                 <thead class="bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs uppercase tracking-wider">

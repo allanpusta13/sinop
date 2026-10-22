@@ -7,8 +7,10 @@ namespace App\Services\Import;
 use App\Exceptions\DomainRuleViolationException;
 use App\Jobs\ProcessImportJob;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use PDOException;
 
 /**
  * ImportService — orchestrates the shared import flow for every
@@ -23,8 +25,8 @@ class ImportService
     public const QUEUE_THRESHOLD = 100;
 
     public function __construct(
-        protected ImportParser $parser,
-        protected ImportFileStore $fileStore,
+        private readonly ImportParser $parser,
+        private readonly ImportFileStore $fileStore,
     ) {}
 
     /**
@@ -94,7 +96,7 @@ class ImportService
                 $expectedCounts,
                 $confirmUpdates,
                 (int) $user->getKey(),
-            );
+            )->onConnection((string) config('queue.import_connection', config('queue.default')));
 
             return ['status' => 'queued', 'counts' => $expectedCounts];
         }
@@ -113,9 +115,17 @@ class ImportService
     }
 
     /**
-     * Re-parse and re-validate every row against the current database,
-     * compare with the confirmed counts, then persist inside a
-     * transaction. Used by both the inline path and the queued job.
+     * Re-parse every row, then validate, compare against the confirmed
+     * counts and persist all inside one transaction, so the counts the
+     * user confirmed are checked against the same state the write
+     * lands on. Used by both the inline path and the queued job.
+     *
+     * A duplicate-key violation means a concurrent write won a unique
+     * key between the confirmation and this run; the transaction rolls
+     * the whole run back with it — including rows persist() already
+     * wrote — and it is reported through the standard counts-mismatch
+     * flow with freshly read counts, so the user re-reviews against
+     * reality instead of hitting an error page.
      *
      * @param  array<string, string|int|null>  $columnMap
      * @param  array{create: int, update: int, reject: int, total?: int}  $expectedCounts
@@ -130,28 +140,79 @@ class ImportService
         $this->assertUpdatesConfirmed($expectedCounts, $confirmUpdates);
 
         $parsed = $this->parser->parse($filePath, $originalName);
+        $rows = $this->extractRows($definition, $parsed['headers'], $parsed['rows'], $columnMap);
 
-        $validated = $definition->validate(
-            $this->extractRows($definition, $parsed['headers'], $parsed['rows'], $columnMap),
-        );
+        try {
+            return DB::transaction(function () use ($definition, $rows, $expectedCounts): array {
+                $validated = $definition->validate($rows);
 
-        $this->assertCountsUnchanged($expectedCounts, $validated['counts']);
+                $this->assertCountsUnchanged($expectedCounts, $validated['counts']);
 
-        $applicable = array_values(array_filter(
-            $validated['rows'],
-            static fn (array $row): bool => ($row['status'] ?? null) !== 'reject',
-        ));
+                $applicable = array_values(array_filter(
+                    $validated['rows'],
+                    static fn (array $row): bool => ($row['status'] ?? null) !== 'reject',
+                ));
 
-        return DB::transaction(static function () use ($definition, $applicable, $validated): array {
-            $persisted = $definition->persist($applicable);
+                $persisted = $definition->persist($applicable);
 
-            return [
-                'created' => $persisted['created'],
-                'updated' => $persisted['updated'],
-                'skipped' => $persisted['skipped'],
-                'rejected' => $validated['counts']['reject'],
-            ];
-        });
+                // A skip only happens when an update target vanished
+                // between the confirmation and the write: the confirmed
+                // counts did not materialise, so nothing is committed and
+                // the user is sent through the standard mismatch flow
+                // (which refreshes the preview against reality).
+                if ($persisted['skipped'] > 0) {
+                    throw new DomainRuleViolationException('errors.import_counts_mismatch', [
+                        'expected_create' => $expectedCounts['create'] ?? 0,
+                        'expected_update' => $expectedCounts['update'] ?? 0,
+                        'expected_reject' => $expectedCounts['reject'] ?? 0,
+                        'actual_create' => $validated['counts']['create'],
+                        'actual_update' => $validated['counts']['update'],
+                        'actual_reject' => $validated['counts']['reject'],
+                    ]);
+                }
+
+                return [
+                    'created' => $persisted['created'],
+                    'updated' => $persisted['updated'],
+                    'skipped' => $persisted['skipped'],
+                    'rejected' => $validated['counts']['reject'],
+                ];
+            });
+        } catch (QueryException $exception) {
+            if (! $this->isDuplicateKeyViolation($exception)) {
+                throw $exception;
+            }
+
+            $fresh = $definition->validate($rows);
+
+            throw new DomainRuleViolationException('errors.import_counts_mismatch', [
+                'expected_create' => $expectedCounts['create'] ?? 0,
+                'expected_update' => $expectedCounts['update'] ?? 0,
+                'expected_reject' => $expectedCounts['reject'] ?? 0,
+                'actual_create' => $fresh['counts']['create'],
+                'actual_update' => $fresh['counts']['update'],
+                'actual_reject' => $fresh['counts']['reject'],
+            ]);
+        }
+    }
+
+    /**
+     * A unique-key violation (MySQL 1062, SQLite/Postgres UNIQUE
+     * constraint messages) — the race signature of a row inserted
+     * between the confirmation and this transaction's write. Any other
+     * constraint or query failure is a real error and propagates.
+     */
+    protected function isDuplicateKeyViolation(QueryException $exception): bool
+    {
+        $errorInfo = $exception->errorInfo
+            ?? ($exception->getPrevious() instanceof PDOException ? $exception->getPrevious()->errorInfo : null);
+
+        $driverCode = is_array($errorInfo) ? (int) ($errorInfo[1] ?? 0) : 0;
+        $message = is_array($errorInfo) ? (string) ($errorInfo[2] ?? '') : $exception->getMessage();
+
+        return $driverCode === 1062
+            || str_contains($message, 'Duplicate entry')
+            || str_contains($message, 'UNIQUE constraint');
     }
 
     /**
@@ -203,6 +264,9 @@ class ImportService
      * Map raw parsed rows onto definition fields via the column map.
      * Unmapped columns are absent from `data` (distinct from an empty
      * cell), so definitions can tell "leave alone" from "blank value".
+     * An integer mapping is a header index and must fall inside the
+     * header row; out-of-range integers read as unmapped, never as a
+     * blank-value column.
      *
      * @param  array<int, string>  $headers
      * @param  array<int, array<int, mixed>>  $rawRows
@@ -220,7 +284,9 @@ class ImportService
                 continue;
             }
 
-            $index = is_int($mapped) ? $mapped : $this->resolveColumnIndex($mapped, $headers);
+            $index = is_int($mapped)
+                ? (array_key_exists($mapped, $headers) ? $mapped : null)
+                : $this->resolveColumnIndex($mapped, $headers);
 
             if ($index !== null) {
                 $indexes[$column->key] = $index;

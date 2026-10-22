@@ -12,6 +12,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Tests\Feature\ImportEngine\Fixtures\ProductImportDefinitionFixture;
 
 beforeEach(function () {
     registerFixtureImportDefinition();
@@ -168,8 +169,72 @@ test('queues imports above the inline row threshold', function () {
         ProcessImportJob::class,
         fn (ProcessImportJob $job): bool => $job->definitionKey === 'fixture.products'
             && $job->expectedCounts['create'] === 101
-            && $job->userId === (int) $user->getKey(),
+            && $job->userId === (int) $user->getKey()
+            && $job->connection === config('queue.import_connection'),
     );
+});
+
+test('maps a duplicate-key write conflict onto the counts-mismatch flow', function () {
+    $user = auth()->user();
+    $file = importFixtureCsv([['Robusta', 'Beverages']]);
+
+    // A concurrent writer inserted the same row between our validate()
+    // and persist(): the transaction rolled back (no writes), and the
+    // user is asked to review the refreshed counts instead.
+    ProductImportDefinitionFixture::$failPersistWithDuplicateKey = true;
+
+    try {
+        app(ImportService::class)->executeTransactional(
+            $file,
+            'products.csv',
+            'fixture.products',
+            fixtureColumnMap(),
+            ['create' => 1, 'update' => 0, 'reject' => 0, 'total' => 1],
+            false,
+            $user,
+        );
+
+        $this->fail('Expected DomainRuleViolationException was not thrown.');
+    } catch (DomainRuleViolationException $exception) {
+        expect($exception->translationKey())->toBe('errors.import_counts_mismatch')
+            ->and($exception->context()['expected_create'])->toBe(1)
+            ->and(Product::query()->count())->toBe(0);
+    } finally {
+        ProductImportDefinitionFixture::$failPersistWithDuplicateKey = false;
+    }
+});
+
+test('rolls the run back when persist reports a skipped row', function () {
+    $user = auth()->user();
+    $file = importFixtureCsv([['Robusta', 'Beverages']]);
+
+    // An update target vanished between the confirmation and the write:
+    // the confirmed counts did not materialise, so nothing commits and
+    // the user re-reviews the refreshed counts instead of silently
+    // receiving a short-handed run.
+    ProductImportDefinitionFixture::$failPersistWithSkip = true;
+
+    try {
+        app(ImportService::class)->executeTransactional(
+            $file,
+            'products.csv',
+            'fixture.products',
+            fixtureColumnMap(),
+            ['create' => 1, 'update' => 0, 'reject' => 0, 'total' => 1],
+            false,
+            $user,
+        );
+
+        $this->fail('Expected DomainRuleViolationException was not thrown.');
+    } catch (DomainRuleViolationException $exception) {
+        expect($exception->translationKey())->toBe('errors.import_counts_mismatch')
+            ->and($exception->context()['expected_create'])->toBe(1)
+            // persist() wrote the row before reporting the skip — the
+            // transaction still took it back.
+            ->and(Product::query()->count())->toBe(0);
+    } finally {
+        ProductImportDefinitionFixture::$failPersistWithSkip = false;
+    }
 });
 
 test('rejects unknown definition keys', function () {

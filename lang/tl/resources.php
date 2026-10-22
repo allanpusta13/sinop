@@ -143,6 +143,7 @@ return [
                 'barcode_conflict' => 'Barcode ":barcode" is already associated with a different SKU (:sku).', // TODO(i18n): translate
                 'reorder_point_invalid' => 'Reorder point must be a non-negative integer.', // TODO(i18n): translate
                 'attributes_invalid_json' => 'Attributes must be valid JSON.', // TODO(i18n): translate
+                'is_active_invalid' => 'Active status must be a yes or no value.', // TODO(i18n): translate
                 'family_identifier_mapping_required' => 'At least one family mapping column is required: Family ID or Family Name.', // TODO(i18n): translate
             ],
         ],

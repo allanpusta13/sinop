@@ -9,7 +9,6 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
 use App\Services\Import\ImportFileStore;
-use App\Services\Import\ImportService;
 use Filament\Actions\Action;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -21,28 +20,6 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     Storage::fake('local');
 });
-
-if (! function_exists('freezeProductImportPreview')) {
-    /**
-     * Freeze the preview exactly as the wizard's mapping step would: the
-     * step's afterValidation hook does not run under callMountedAction, so
-     * the modal tests pre-freeze preview.json next to the uploaded file.
-     *
-     * @param  array<string, string|int|null>  $columnMap
-     */
-    function freezeProductImportPreview(UploadedFile $file, string $definitionKey, array $columnMap, User $user): void
-    {
-        $preview = app(ImportService::class)->preview(
-            $file->getRealPath(),
-            $file->getClientOriginalName(),
-            $definitionKey,
-            $columnMap,
-            $user,
-        );
-
-        app(ImportFileStore::class)->writePreview((int) $user->getKey(), $preview);
-    }
-}
 
 it('renders the import wizard action on ListProducts for authorized admins', function () {
     $admin = User::factory()->admin()->create();
@@ -114,17 +91,21 @@ it('executes a family import through the wizard modal', function () {
 
     $csv = "Family Name,Category\nAeropress Roast,Equipment\n";
     $file = UploadedFile::fake()->createWithContent('families.csv', $csv);
-    $columnMap = ['name' => 'Family Name', 'category' => 'Category'];
-
-    freezeProductImportPreview($file, 'products.families', $columnMap, $admin);
 
     $testable = Livewire::actingAs($admin)
         ->test(ListProducts::class)
-        ->callAction('importProducts', data: [
+        ->mountAction('importProducts')
+        ->setActionData([
             'mode' => 'products.families',
             'file' => $file,
-            'columnMap' => $columnMap,
-        ]);
+            'columnMap' => ['name' => 'Family Name', 'category' => 'Category'],
+        ])
+        ->goToNextWizardStep()
+        ->goToNextWizardStep();
+
+    // The mapping step's afterValidation froze the preview (with its
+    // fingerprint) while advancing; submitting now runs it for real.
+    $testable->callMountedAction();
 
     $testable->assertHasNoActionErrors();
 
@@ -154,16 +135,18 @@ it('executes a confirmed variant update through the wizard modal', function () {
         'base_unit_name' => 'Base Unit Name',
     ];
 
-    freezeProductImportPreview($file, 'products.variants', $columnMap, $admin);
-
-    Livewire::actingAs($admin)
+    $testable = Livewire::actingAs($admin)
         ->test(ListProducts::class)
-        ->callAction('importProducts', data: [
+        ->mountAction('importProducts')
+        ->setActionData([
             'mode' => 'products.variants',
             'file' => $file,
             'columnMap' => $columnMap,
             'confirm_updates' => true,
         ])
+        ->goToNextWizardStep()
+        ->goToNextWizardStep()
+        ->callMountedAction()
         ->assertHasNoActionErrors();
 
     expect($existing->refresh()->name)->toBe('New Pour Over');
@@ -188,20 +171,23 @@ it('refreshes the preview and asks for a fresh confirmation when the database dr
         'base_unit_name' => 'Base Unit Name',
     ];
 
-    freezeProductImportPreview($file, 'products.variants', $columnMap, $admin);
+    $testable = Livewire::actingAs($admin)
+        ->test(ListProducts::class)
+        ->mountAction('importProducts')
+        ->setActionData([
+            'mode' => 'products.variants',
+            'file' => $file,
+            'columnMap' => $columnMap,
+            'confirm_updates' => true,
+        ])
+        ->goToNextWizardStep()
+        ->goToNextWizardStep();
 
     // Drift: the variant disappears between the preview and the run, so the
     // frozen "update 1" becomes "create 1" once the preview is re-derived.
     ProductVariant::where('sku', 'SKU-DRIFT-1')->first()->forceDelete();
 
-    $testable = Livewire::actingAs($admin)
-        ->test(ListProducts::class)
-        ->callAction('importProducts', data: [
-            'mode' => 'products.variants',
-            'file' => $file,
-            'columnMap' => $columnMap,
-            'confirm_updates' => true,
-        ]);
+    $testable->callMountedAction();
 
     $testable
         ->assertHasActionErrors(['confirm_updates'])

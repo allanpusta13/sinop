@@ -18,20 +18,26 @@ beforeEach(function () {
     actingAsAdmin();
 });
 
-test('processes a queued import, notifies the counts and cleans up the user files', function () {
+test('processes a queued import, notifies the counts and cleans up only this runs files', function () {
     $user = auth()->user();
     $disk = Storage::disk('local');
 
-    $file = importFixtureCsv([
+    // The job's file is the staged source inside the user's own
+    // directory (the wizard dispatches it that way); a sibling import
+    // staged in the same directory must survive this run's cleanup —
+    // cleanup is per-run, never per-directory.
+    $staged = file_get_contents(importFixtureCsv([
         ['Robusta', 'Beverages'],
         ['Liberica', 'Teas'],
-    ]);
+    ]));
 
-    $disk->put("imports/{$user->getKey()}/source.csv", 'leftover');
+    $sourcePath = "imports/{$user->getKey()}/source.csv";
+    $disk->put($sourcePath, $staged);
+    $disk->put("imports/{$user->getKey()}/sibling.csv", "Name,Category\n\"Other\",\"Teas\"\n");
     $disk->put("imports/{$user->getKey()}/preview.json", '{}');
 
     $job = new ProcessImportJob(
-        filePath: $file,
+        filePath: $disk->path($sourcePath),
         originalName: 'products.csv',
         definitionKey: 'fixture.products',
         columnMap: ['name' => 'Name', 'category' => 'Category'],
@@ -43,7 +49,10 @@ test('processes a queued import, notifies the counts and cleans up the user file
     $job->handle(app(ImportService::class), app(ImportFileStore::class));
 
     expect(Product::query()->count())->toBe(2)
-        ->and($disk->directoryExists("imports/{$user->getKey()}"))->toBeFalse();
+        ->and($disk->exists("imports/{$user->getKey()}/source.csv"))->toBeFalse()
+        ->and($disk->exists("imports/{$user->getKey()}/preview.json"))->toBeFalse()
+        ->and($disk->exists("imports/{$user->getKey()}/sibling.csv"))->toBeTrue()
+        ->and($disk->directoryExists("imports/{$user->getKey()}"))->toBeTrue();
 
     $notifications = $user->notifications()->get();
 
@@ -61,12 +70,13 @@ test('re-authorizes inside the job and reports failures', function () {
     $staff = actingAsWarehouseStaff();
     $disk = Storage::disk('local');
 
-    $file = importFixtureCsv([['Robusta', 'Beverages']]);
-
-    $disk->put("imports/{$staff->getKey()}/source.csv", 'leftover');
+    $staged = file_get_contents(importFixtureCsv([['Robusta', 'Beverages']]));
+    $sourcePath = "imports/{$staff->getKey()}/source.csv";
+    $disk->put($sourcePath, $staged);
+    $disk->put("imports/{$staff->getKey()}/sibling.csv", "Name,Category\n\"Other\",\"Teas\"\n");
 
     $job = new ProcessImportJob(
-        filePath: $file,
+        filePath: $disk->path($sourcePath),
         originalName: 'products.csv',
         definitionKey: 'fixture.products',
         columnMap: ['name' => 'Name', 'category' => 'Category'],
@@ -81,11 +91,14 @@ test('re-authorizes inside the job and reports failures', function () {
     } catch (AuthorizationException) {
         $notifications = $staff->notifications()->get();
 
+        // Losing authorization is final: this run's source goes, the
+        // sibling staged import stays.
         expect(Product::query()->count())->toBe(0)
-            ->and($disk->directoryExists("imports/{$staff->getKey()}"))->toBeFalse()
+            ->and($disk->exists("imports/{$staff->getKey()}/source.csv"))->toBeFalse()
+            ->and($disk->exists("imports/{$staff->getKey()}/sibling.csv"))->toBeTrue()
             ->and($notifications)->toHaveCount(1)
             ->and($notifications->first()->data['title'])->toBe(__('imports.notifications.failed_title'))
-            ->and($notifications->first()->data['body'])->toContain('unauthorized');
+            ->and($notifications->first()->data['body'])->toBe(__('imports.notifications.failed_body'));
     }
 });
 

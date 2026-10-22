@@ -44,6 +44,7 @@ return [
         'msg_ready_create' => 'Gagawa ng bagong record', // TODO(i18n): verify
         'msg_ready_update' => 'Aa-update ang tumutugmang record', // TODO(i18n): verify
         'no_rows' => 'Walang row para i-preview. Bumalik at suriin ang file at mga pagtutugma.', // TODO(i18n): verify
+        'rows_truncated' => 'Nagpapakita ng unang :shown sa :total na row. Tumpak ang mga bilang sa itaas para sa buong file.', // TODO(i18n): verify
     ],
 
     'template' => [
@@ -58,16 +59,19 @@ return [
         'completed_title' => 'Tapos ang importasyon', // TODO(i18n): verify
         'completed_body' => 'Ginawa: :created · In-update: :updated · Tinanggihan: :rejected · Nilaktawan: :skipped', // TODO(i18n): verify
         'failed_title' => 'Nabigo ang importasyon', // TODO(i18n): verify
+        'failed_body' => 'Hindi matapos ang importasyon. Subukan muli.', // TODO(i18n): verify
     ],
 
     'errors' => [
         'file_missing' => 'Hindi mahanap ang import file. Mag-upload muli.', // TODO(i18n): verify
         'unreadable_file' => 'Hindi mabasa ang na-upload na file.', // TODO(i18n): verify
+        'corrupt_file' => 'Corrupted ang na-upload na file o hindi ito valid na XLSX file.', // TODO(i18n): verify
         'empty_file' => 'Walang laman o walang header row ang na-upload na file.', // TODO(i18n): verify
         'unsupported_format' => 'CSV at XLSX templates lamang ang tinatanggap.', // TODO(i18n): verify
         'unknown_definition' => 'Hindi kilalang uri ng importasyon ":key".', // TODO(i18n): verify
         'missing_required_mapping' => 'Kailangang itugma ang ":field" na column bago mag-preview.', // TODO(i18n): verify
         'preview_expired' => 'Nag-expire ang preview. Bumalik sa hakbang ng pagtutugma, mag-proceed muli para i-refresh, pagkatapos kumpirmahin.', // TODO(i18n): verify
+        'preview_failed' => 'Hindi magawa ang preview para sa file na ito. Tiyaking tumutugma ito sa napiling uri ng importasyon, pagkatapos subukan muli.', // TODO(i18n): verify
     ],
 
 ];

@@ -20,28 +20,41 @@ use Throwable;
 /**
  * ProcessImportJob — generic queued execution for imports above the
  * inline row threshold. Re-authorizes and re-validates server-side, so
- * the preview is never trusted, then reports the final counts back as
- * a database notification and cleans the user's import files up.
+ * the preview is never trusted, then reports the outcome back as a
+ * database notification. On success (and on a final authorization
+ * loss) this run's source file and frozen preview are cleaned up;
+ * other failures keep them so the user can retry, and the age-gated
+ * sweep collects whatever is eventually left behind.
  */
 class ProcessImportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
+     * A large import may legitimately run for minutes; the worker's
+     * default 60s would SIGTERM it mid-flight — past the point the
+     * header/side effects exist but before any notification could be
+     * sent. One attempt only: the expected counts travel with the job,
+     * so a blind retry against a drifted database would only fail into
+     * the mismatch flow after already notifying once.
+     */
+    public int $timeout = 300;
+
+    public int $tries = 1;
+
+    /**
      * @param  array<string, string|int|null>  $columnMap
      * @param  array{create: int, update: int, reject: int, total?: int}  $expectedCounts
      */
     public function __construct(
-        public string $filePath,
-        public ?string $originalName,
-        public string $definitionKey,
-        public array $columnMap,
-        public array $expectedCounts,
-        public bool $confirmUpdates,
-        public int $userId,
-    ) {
-        $this->onConnection(config('queue.import_connection', config('queue.default')));
-    }
+        public readonly string $filePath,
+        public readonly ?string $originalName,
+        public readonly string $definitionKey,
+        public readonly array $columnMap,
+        public readonly array $expectedCounts,
+        public readonly bool $confirmUpdates,
+        public readonly int $userId,
+    ) {}
 
     public function handle(ImportService $importService, ImportFileStore $fileStore): void
     {
@@ -84,7 +97,7 @@ class ProcessImportJob implements ShouldQueue
             throw $exception;
         } catch (Throwable $exception) {
             // Losing authorization is final, so the source file goes with the
-            // run. Anything else stays on disk: a retry has to re-read it,
+            // run. Anything else stays on disk for the user's next attempt,
             // and it ages into the stale sweep once the user next opens the
             // wizard (nothing sweeps on a schedule in this app).
             $release = $release || $exception instanceof AuthorizationException;
@@ -92,13 +105,13 @@ class ProcessImportJob implements ShouldQueue
             Notification::make()
                 ->danger()
                 ->title(__('imports.notifications.failed_title'))
-                ->body($exception->getMessage())
+                ->body(__('imports.notifications.failed_body'))
                 ->sendToDatabase($user);
 
             throw $exception;
         } finally {
             if ($release) {
-                $fileStore->cleanupUser($this->userId);
+                $fileStore->cleanupRun($this->userId, $this->filePath);
             }
         }
     }

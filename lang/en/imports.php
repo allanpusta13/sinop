@@ -45,6 +45,7 @@ return [
         'msg_ready_create' => 'Will create a new record',
         'msg_ready_update' => 'Will update the matching record',
         'no_rows' => 'No rows to preview. Go back and check your file and mappings.',
+        'rows_truncated' => 'Showing the first :shown of :total rows. The counts above are exact for the whole file.',
     ],
 
     'template' => [
@@ -59,16 +60,19 @@ return [
         'completed_title' => 'Import completed',
         'completed_body' => 'Created: :created · Updated: :updated · Rejected: :rejected · Skipped: :skipped',
         'failed_title' => 'Import failed',
+        'failed_body' => 'The import could not be completed. Please try again.',
     ],
 
     'errors' => [
         'file_missing' => 'The import file could not be found. Please upload it again.',
         'unreadable_file' => 'The uploaded file could not be read.',
+        'corrupt_file' => 'The uploaded file is corrupt or is not a valid XLSX file.',
         'empty_file' => 'The uploaded file is empty or has no header row.',
         'unsupported_format' => 'Only CSV and XLSX templates are supported.',
         'unknown_definition' => 'Unknown import type ":key".',
         'missing_required_mapping' => 'The ":field" column must be mapped before previewing.',
         'preview_expired' => 'The preview expired. Go back to the mapping step and advance again to refresh it, then confirm.',
+        'preview_failed' => 'The preview could not be built for this file. Check that it matches the selected import type and try again.',
     ],
 
 ];

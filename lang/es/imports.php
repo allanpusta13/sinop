@@ -46,6 +46,7 @@ return [
         'msg_ready_create' => 'Creará un registro nuevo',
         'msg_ready_update' => 'Actualizará el registro coincidente',
         'no_rows' => 'No hay filas para la vista previa. Regrese y verifique su archivo y las asignaciones.',
+        'rows_truncated' => 'Mostrando las primeras :shown filas de :total. Los recuentos de arriba son exactos para todo el archivo.',
     ],
 
     'template' => [
@@ -60,16 +61,19 @@ return [
         'completed_title' => 'Importación completada',
         'completed_body' => 'Creados: :created · Actualizados: :updated · Rechazados: :rejected · Omitidos: :skipped',
         'failed_title' => 'Falló la importación',
+        'failed_body' => 'No se pudo completar la importación. Inténtalo de nuevo.',
     ],
 
     'errors' => [
         'file_missing' => 'No se encontró el archivo de importación. Suba el archivo de nuevo.',
         'unreadable_file' => 'No se pudo leer el archivo subido.',
+        'corrupt_file' => 'El archivo subido está dañado o no es un archivo XLSX válido.',
         'empty_file' => 'El archivo subido está vacío o no tiene fila de encabezados.',
         'unsupported_format' => 'Solo se admiten plantillas CSV y XLSX.',
         'unknown_definition' => 'Tipo de importación desconocido ":key".',
         'missing_required_mapping' => 'La columna ":field" debe asignarse antes de la vista previa.',
         'preview_expired' => 'La vista previa expiró. Regrese al paso de asignación, avance de nuevo para actualizarla y confirme.',
+        'preview_failed' => 'No se pudo generar la vista previa de este archivo. Verifique que coincida con el tipo de importación seleccionado e intente de nuevo.',
     ],
 
 ];

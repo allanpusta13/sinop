@@ -13,14 +13,20 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 /**
  * ImportFileStore — private-disk storage concerns for the import
- * suite: resolving Livewire upload state to physical paths, freezing
- * the preview JSON per user, sweeping stale leftovers on the shared
- * 24-hour horizon, and cleaning user import files up when an import
- * finishes.
+ * suite: resolving Livewire upload state to physical paths (only ever
+ * inside the authenticated user's own directory), freezing the
+ * preview JSON per user, sweeping stale leftovers on the shared
+ * 24-hour horizon, and cleaning up the files of a finished run.
  *
  * Files live under `private/imports/{userId}` on the `local` disk with
  * generated (hash) names tied to the uploading user; the frozen
  * preview is stored next to the source file as `preview.json`.
+ *
+ * Cleanup is per-run, never per-user-directory: a second import of the
+ * same user (another tab, or a queued job still waiting on its source)
+ * shares this directory, and wiping it wholesale would delete a
+ * sibling run's file mid-flight. Anything a run does not clean up
+ * ages into sweep().
  */
 class ImportFileStore
 {
@@ -48,6 +54,15 @@ class ImportFileStore
     /**
      * Resolve arbitrary Livewire/Filament file-upload state (temp file,
      * array wrapper or stored path) to a physical path.
+     *
+     * String state is client-mutable (it arrives in the Livewire
+     * payload), so it is never trusted as a path: it only resolves when
+     * it realpath-contains inside the *authenticated* user's own import
+     * directory. Traversal (`..`), absolute paths, other users'
+     * directories and paths outside the disk all resolve to null —
+     * otherwise a tampered `file` property would turn the mapping step
+     * into an arbitrary file read (the headers are echoed back as
+     * select options).
      */
     public function resolvePhysicalPath(mixed $file): ?string
     {
@@ -59,19 +74,28 @@ class ImportFileStore
             return $file->getRealPath();
         }
 
-        if (filled($file) && is_string($file)) {
-            $diskPath = Storage::disk(self::DISK)->path($file);
-
-            if (file_exists($diskPath)) {
-                return $diskPath;
-            }
-
-            if (file_exists($file)) {
-                return $file;
-            }
+        if (! is_string($file) || $file === '') {
+            return null;
         }
 
-        return null;
+        $ownerId = auth()->id();
+
+        if ($ownerId === null) {
+            return null;
+        }
+
+        $directory = realpath(Storage::disk(self::DISK)->path($this->userDirectory((int) $ownerId)));
+        $candidate = realpath(Storage::disk(self::DISK)->path($file));
+
+        if ($directory === false || $candidate === false) {
+            return null;
+        }
+
+        if (! str_starts_with($candidate, $directory.DIRECTORY_SEPARATOR)) {
+            return null;
+        }
+
+        return $candidate;
     }
 
     /**
@@ -173,16 +197,26 @@ class ImportFileStore
     }
 
     /**
-     * Delete the user's whole import directory (source files, frozen
-     * preview). Called when an import finishes — never on cancel, so a
-     * queued import's source file is not pulled out from under its job.
+     * Clean up after one finished run: its source file (only when it
+     * lies inside the user's own directory) plus the frozen preview.
+     * Sibling files in the same directory — another import queued or
+     * staged in a second tab — are left alone and age into sweep().
+     *
+     * A concurrent session that still holds this preview recovers on
+     * submit through the `preview_expired` flow and re-freezes it.
      */
-    public function cleanupUser(int $userId): void
+    public function cleanupRun(int $userId, string $physicalPath): void
     {
-        $directory = Storage::disk(self::DISK)->path($this->userDirectory($userId));
+        $directory = realpath(Storage::disk(self::DISK)->path($this->userDirectory($userId)));
+        $candidate = realpath($physicalPath);
 
-        if (is_dir($directory)) {
-            File::deleteDirectory($directory);
+        if ($directory !== false
+            && $candidate !== false
+            && str_starts_with($candidate, $directory.DIRECTORY_SEPARATOR)
+            && is_file($candidate)) {
+            File::delete($candidate);
         }
+
+        File::delete($this->previewPath($userId));
     }
 }

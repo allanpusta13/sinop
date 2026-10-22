@@ -143,6 +143,7 @@ return [
                 'barcode_conflict' => 'El código de barras ":barcode" ya está asociado a un SKU distinto (:sku).',
                 'reorder_point_invalid' => 'El punto de reorden debe ser un entero no negativo.',
                 'attributes_invalid_json' => 'Los atributos deben ser JSON válido.',
+                'is_active_invalid' => 'El estado activo debe ser un valor sí o no.',
                 'family_identifier_mapping_required' => 'Se requiere al menos una columna de asignación de familia: ID de familia o nombre de familia.',
             ],
         ],

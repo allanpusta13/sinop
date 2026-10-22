@@ -153,6 +153,7 @@ return [
                 'barcode_conflict' => 'Barcode ":barcode" is already associated with a different SKU (:sku).',
                 'reorder_point_invalid' => 'Reorder point must be a non-negative integer.',
                 'attributes_invalid_json' => 'Attributes must be valid JSON.',
+                'is_active_invalid' => 'Active status must be a yes or no value.',
                 'family_identifier_mapping_required' => 'At least one family mapping column is required: Family ID or Family Name.',
             ],
         ],

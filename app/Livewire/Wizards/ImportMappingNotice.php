@@ -12,9 +12,13 @@ use Livewire\Component;
  * wizard's mapping step when no uploaded file (and therefore no
  * headers) is available.
  *
- * Embedded via `Filament\Schemas\Components\Livewire::make()`, the
- * same pattern `WarehouseForm` uses for `AssignedUsersList` in place
- * of the deprecated Placeholder components.
+ * Embedded through the wizard's `View::make('filament.wizards.mapping-notice')`
+ * blade wrapper, which renders `<livewire:wizards.import-mapping-notice>`
+ * with a fresh `key` on every render — not through
+ * `Filament\Schemas\Components\Livewire::make()`, which is deliberately
+ * not used here: Livewire spoofs mounts of previously-rendered children
+ * with an empty stub, and that wrapper's stable identity would re-render
+ * this conditional child as a dead empty div (§28.3).
  */
 class ImportMappingNotice extends Component
 {

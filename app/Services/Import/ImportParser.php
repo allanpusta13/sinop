@@ -24,6 +24,8 @@ use Throwable;
  *   skipped as well.
  * - Delimiters are auto-detected for CSV; only the first sheet of an
  *   XLSX file is read.
+ * - `headers()` shares the same parsers but stops right after the
+ *   header row, for the mapping step's per-render reads.
  */
 class ImportParser
 {
@@ -36,23 +38,81 @@ class ImportParser
      */
     public function parse(string $filePath, ?string $originalName = null): array
     {
+        return $this->parseContent($filePath, $originalName, headersOnly: false);
+    }
+
+    /**
+     * Read only the header row, stopping before any data row is
+     * consumed. The mapping step renders on every Livewire update, so
+     * it must not re-parse a 10k-row file per keystroke — the headers
+     * are all it ever uses (for the select options and the guesses).
+     *
+     * @return array<int, string>
+     */
+    public function headers(string $filePath, ?string $originalName = null): array
+    {
+        return $this->parseContent($filePath, $originalName, headersOnly: true)['headers'];
+    }
+
+    /**
+     * @return array{headers: array<int, string>, rows: array<int, array<int, mixed>>}
+     */
+    protected function parseContent(string $filePath, ?string $originalName, bool $headersOnly): array
+    {
         if (! file_exists($filePath) || ! is_readable($filePath)) {
             throw new RuntimeException(__('imports.errors.unreadable_file'));
         }
 
         $extension = strtolower(pathinfo($originalName ?? $filePath, PATHINFO_EXTENSION));
 
-        if ($extension === 'xlsx') {
-            return $this->parseXlsx($filePath);
+        $result = $extension === 'xlsx'
+            ? $this->parseXlsx($filePath, $headersOnly)
+            : $this->parseCsv($filePath, $headersOnly);
+
+        $result['headers'] = $this->deduplicateLabels($result['headers']);
+
+        return $result;
+    }
+
+    /**
+     * Two columns may legitimately share a label ("SKU" twice). The
+     * mapping step keys its options by label and the engine resolves a
+     * mapped label back to its column, so a duplicate would silently
+     * collapse into the first column. Later copies get a numeric
+     * suffix instead; single occurrences stay untouched.
+     *
+     * @param  array<int, string>  $headers
+     * @return array<int, string>
+     */
+    protected function deduplicateLabels(array $headers): array
+    {
+        $seen = [];
+
+        foreach ($headers as $index => $label) {
+            $seen[$label] = ($seen[$label] ?? 0) + 1;
+
+            if ($seen[$label] === 1) {
+                continue;
+            }
+
+            $candidate = $label.' ('.$seen[$label].')';
+
+            while (isset($seen[$candidate])) {
+                $seen[$label]++;
+                $candidate = $label.' ('.$seen[$label].')';
+            }
+
+            $seen[$candidate] = 1;
+            $headers[$index] = $candidate;
         }
 
-        return $this->parseCsv($filePath);
+        return $headers;
     }
 
     /**
      * @return array{headers: array<int, string>, rows: array<int, array<int, mixed>>}
      */
-    protected function parseCsv(string $filePath): array
+    protected function parseCsv(string $filePath, bool $headersOnly = false): array
     {
         try {
             $csv = CsvReader::createFromPath($filePath, 'r');
@@ -99,6 +159,10 @@ class ImportParser
             if (empty($headers)) {
                 $headers = array_map(fn ($val): string => (string) $val, $trimmed);
 
+                if ($headersOnly) {
+                    break;
+                }
+
                 continue;
             }
 
@@ -116,14 +180,16 @@ class ImportParser
     /**
      * @return array{headers: array<int, string>, rows: array<int, array<int, mixed>>}
      */
-    protected function parseXlsx(string $filePath): array
+    protected function parseXlsx(string $filePath, bool $headersOnly = false): array
     {
         $reader = new XlsxReader;
 
         try {
             $reader->open($filePath);
         } catch (Throwable $exception) {
-            throw new RuntimeException(__('imports.errors.unreadable_file'), 0, $exception);
+            // The file exists and was uploaded — failing to open it is
+            // corrupt content, not a missing file.
+            throw new RuntimeException(__('imports.errors.corrupt_file'), 0, $exception);
         }
 
         $headers = [];
@@ -172,6 +238,10 @@ class ImportParser
                             return (string) ($val ?? '');
                         }, $trimmed);
 
+                        if ($headersOnly) {
+                            break 2;
+                        }
+
                         continue;
                     }
 
@@ -181,6 +251,10 @@ class ImportParser
 
                 break;
             }
+        } catch (Throwable $exception) {
+            // A zip that opens but falls apart mid-read (truncated
+            // shared strings, broken sheet XML) is corrupt content too.
+            throw new RuntimeException(__('imports.errors.corrupt_file'), 0, $exception);
         } finally {
             $reader->close();
         }

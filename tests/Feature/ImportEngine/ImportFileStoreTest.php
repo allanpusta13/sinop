@@ -51,28 +51,84 @@ test('sweep deletes stale user files except the kept source', function () {
         ->and($disk->exists('imports/2/other-user.csv'))->toBeTrue();
 });
 
-test('cleanup user removes the whole import directory', function () {
+test('cleanup run removes its source and the preview, never a sibling file', function () {
     $store = app(ImportFileStore::class);
     $disk = Storage::disk('local');
 
-    $disk->put('imports/1/current.csv', 'current');
+    $disk->put('imports/1/run.csv', 'source');
+    $disk->put('imports/1/sibling.csv', 'another staged import');
     $disk->put('imports/1/preview.json', '{}');
 
-    $store->cleanupUser(1);
+    $store->cleanupRun(1, $disk->path('imports/1/run.csv'));
 
-    expect($disk->exists('imports/1/current.csv'))->toBeFalse()
-        ->and($disk->directoryExists('imports/1'))->toBeFalse();
+    expect($disk->exists('imports/1/run.csv'))->toBeFalse()
+        ->and($disk->exists('imports/1/preview.json'))->toBeFalse()
+        ->and($disk->exists('imports/1/sibling.csv'))->toBeTrue()
+        ->and($disk->directoryExists('imports/1'))->toBeTrue();
 });
 
-test('resolves stored path strings to physical paths', function () {
+test('cleanup run ignores paths outside the user directory', function () {
+    $store = app(ImportFileStore::class);
+    $disk = Storage::disk('local');
+
+    $disk->put('imports/1/source.csv', 'source');
+    $disk->put('imports/1/preview.json', '{}');
+
+    $outside = tempnam(sys_get_temp_dir(), 'import_cleanup_');
+    file_put_contents($outside, 'not this run');
+
+    $store->cleanupRun(1, $outside);
+
+    expect($disk->exists('imports/1/source.csv'))->toBeTrue()
+        ->and($disk->exists('imports/1/preview.json'))->toBeFalse()
+        ->and(is_file($outside))->toBeTrue();
+
+    @unlink($outside);
+});
+
+test('resolves stored path strings inside the authenticated user directory', function () {
+    $store = app(ImportFileStore::class);
+    $disk = Storage::disk('local');
+    $userId = (int) auth()->id();
+
+    $disk->put("imports/{$userId}/file.csv", 'content');
+
+    // realpath on both sides: the resolved path carries the
+    // platform's native separators.
+    expect($store->resolvePhysicalPath("imports/{$userId}/file.csv"))
+        ->toBe(realpath($disk->path("imports/{$userId}/file.csv")))
+        ->and($store->resolvePhysicalPath("imports/{$userId}/missing.csv"))->toBeNull()
+        ->and($store->resolvePhysicalPath(null))->toBeNull();
+});
+
+test('refuses traversal, absolute paths and other users directories', function () {
+    $store = app(ImportFileStore::class);
+    $disk = Storage::disk('local');
+    $userId = (int) auth()->id();
+
+    $disk->put('imports/2/secret.csv', 'another users file');
+    $disk->put('imports/.env', 'APP_KEY=leaked');
+    $disk->put("imports/{$userId}/file.csv", 'content');
+
+    // String file state arrives in the Livewire payload and is client-
+    // mutable — none of these may resolve, or the mapping step would
+    // echo arbitrary file headers back to the user.
+    expect($store->resolvePhysicalPath("imports/{$userId}/../2/secret.csv"))->toBeNull()
+        ->and($store->resolvePhysicalPath('imports/2/secret.csv'))->toBeNull()
+        ->and($store->resolvePhysicalPath("imports/{$userId}/../.env"))->toBeNull()
+        ->and($store->resolvePhysicalPath('imports/2/../.env'))->toBeNull()
+        ->and($store->resolvePhysicalPath($disk->path("imports/{$userId}/file.csv")))->toBeNull();
+});
+
+test('resolves no string state without an authenticated user', function () {
     $store = app(ImportFileStore::class);
     $disk = Storage::disk('local');
 
     $disk->put('imports/1/file.csv', 'content');
 
-    expect($store->resolvePhysicalPath('imports/1/file.csv'))->toBe($disk->path('imports/1/file.csv'))
-        ->and($store->resolvePhysicalPath('imports/1/missing.csv'))->toBeNull()
-        ->and($store->resolvePhysicalPath(null))->toBeNull();
+    auth()->logout();
+
+    expect($store->resolvePhysicalPath('imports/1/file.csv'))->toBeNull();
 });
 
 test('resolves uploaded files, temporary files and arrays', function () {

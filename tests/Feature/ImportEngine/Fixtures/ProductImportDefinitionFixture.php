@@ -8,7 +8,9 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\Import\ImportColumn;
 use App\Services\Import\ImportDefinition;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Gate;
+use PDOException;
 
 /**
  * Engine fixture: a minimal definition over products (name + category)
@@ -20,6 +22,19 @@ use Illuminate\Support\Facades\Gate;
 class ProductImportDefinitionFixture extends ImportDefinition
 {
     public const KEY = 'fixture.products';
+
+    /**
+     * Test hook: when true, persist() throws a MySQL-style duplicate-key
+     * QueryException, as a concurrent writer would.
+     */
+    public static bool $failPersistWithDuplicateKey = false;
+
+    /**
+     * Test hook: when true, persist() reports a skipped row after
+     * writing — an update target that vanished between the confirmation
+     * and the write.
+     */
+    public static bool $failPersistWithSkip = false;
 
     public function key(): string
     {
@@ -103,6 +118,13 @@ class ProductImportDefinitionFixture extends ImportDefinition
 
     public function persist(array $rows): array
     {
+        if (self::$failPersistWithDuplicateKey) {
+            $previous = new PDOException("SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'Robusta' for key 'products_name_unique'");
+            $previous->errorInfo = ['23000', 1062, "Duplicate entry 'Robusta' for key 'products_name_unique'"];
+
+            throw new QueryException('mysql', 'insert into `products` (`name`) values (?)', ['Robusta'], $previous);
+        }
+
         $created = 0;
         $updated = 0;
 
@@ -124,6 +146,10 @@ class ProductImportDefinitionFixture extends ImportDefinition
             }
 
             $updated++;
+        }
+
+        if (self::$failPersistWithSkip) {
+            return ['created' => $created, 'updated' => $updated, 'skipped' => 1];
         }
 
         return ['created' => $created, 'updated' => $updated, 'skipped' => 0];
