@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\TransferRequisitions\Pages;
 
+use App\Filament\Resources\TransferRequisitions\Actions\ExportTransferRequisitionsAction;
 use App\Filament\Resources\TransferRequisitions\TransferRequisitionResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -16,6 +17,7 @@ class ListTransferRequisitions extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ExportTransferRequisitionsAction::make(),
             CreateAction::make()
                 ->label(__('resources.transfer_requisitions.actions.create'))
                 ->icon(Heroicon::OutlinedArrowsRightLeft),

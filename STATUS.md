@@ -113,3 +113,19 @@
 - `tests/Browser/purchase-and-sales.spec.ts` is the reference pattern for driving a Filament row ActionGroup modal: wait on the modal's config field (`input[id$="received.<id>"]`), not on `.fi-modal` — the page always holds a hidden `database-notifications` dialog plus one lazily mounted dialog per action, so `.fi-modal` is present but invisible.
 - Council finding (Security seat, separate from the 4 items): `QuickActionsWidget::actions()` emits all four `Resource::getUrl('create')` links unconditionally; its `canView()` only checks `auth()->user() !== null`. No authorization bypass — the destination pages are policy-gated server-side (403) — but it advertises create routes to roles that cannot use them. Optional hardening, not approved.
 - Nothing committed or pushed.
+
+## PR #236 review (`/review-pr`, branch `feature/imports-and-exports` → `develop`) — read-only, no files changed
+
+Full multi-perspective review: 5 specialist agents + independent verification against source, PHPStan, real test runs, and a real generated XLSX workbook.
+
+### Blocking
+- **CRITICAL, committed at HEAD** — CSV/XLSX formula injection. `ExportGenerator::escapeFormula()` guards the CSV path only; the XLSX branch feeds raw DB strings to OpenSpout `Row::fromValues()`, whose `Cell::fromValue()` turns any leading `=` into a `FormulaCell`. Reproduced by unzipping a real export: sheet XML contains `<f>HYPERLINK(...)</f>`. Reachable from `sales_orders.notes` and `transfer_requisitions.*.negotiation_reason`. The code comment claiming XLSX is safe is false, and no XLSX test exists.
+- **CRITICAL, uncommitted working tree only** — `ImportWizardAction.php:519` uses `$field`, whose assignment the uncommitted refactor replaced with `$key`. PHPStan: `Undefined variable: $field`. Laravel promotes the warning to `ErrorException`, so the drift/confirmation flow dies instead of clearing `confirm_updates`. `ImportProductsActionTest` is **3 red / 8** (the `$field` bug plus 2 tests whose pre-freeze helper writes no `preview.fingerprint`, which `runImport` now requires). `HEAD` is clean; the worktree is mid-migration and must not be committed as-is.
+- **Important** — `retry_after` raised only on `database` (360) while redis/beanstalkd stay 90, so the 300 s jobs can double-run on those connections; `ProcessExportJob` catches all and never rethrows, so failures never reach `failed_jobs`; neither job defines `failed()`, so a SIGTERM skips `discard()` and leaves a truncated download for 24 h; the download route re-checks panel access but not warehouse scope; `is_active` typos silently reactivate a variant; `skipped` bypasses the counts guard; a corrupt file is reported as "file could not be found"; duplicate header labels collapse into one mapping option.
+- **Docblock rot** — `ExportDefinition` "verified one by one" (false for the revision definition), the `ExportGenerator` XLSX claim, and `ImportService` "nothing was written yet".
+
+### Verified clean
+Server-side authz re-run on every path; both new routes carry Filament `Authenticate`; IDOR and path traversal closed; no mass-assignment hole; CSV injection neutralised; paging bounded with a PK tiebreaker; `narrowToScope()` only intersects. `ExportEngine` 136 passed, `ImportEngine` 59 passed.
+
+- Blueprint §28.13 already records the deferred items (chunked catalog loads, export throttle, row ceiling, storage lifetime) — not filed as new findings.
+- Environment: **C: drive is at 0 bytes free**, D: has 13 GB. A `tail` failed with "No space left on device" mid-review. Free space before the next test run.

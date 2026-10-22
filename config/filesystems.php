@@ -38,6 +38,20 @@ return [
             'report' => false,
         ],
 
+        // Livewire routes temporary uploads to this disk whenever the
+        // app believes it is running unit tests (APP_ENV=testing in a
+        // console context — e.g. the Playwright suite's managed
+        // `php artisan serve`). Livewire's own fallback only fakes the
+        // disk in-process, which cannot survive artisan serve's
+        // per-request boot, so the driver is configured for real here
+        // at Livewire's fake-root convention.
+        'tmp-for-tests' => [
+            'driver' => 'local',
+            'root' => storage_path('framework/testing/disks/tmp-for-tests'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -24,8 +24,12 @@ namespace App\Exceptions;
  *
  *     throw new DomainRuleViolationException(
  *         'errors.<key>',
- *         [ ':<placeholder>' => $value, ... ],
+ *         [ '<placeholder>' => $value, ... ],
  *     );
+ *
+ * Placeholder keys are passed WITHOUT the leading colon — Laravel's
+ * translator prepends it itself when substituting into `:placeholder`
+ * slots in the lang string.
  *
  * The presentation layer (§0A.10) then resolves the key + context
  * through the standard typed-exception path:

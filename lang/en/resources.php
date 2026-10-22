@@ -100,6 +100,9 @@ return [
             'quick_adjustment_heading' => 'Quick stock adjustment',
             'quick_adjustment_description' => 'Record a manual stock adjustment.',
             'more_actions' => 'More actions',
+            'import' => 'Import',
+            'import_heading' => 'Import Products and Families',
+            'import_description' => 'Controlled import for product families and variants with preview and verification.',
         ],
         'notifications' => [
             'created' => 'Product created.',
@@ -108,6 +111,51 @@ return [
             'adjustment_recorded' => 'Adjustment recorded.',
             'family_updated' => 'Family updated.',
             'family_missing' => 'Product family is missing.',
+        ],
+        'import' => [
+            'mode_families' => 'Product Families',
+            'mode_families_desc' => 'Import parent product family groups (Name and optional Category).',
+            'mode_variants' => 'Product Variants',
+            'mode_variants_desc' => 'Import SKU-bearing product variants associated with existing families.',
+            'map_family_id' => 'Family ID (optional)',
+            'map_family_name' => 'Family Name',
+            'map_family_category' => 'Family Category (optional)',
+            'map_sku' => 'SKU',
+            'map_variant_name' => 'Variant Name',
+            'map_base_unit' => 'Base Unit Name',
+            'map_barcode' => 'Barcode (optional)',
+            'map_reorder_point' => 'Reorder Point (optional)',
+            'map_attributes' => 'Attributes (optional)',
+            'map_is_active' => 'Active Status (optional)',
+            'desc_family_id' => 'Optional explicit family identifier. Leave blank to resolve the family by name.',
+            'desc_family_name' => 'The existing family name to resolve, or the name to create on family imports. Family imports never update by name.',
+            'desc_family_category' => 'Optional category for the family. Blank keeps the existing or default value.',
+            'desc_sku' => 'The variant SKU (unique). Existing variants match by SKU and update only after confirmation.',
+            'desc_variant_name' => 'The display name of the variant.',
+            'desc_base_unit' => 'The variant base unit name, e.g. Bag, Box, Kg.',
+            'desc_barcode' => 'Optional EAN-13 barcode. Must be unique across variants when present.',
+            'desc_reorder_point' => 'Optional non-negative integer reorder point.',
+            'desc_attributes' => 'Optional JSON object of variant attributes, e.g. {"Roast":"Medium"}.',
+            'desc_is_active' => 'Optional active flag: 1 or 0. Blank defaults to active (1).',
+            'errors' => [
+                'family_name_required' => 'Family name is required.',
+                'family_duplicate_in_file' => 'Duplicate family name ":name" in the uploaded file.',
+                'family_name_exists' => 'A product family named ":name" already exists. Automatic update by name is not permitted; review the existing family.',
+                'family_id_not_found' => 'Family ID ":family_id" does not identify an existing family.',
+                'family_name_no_match' => 'Family name ":name" does not match any existing product family.',
+                'family_name_ambiguous' => 'Family name ":name" is ambiguous; matches :count product families.',
+                'family_reference_missing' => 'Variant row must provide an explicit family ID or family name.',
+                'sku_required' => 'SKU is required.',
+                'variant_name_required' => 'Variant name is required.',
+                'base_unit_required' => 'Base unit name is required.',
+                'sku_duplicate_in_file' => 'Duplicate SKU ":sku" in the uploaded file. Rejected for review.',
+                'barcode_multiple_in_file' => 'Barcode ":barcode" is used by multiple different SKUs in the uploaded file.',
+                'barcode_conflict' => 'Barcode ":barcode" is already associated with a different SKU (:sku).',
+                'reorder_point_invalid' => 'Reorder point must be a non-negative integer.',
+                'attributes_invalid_json' => 'Attributes must be valid JSON.',
+                'is_active_invalid' => 'Active status must be a yes or no value.',
+                'family_identifier_mapping_required' => 'At least one family mapping column is required: Family ID or Family Name.',
+            ],
         ],
     ],
 
@@ -417,7 +465,7 @@ return [
     // SYSTEM ADMIN — Warehouses
     // =====================================================================
     'warehouses' => [
-        'model' => ['singular' => 'Warehouse', 'plural' => 'Warehouses'],
+        'model' => ['singular' => 'Warehouse', 'plural' => 'Warehouses', 'singular_desc' => 'Import warehouse records (Code, Name, Location).'],
         'navigation' => ['label' => 'Warehouses'],
         'fields' => [
             'code' => 'Code',
@@ -460,6 +508,20 @@ return [
             'view' => 'View',
             'delete' => 'Delete',
             'force_delete' => 'Delete permanently',
+            'import' => 'Import',
+            'import_heading' => 'Import warehouses',
+            'import_description' => 'Controlled import with template download, column mapping, row preview and confirmation.',
+        ],
+        'import' => [
+            'desc_code' => 'Unique warehouse code, e.g. WH-0001. Existing warehouses match by code for confirmed updates.',
+            'desc_name' => 'Warehouse display name.',
+            'desc_location' => 'Optional free-text location.',
+            'errors' => [
+                'code_required' => 'Warehouse code is required.',
+                'name_required' => 'Warehouse name is required.',
+                'duplicate_code_in_file' => 'Duplicate warehouse code ":code" in the uploaded file. Rejected for review.',
+                'name_conflict' => 'No warehouse with code ":code", but a warehouse named ":name" already exists (:count match(es)). Imports never merge by name — use the existing code to update it.',
+            ],
         ],
     ],
 
@@ -600,7 +662,7 @@ return [
     // PURCHASING — Suppliers
     // =====================================================================
     'suppliers' => [
-        'model' => ['singular' => 'Supplier', 'plural' => 'Suppliers'],
+        'model' => ['singular' => 'Supplier', 'plural' => 'Suppliers', 'singular_desc' => 'Import supplier records (Name, Contact Person, Phone, Email, Address).'],
         'navigation' => ['label' => 'Suppliers'],
         'fields' => [
             'name' => 'Name',
@@ -631,6 +693,21 @@ return [
             'delete' => 'Delete',
             'restore' => 'Restore',
             'force_delete' => 'Delete permanently',
+            'import' => 'Import',
+            'import_heading' => 'Import suppliers',
+            'import_description' => 'Controlled import with template download, column mapping, row preview and confirmation.',
+        ],
+        'import' => [
+            'desc_name' => 'Supplier name. Potential matches with existing records are flagged for review and never merged.',
+            'desc_contact_person' => 'Optional contact person.',
+            'desc_phone' => 'Optional phone number.',
+            'desc_email' => 'Optional email address.',
+            'desc_address' => 'Optional address.',
+            'errors' => [
+                'name_required' => 'Supplier name is required.',
+                'duplicate_name_in_file' => 'Duplicate supplier name ":name" in the uploaded file. Rejected for review.',
+                'possible_match' => 'A supplier named ":name" already exists (id :id). Flagged for review — imports never merge or update by name.',
+            ],
         ],
     ],
 
@@ -735,7 +812,7 @@ return [
     // SALES — Customers
     // =====================================================================
     'customers' => [
-        'model' => ['singular' => 'Customer', 'plural' => 'Customers'],
+        'model' => ['singular' => 'Customer', 'plural' => 'Customers', 'singular_desc' => 'Import customer records (Name, Contact Person, Phone, Email, Address).'],
         'navigation' => ['label' => 'Customers'],
         'fields' => [
             'name' => 'Name',
@@ -766,6 +843,21 @@ return [
             'delete' => 'Delete',
             'restore' => 'Restore',
             'force_delete' => 'Delete permanently',
+            'import' => 'Import',
+            'import_heading' => 'Import customers',
+            'import_description' => 'Controlled import with template download, column mapping, row preview and confirmation.',
+        ],
+        'import' => [
+            'desc_name' => 'Customer name. Potential matches with existing records are flagged for review and never merged.',
+            'desc_contact_person' => 'Optional contact person.',
+            'desc_phone' => 'Optional phone number.',
+            'desc_email' => 'Optional email address.',
+            'desc_address' => 'Optional address.',
+            'errors' => [
+                'name_required' => 'Customer name is required.',
+                'duplicate_name_in_file' => 'Duplicate customer name ":name" in the uploaded file. Rejected for review.',
+                'possible_match' => 'A customer named ":name" already exists (id :id). Flagged for review — imports never merge or update by name.',
+            ],
         ],
     ],
 ];

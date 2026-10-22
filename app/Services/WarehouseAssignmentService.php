@@ -45,7 +45,7 @@ class WarehouseAssignmentService
 
         if ($target->role === UserRole::WarehouseStaff && count($ids) > 1) {
             throw new DomainRuleViolationException('errors.warehouse_assignment_count', [
-                ':count' => count($ids),
+                'count' => count($ids),
             ]);
         }
 

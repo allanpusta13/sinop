@@ -139,4 +139,12 @@ return [
         'title' => 'Naubos ang reference code',
         'body' => 'Hindi makabuo ng natatanging :prefix reference code pagkatapos ng :attempts subok.',
     ],
+    'import_counts_mismatch' => [
+        'title' => 'Nagbago ang file mula noong preview', // TODO(i18n): verify
+        'body' => 'Ang preview ay nagpakita ng :expected_create para gumawa, :expected_update para i-update at :expected_reject para tanggihan; ang database ngayon ay :actual_create, :actual_update at :actual_reject. Suriin ang na-refresh na preview at kumpirmahin muli.', // TODO(i18n): verify
+    ],
+    'import_update_confirmation_required' => [
+        'title' => 'Kailangan ang kumpirmasyon ng update', // TODO(i18n): verify
+        'body' => ':updates row ang maga-update sa umiiral na record. Markahan ang kumpirmasyon para magpatuloy.', // TODO(i18n): verify
+    ],
 ];
