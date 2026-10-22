@@ -23,6 +23,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/admin/imports/{import}/template/{format}', [ImportTemplateController::class, 'download'])
         ->whereIn('format', ['csv', 'xlsx'])
+        // `auth` alone only proves a session exists; the panel's own
+        // middleware also re-runs `canAccessPanel()`, so a deactivated
+        // account is turned away here rather than handed templates
+        // (same contract as the export download below).
+        ->middleware(AuthenticatePanel::class)
         ->name('imports.template');
 
     Route::get('/admin/exports/{file}/download', ExportDownloadController::class)

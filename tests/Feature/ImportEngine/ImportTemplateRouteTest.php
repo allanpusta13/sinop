@@ -44,6 +44,18 @@ test('non-admins are forbidden from downloading templates', function () {
     ]))->assertForbidden();
 });
 
+test('turns away a user the panel no longer accepts', function () {
+    // A live session alone is not enough: the panel re-runs
+    // canAccessPanel(), so a deactivated account is refused its own
+    // templates rather than handed them.
+    actingAsAdmin(['is_active' => false]);
+
+    $this->get(route('imports.template', [
+        'import' => ProductImportDefinitionFixture::KEY,
+        'format' => 'csv',
+    ]))->assertForbidden();
+});
+
 test('guests are redirected to login', function () {
     actingAsGuest();
 

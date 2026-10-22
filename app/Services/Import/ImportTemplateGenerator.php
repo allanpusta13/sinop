@@ -115,6 +115,18 @@ class ImportTemplateGenerator
             $tempPath = tempnam(sys_get_temp_dir(), 'sinop_tpl_');
             $writer = new XlsxWriter;
             $writer->openToFile($tempPath);
+
+            // An aborted download kills the script at the first output
+            // flush — inside readfile() below — before @unlink runs, so
+            // the cleanup is also registered as a shutdown fallback.
+            // The writer is already closed by then, which is what makes
+            // the unlink succeed on Windows.
+            register_shutdown_function(static function () use ($tempPath): void {
+                if (is_string($tempPath) && is_file($tempPath)) {
+                    @unlink($tempPath);
+                }
+            });
+
             $writer->addRow(Row::fromValues($headers));
             $writer->addRow(Row::fromValues($this->markSampleRow($sample)));
 
