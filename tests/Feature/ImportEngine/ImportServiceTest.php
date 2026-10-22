@@ -9,6 +9,7 @@ use App\Jobs\ProcessImportJob;
 use App\Models\Product;
 use App\Services\Import\ImportService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -252,4 +253,74 @@ test('guesses column mappings from headers and keywords', function () {
 
     expect($guesses['name'])->toBe('Product Name')
         ->and($guesses['category'])->toBe('Family Category');
+});
+
+test('recognizes postgres sqlstate 23505 unique violation as duplicate key in simulated exception test', function () {
+    $service = app(ImportService::class);
+    $file = importFixtureCsv([['Robusta', 'Beverages']]);
+
+    $pdoException = new PDOException('ERROR: duplicate key value violates unique constraint "products_name_unique"', 0);
+    $pdoException->errorInfo = ['23505', 7, 'ERROR: duplicate key value violates unique constraint "products_name_unique"'];
+
+    $pgQueryException = new QueryException(
+        'pgsql',
+        'insert into "products" ("name") values (?)',
+        ['Robusta'],
+        $pdoException
+    );
+
+    ProductImportDefinitionFixture::$customPersistException = $pgQueryException;
+
+    try {
+        $service->execute(
+            $file,
+            'products.csv',
+            'fixture.products',
+            fixtureColumnMap(),
+            ['create' => 1, 'update' => 0, 'reject' => 0],
+            false,
+            auth()->user()
+        );
+
+        $this->fail('Expected DomainRuleViolationException was not thrown for PostgreSQL 23505.');
+    } catch (DomainRuleViolationException $exception) {
+        expect($exception->translationKey())->toBe('errors.import_counts_mismatch');
+    } finally {
+        ProductImportDefinitionFixture::$customPersistException = null;
+    }
+});
+
+test('does not misclassify unrelated query exceptions as duplicate key violations', function () {
+    $service = app(ImportService::class);
+    $file = importFixtureCsv([['Robusta', 'Beverages']]);
+
+    $pdoException = new PDOException('ERROR: insert or update on table "products" violates foreign key constraint', 0);
+    $pdoException->errorInfo = ['23503', 1452, 'ERROR: insert or update on table "products" violates foreign key constraint'];
+
+    $fkQueryException = new QueryException(
+        'pgsql',
+        'insert into "products" ("category_id") values (?)',
+        [999],
+        $pdoException
+    );
+
+    ProductImportDefinitionFixture::$customPersistException = $fkQueryException;
+
+    try {
+        $service->execute(
+            $file,
+            'products.csv',
+            'fixture.products',
+            fixtureColumnMap(),
+            ['create' => 1, 'update' => 0, 'reject' => 0],
+            false,
+            auth()->user()
+        );
+
+        $this->fail('Expected QueryException was not re-thrown.');
+    } catch (QueryException $exception) {
+        expect($exception->getMessage())->toContain('violates foreign key constraint');
+    } finally {
+        ProductImportDefinitionFixture::$customPersistException = null;
+    }
 });

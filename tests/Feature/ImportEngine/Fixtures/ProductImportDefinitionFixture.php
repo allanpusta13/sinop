@@ -36,6 +36,8 @@ class ProductImportDefinitionFixture extends ImportDefinition
      */
     public static bool $failPersistWithSkip = false;
 
+    public static ?QueryException $customPersistException = null;
+
     public function key(): string
     {
         return self::KEY;
@@ -118,6 +120,10 @@ class ProductImportDefinitionFixture extends ImportDefinition
 
     public function persist(array $rows): array
     {
+        if (self::$customPersistException !== null) {
+            throw self::$customPersistException;
+        }
+
         if (self::$failPersistWithDuplicateKey) {
             $previous = new PDOException("SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'Robusta' for key 'products_name_unique'");
             $previous->errorInfo = ['23000', 1062, "Duplicate entry 'Robusta' for key 'products_name_unique'"];

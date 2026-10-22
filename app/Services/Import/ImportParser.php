@@ -65,6 +65,27 @@ class ImportParser
 
         $extension = strtolower(pathinfo($originalName ?? $filePath, PATHINFO_EXTENSION));
 
+        if (! in_array($extension, ['csv', 'xlsx'], true)) {
+            throw new RuntimeException(__('imports.errors.unsupported_format'));
+        }
+
+        // Verify content signature against extension to prevent content mismatch
+        $handle = @fopen($filePath, 'rb');
+        $headerBytes = $handle !== false ? fread($handle, 4) : '';
+        if ($handle !== false) {
+            fclose($handle);
+        }
+
+        $isZipSignature = $headerBytes === 'PK';
+
+        if ($extension === 'xlsx' && ! $isZipSignature) {
+            throw new RuntimeException(__('imports.errors.corrupt_file'));
+        }
+
+        if ($extension === 'csv' && $isZipSignature) {
+            throw new RuntimeException(__('imports.errors.corrupt_file'));
+        }
+
         $result = $extension === 'xlsx'
             ? $this->parseXlsx($filePath, $headersOnly)
             : $this->parseCsv($filePath, $headersOnly);

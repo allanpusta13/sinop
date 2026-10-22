@@ -5,6 +5,8 @@ declare(strict_types=1);
 require_once __DIR__.'/Fixtures/import_helpers.php';
 
 use App\Services\Import\ImportParser;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Writer\XLSX\Writer;
 
 test('parses comma-delimited CSV with a header row', function () {
     $path = importTempFile("Name,Category\nArabica,Beverages\nRobusta,\n");
@@ -62,13 +64,7 @@ test('parses only the first sheet of an XLSX file', function () {
         ->and($parsed['rows'][1][0])->toBe('Arabica');
 });
 
-test('treats unknown extensions as CSV', function () {
-    $path = importTempFile("Name,Category\nArabica,Beverages\n", 'txt');
-
-    $parsed = app(ImportParser::class)->parse($path, 'products.txt');
-
-    expect($parsed['headers'])->toBe(['Name', 'Category']);
-});
+// Removed obsolete test treats unknown extensions as CSV
 
 test('throws when the file has no header row', function () {
     $path = importTempFile('');
@@ -136,4 +132,113 @@ test('leaves single-occurrence headers untouched', function () {
     $path = importTempFile("SKU (2),Name\n1,A\n");
 
     expect(app(ImportParser::class)->headers($path, 'products.csv'))->toBe(['SKU (2)', 'Name']);
+});
+
+test('rejects unsupported extensions such as xls, txt, or pdf', function () {
+    $file = tempnam(sys_get_temp_dir(), 'test');
+    try {
+        file_put_contents($file, 'name,category');
+
+        expect(fn () => app(ImportParser::class)->parse($file, 'products.txt'))
+            ->toThrow(RuntimeException::class, __('imports.errors.unsupported_format'))
+            ->and(fn () => app(ImportParser::class)->parse($file, 'products.xls'))
+            ->toThrow(RuntimeException::class, __('imports.errors.unsupported_format'))
+            ->and(fn () => app(ImportParser::class)->parse($file, 'products.pdf'))
+            ->toThrow(RuntimeException::class, __('imports.errors.unsupported_format'));
+    } finally {
+        if (file_exists($file)) {
+            unlink($file);
+        }
+    }
+});
+
+test('rejects swapped csv and xlsx contents when extension does not match zip header signature', function () {
+    // 1. Plain text CSV inside .xlsx extension (missing ZIP header PK\x03\x04)
+    $csvAsXlsxPath = importTempFile("Name,Category\nArabica,Beverages\n", 'xlsx');
+    try {
+        expect(fn () => app(ImportParser::class)->parse($csvAsXlsxPath, 'products.xlsx'))
+            ->toThrow(RuntimeException::class, __('imports.errors.corrupt_file'));
+    } finally {
+        if (file_exists($csvAsXlsxPath)) {
+            unlink($csvAsXlsxPath);
+        }
+    }
+
+    // 2. Real ZIP/XLSX binary inside .csv extension (has ZIP header PK\x03\x04)
+    $xlsxTemp = tempnam(sys_get_temp_dir(), 'test_xlsx_');
+    $xlsxAsCsvPath = $xlsxTemp.'.csv';
+    try {
+        $writer = new Writer;
+        $writer->openToFile($xlsxAsCsvPath);
+        $writer->addRow(Row::fromValues(['SKU', 'Name']));
+        $writer->addRow(Row::fromValues(['SKU001', 'Test Item']));
+        $writer->close();
+
+        expect(fn () => app(ImportParser::class)->parse($xlsxAsCsvPath, 'products.csv'))
+            ->toThrow(RuntimeException::class, __('imports.errors.corrupt_file'));
+    } finally {
+        if (file_exists($xlsxTemp)) {
+            unlink($xlsxTemp);
+        }
+        if (file_exists($xlsxAsCsvPath)) {
+            unlink($xlsxAsCsvPath);
+        }
+    }
+});
+
+test('rejects a zip archive that passes local file header check but is not a valid xlsx workbook', function () {
+    $zipPath = tempnam(sys_get_temp_dir(), 'test_zip_').'.xlsx';
+    try {
+        $zip = new ZipArchive;
+        $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $zip->addFromString('dummy.txt', 'This is a valid zip archive but not an OpenXML workbook');
+        $zip->close();
+
+        expect(fn () => app(ImportParser::class)->parse($zipPath, 'not_workbook.xlsx'))
+            ->toThrow(RuntimeException::class, __('imports.errors.corrupt_file'));
+    } finally {
+        if (file_exists($zipPath)) {
+            unlink($zipPath);
+        }
+    }
+});
+
+test('handles corrupt xlsx content and malformed non-zip file cleanly', function () {
+    $corruptPath = importTempFile('NOT_A_ZIP_FILE_CONTENT', 'xlsx');
+    try {
+        expect(fn () => app(ImportParser::class)->parse($corruptPath, 'corrupt.xlsx'))
+            ->toThrow(RuntimeException::class, __('imports.errors.corrupt_file'));
+    } finally {
+        if (file_exists($corruptPath)) {
+            unlink($corruptPath);
+        }
+    }
+});
+
+test('parses tab delimited csv files successfully', function () {
+    $tabCsv = importTempFile("SKU\tName\tCategory\nSKU-100\tCoffee\tBeverages", 'csv');
+    try {
+        $parsed = app(ImportParser::class)->parse($tabCsv, 'import.csv');
+
+        expect($parsed['headers'])->toBe(['SKU', 'Name', 'Category'])
+            ->and($parsed['rows'][1][0])->toBe('SKU-100');
+    } finally {
+        if (file_exists($tabCsv)) {
+            unlink($tabCsv);
+        }
+    }
+});
+
+test('parses file when originalName is null and filePath has extension', function () {
+    $csvPath = importTempFile("Name,Category\nArabica,Beverages\n", 'csv');
+    try {
+        $parsed = app(ImportParser::class)->parse($csvPath, null);
+
+        expect($parsed['headers'])->toBe(['Name', 'Category'])
+            ->and($parsed['rows'][1][0])->toBe('Arabica');
+    } finally {
+        if (file_exists($csvPath)) {
+            unlink($csvPath);
+        }
+    }
 });

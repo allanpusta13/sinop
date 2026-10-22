@@ -204,15 +204,28 @@ class ImportService
      */
     protected function isDuplicateKeyViolation(QueryException $exception): bool
     {
-        $errorInfo = $exception->errorInfo
-            ?? ($exception->getPrevious() instanceof PDOException ? $exception->getPrevious()->errorInfo : null);
+        $sqlState = $exception->getCode();
+        if (is_string($sqlState) && $sqlState === '23505') {
+            return true;
+        }
 
+        $previous = $exception->getPrevious();
+        if ($previous instanceof PDOException && (string) $previous->getCode() === '23505') {
+            return true;
+        }
+
+        $errorInfo = $exception->errorInfo
+             ?? ($previous instanceof PDOException ? $previous->errorInfo : null);
+
+        $sqlStateFromInfo = is_array($errorInfo) ? (string) ($errorInfo[0] ?? '') : '';
         $driverCode = is_array($errorInfo) ? (int) ($errorInfo[1] ?? 0) : 0;
         $message = is_array($errorInfo) ? (string) ($errorInfo[2] ?? '') : $exception->getMessage();
 
-        return $driverCode === 1062
+        return $sqlStateFromInfo === '23505'
+            || $driverCode === 1062
             || str_contains($message, 'Duplicate entry')
-            || str_contains($message, 'UNIQUE constraint');
+            || str_contains($message, 'UNIQUE constraint')
+            || str_contains($message, 'unique constraint');
     }
 
     /**

@@ -202,3 +202,60 @@ test('writes money as a real number in xlsx so a spreadsheet can sum it', functi
         ->and($rows[1][$costIndex])->toBeFloat()
         ->and($rows[1][$costIndex])->toEqualWithDelta(1234.5, 0.0001);
 });
+
+test('xlsx formula injection protects formula strings and keeps numeric types', function () {
+    ProductVariant::query()->delete();
+
+    ProductVariant::factory()->create([
+        'sku' => '=HYPERLINK("http://evil.com", "Click")',
+        'name' => '=SUM(1, 2)',
+        'barcode' => '+12345678999',
+        'base_unit_name' => '-UNIT-A',
+        'reorder_point' => 15,
+    ]);
+
+    $result = app(ExportService::class)->export(
+        ProductVariant::query(),
+        'products.variants',
+        'xlsx',
+        auth()->user(),
+    );
+
+    $path = Storage::disk('local')->path('exports/'.auth()->id().'/'.$result['filename']);
+
+    $zip = new ZipArchive;
+    expect($zip->open($path))->toBeTrue();
+
+    $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
+    $zip->close();
+
+    expect($sheetXml)->not->toBeFalse();
+
+    // Verify structurally that string cells are saved as t="inlineStr"
+    expect($sheetXml)->toContain('t="inlineStr"><is><t>=HYPERLINK(&quot;http://evil.com&quot;, &quot;Click&quot;)</t></is>')
+        ->and($sheetXml)->toContain('t="inlineStr"><is><t>=SUM(1, 2)</t></is>')
+        ->and($sheetXml)->toContain('t="inlineStr"><is><t>+12345678999</t></is>')
+        ->and($sheetXml)->toContain('t="inlineStr"><is><t>-UNIT-A</t></is>');
+
+    // Structural XML assertion: verify no formula elements <f...> exist anywhere in sheet XML
+    expect(preg_match('/<f[\s>]/i', $sheetXml))->toBe(0);
+
+    // Verify via workbook reader that values match expected strings/numbers
+    $rows = exportedXlsxRows($result['filename']);
+    $skuIndex = array_search('SKU', $rows[0], true);
+    $nameIndex = array_search('Name', $rows[0], true);
+    $barcodeIndex = array_search('Barcode', $rows[0], true);
+    $unitIndex = array_search('Base unit', $rows[0], true);
+    $reorderIndex = array_search('Reorder point', $rows[0], true);
+
+    expect($skuIndex)->not->toBeFalse()
+        ->and($nameIndex)->not->toBeFalse()
+        ->and($barcodeIndex)->not->toBeFalse()
+        ->and($unitIndex)->not->toBeFalse()
+        ->and($reorderIndex)->not->toBeFalse()
+        ->and($rows[1][$skuIndex])->toBe('=HYPERLINK("http://evil.com", "Click")')
+        ->and($rows[1][$nameIndex])->toBe('=SUM(1, 2)')
+        ->and($rows[1][$barcodeIndex])->toBe('+12345678999')
+        ->and($rows[1][$unitIndex])->toBe('-UNIT-A')
+        ->and($rows[1][$reorderIndex])->toBe(15);
+});
