@@ -42,6 +42,33 @@ test('exports inline below the queue threshold', function () {
         ->and(Storage::disk('local')->exists('exports/'.auth()->id().'/'.$result['filename']))->toBeTrue();
 });
 
+test('writes user text as literal cells in xlsx, never formulas', function () {
+    Warehouse::factory()->create(['name' => '=HYPERLINK("http://evil.example","click")']);
+
+    $result = app(ExportService::class)->export(
+        Warehouse::query(),
+        'warehouses',
+        'xlsx',
+        auth()->user(),
+    );
+
+    expect($result['status'])->toBe('completed');
+
+    $path = Storage::disk('local')->path('exports/'.auth()->id().'/'.$result['filename']);
+
+    $zip = new ZipArchive;
+    expect($zip->open($path))->toBeTrue();
+
+    $sheet = (string) $zip->getFromName('xl/worksheets/sheet1.xml');
+    $strings = (string) $zip->getFromName('xl/sharedStrings.xml');
+    $zip->close();
+
+    // The user text survives verbatim — as a string cell, never as a
+    // live formula (CWE-1236).
+    expect($strings.$sheet)->toContain('HYPERLINK')
+        ->and($sheet)->not->toContain('<f>');
+});
+
 test('queues exports above the queue threshold', function () {
     Bus::fake();
 

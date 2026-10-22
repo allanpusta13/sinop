@@ -7,6 +7,8 @@ namespace App\Services\Export;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use League\Csv\Writer as CsvWriter;
+use OpenSpout\Common\Entity\Cell;
+use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
 
@@ -23,7 +25,8 @@ use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
  *
  * CSV cells are written as the database's own text with formula
  * injection escaped; XLSX cells are written typed, so numbers stay
- * numbers in a spreadsheet.
+ * numbers in a spreadsheet, and text is forced into string cells so a
+ * leading "=" can never become a live formula.
  */
 class ExportGenerator
 {
@@ -57,7 +60,17 @@ class ExportGenerator
             $writer = new XlsxWriter;
             $writer->openToFile($physicalPath);
 
-            $append = static fn (array $cells): mixed => $writer->addRow(Row::fromValues($cells));
+            // Force string cells for text: OpenSpout's Cell::fromValue()
+            // turns any leading "=" into a live FormulaCell (CWE-1236),
+            // and user-supplied text — notes, names, reasons — reaches
+            // these cells directly. A StringCell is written as text and
+            // never evaluated by a spreadsheet.
+            $append = static fn (array $cells): mixed => $writer->addRow(new Row(array_map(
+                static fn (mixed $cell): Cell => is_string($cell) && $cell !== ''
+                    ? new StringCell($cell, null)
+                    : Cell::fromValue($cell),
+                $cells,
+            )));
         } else {
             $csv = CsvWriter::createFromPath($physicalPath, 'w+');
             $csv->setNewline("\n");
@@ -173,8 +186,9 @@ class ExportGenerator
      * SKUs, reference codes, notes — reaches these cells directly.
      *
      * Numeric text is left untouched so negative numbers and signed
-     * quantities are not corrupted. XLSX needs no equivalent: OpenSpout
-     * writes typed cells, and a string cell is never evaluated.
+     * quantities are not corrupted. XLSX is guarded in the writer
+     * instead: text goes into explicit string cells, which a
+     * spreadsheet never evaluates.
      */
     protected function escapeFormula(string $value): string
     {
