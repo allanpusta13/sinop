@@ -195,6 +195,20 @@ class WarehouseImportDefinition extends ImportDefinition
         $updated = 0;
         $skipped = 0;
 
+        // One prefetch for every update row's existing_id instead of a
+        // find() per row: the ids were resolved by validate() and the
+        // whole run sits inside the engine transaction anyway.
+        $updateIds = collect($rows)
+            ->map(static fn (array $row): mixed => $row['existing_id'] ?? null)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $existing = $updateIds === []
+            ? collect()
+            : Warehouse::query()->whereIn('id', $updateIds)->get()->keyBy('id');
+
         foreach ($rows as $row) {
             /** @var array<string, mixed> $data */
             $data = $row['data'];
@@ -212,7 +226,7 @@ class WarehouseImportDefinition extends ImportDefinition
                 continue;
             }
 
-            $warehouse = Warehouse::query()->find($row['existing_id'] ?? null);
+            $warehouse = $existing->get($row['existing_id'] ?? null);
 
             if ($warehouse === null) {
                 $skipped++;

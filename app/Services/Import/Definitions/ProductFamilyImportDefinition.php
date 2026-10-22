@@ -80,7 +80,9 @@ class ProductFamilyImportDefinition extends ImportDefinition
 
         $existingNames = [];
 
-        foreach (Product::withTrashed()->get() as $family) {
+        // Only the column validate() reads — a big catalogue cannot drag
+        // its full rows into memory on every preview.
+        foreach (Product::withTrashed()->select(['name'])->get() as $family) {
             $existingNames[mb_strtolower(trim($family->name))] = true;
         }
 
