@@ -11,6 +11,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * ExportService — registry resolution and export orchestration.
@@ -57,8 +58,8 @@ class ExportService
     public const SCOPE_ALIAS = '__export_scope';
 
     public function __construct(
-        protected ExportGenerator $generator,
-        protected ExportFileStore $fileStore,
+        private readonly ExportGenerator $generator,
+        private readonly ExportFileStore $fileStore,
     ) {}
 
     /** @return array<string, class-string<ExportDefinition>> */
@@ -115,13 +116,28 @@ class ExportService
             return ['status' => 'queued', 'rows' => $rows, 'filename' => $filename];
         }
 
-        $rows = $this->generator->generate(
-            $definition,
-            $sql,
-            $bindings,
-            $format,
-            $this->fileStore->absolutePath($userId, $filename),
-        );
+        try {
+            $rows = $this->generator->generate(
+                $definition,
+                $sql,
+                $bindings,
+                $format,
+                $this->fileStore->absolutePath($userId, $filename),
+            );
+        } catch (Throwable $exception) {
+            // The header row is already on disk by now, and a
+            // half-written file would still be served by its own
+            // download link until the next sweep — mirrors
+            // ProcessExportJob's discard on failure.
+            $this->fileStore->discard($userId, $filename);
+
+            throw $exception;
+        }
+
+        // Provenance for the download route: which definition and
+        // which warehouse scope this file was written with, so a scope
+        // that shrinks before the download is caught there.
+        $this->fileStore->writeScopeMeta($userId, $filename, $definitionKey, $this->currentWarehouseScope($definition, $user));
 
         return ['status' => 'completed', 'rows' => $rows, 'filename' => $filename];
     }
@@ -189,7 +205,8 @@ class ExportService
             ->getColumnListing($table);
 
         foreach ($base->orders ?? [] as $index => $order) {
-            if ($this->isBareColumn($order['column'] ?? null)) {
+            if ($this->isBareColumn($order['column'] ?? null)
+                && in_array($order['column'], $columns, true)) {
                 $base->orders[$index]['column'] = $table.'.'.$order['column'];
             }
         }
@@ -374,33 +391,40 @@ class ExportService
      */
     protected function exposeWarehouseScope(ExportDefinition $definition, Builder $query): void
     {
-        $index = 0;
-
-        foreach ($definition->warehouseScope() as $group) {
-            foreach ($group as $column) {
-                $query->addSelect($column.' as '.self::SCOPE_ALIAS_PREFIX.$index);
-                $index++;
-            }
+        foreach ($this->scopeColumns($definition) as $index => $column) {
+            $query->addSelect($column.' as '.self::SCOPE_ALIAS_PREFIX.$index);
         }
     }
 
     /**
-     * Every scope column of a definition, in selection order, so a
-     * column can be looked up by the alias it was given.
+     * Every scope column of a definition, in selection order — the one
+     * ordering the alias index generation and the name lookup share.
      *
-     * @return array<string, int>
+     * @return array<int, string>
      */
-    protected function scopeColumnNames(ExportDefinition $definition): array
+    protected function scopeColumns(ExportDefinition $definition): array
     {
         $columns = [];
 
         foreach ($definition->warehouseScope() as $group) {
             foreach ($group as $column) {
-                $columns[$column] = count($columns);
+                $columns[] = $column;
             }
         }
 
         return $columns;
+    }
+
+    /**
+     * Every scope column of a definition keyed by the alias index it
+     * was given, so a column can be looked up by the name the scope
+     * declaration uses.
+     *
+     * @return array<string, int>
+     */
+    protected function scopeColumnNames(ExportDefinition $definition): array
+    {
+        return array_flip($this->scopeColumns($definition));
     }
 
     /**

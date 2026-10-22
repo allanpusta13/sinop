@@ -24,6 +24,12 @@ class ExportFileStore
     public const DIRECTORY = 'exports';
 
     /**
+     * Sidecar suffix recording the definition and warehouse scope a
+     * generated file was written with.
+     */
+    public const META_SUFFIX = '.scope.json';
+
+    /**
      * Stale-file horizon in hours; files older than this are swept.
      */
     public const STALE_HOURS = 24;
@@ -75,11 +81,10 @@ class ExportFileStore
 
     /**
      * Delete every stale export file (older than STALE_HOURS) for the
-     * user, except the absolute paths given in `$keep`. Idempotent.
-     *
-     * @param  array<int, string|null>  $keep
+     * user. Fresh files are left alone, so a queued export waiting on
+     * its own filename survives. Idempotent.
      */
-    public function sweep(int $userId, array $keep = []): void
+    public function sweep(int $userId): void
     {
         $directory = $this->absolutePath($userId, '');
 
@@ -87,28 +92,62 @@ class ExportFileStore
             return;
         }
 
-        $keep = array_filter(array_map(
-            static fn ($path): ?string => filled($path) ? (realpath((string) $path) ?: null) : null,
-            $keep,
-        ));
-
         $cutoff = now()->subHours(self::STALE_HOURS)->getTimestamp();
 
         foreach (File::files($directory) as $file) {
-            $physical = $file->getPathname();
-
-            if (in_array((string) (realpath($physical) ?: $physical), $keep, true)) {
-                continue;
-            }
-
             if ($file->getMTime() < $cutoff) {
-                File::delete($physical);
+                File::delete($file->getPathname());
             }
         }
     }
 
     /**
-     * Delete one file from the user's directory.
+     * Record the definition key and warehouse scope a file was
+     * generated with, so the download route can refuse it once the
+     * user's scope has shrunk. Written next to the file; swept and
+     * discarded with it.
+     *
+     * @param  array<int, int>|null  $scope  null = generated unrestricted
+     */
+    public function writeScopeMeta(int $userId, string $filename, string $definitionKey, ?array $scope): void
+    {
+        File::put($this->absolutePath($userId, $filename.self::META_SUFFIX), json_encode([
+            'definition' => $definitionKey,
+            'scope' => $scope,
+        ], JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * The definition and scope a file was generated with, or null when
+     * the sidecar is missing or unreadable — nothing without provenance
+     * is ever served.
+     *
+     * @return array{definition: string, scope: array<int, int>|null}|null
+     */
+    public function readScopeMeta(int $userId, string $filename): ?array
+    {
+        $path = $this->absolutePath($userId, $filename.self::META_SUFFIX);
+
+        if (! is_file($path)) {
+            return null;
+        }
+
+        $meta = json_decode((string) File::get($path), true);
+
+        if (! is_array($meta) || ! is_string($meta['definition'] ?? null) || $meta['definition'] === '') {
+            return null;
+        }
+
+        $scope = $meta['scope'] ?? null;
+
+        return [
+            'definition' => $meta['definition'],
+            'scope' => is_array($scope) ? array_map('intval', array_values($scope)) : null,
+        ];
+    }
+
+    /**
+     * Delete one file from the user's directory, sidecar included.
      *
      * Generation writes the header row before the first page is read,
      * so a failure part-way would otherwise leave a partial export
@@ -116,10 +155,12 @@ class ExportFileStore
      */
     public function discard(int $userId, string $filename): void
     {
-        $path = $this->absolutePath($userId, $filename);
+        foreach ([$filename, $filename.self::META_SUFFIX] as $candidate) {
+            $path = $this->absolutePath($userId, $candidate);
 
-        if (is_file($path)) {
-            File::delete($path);
+            if (is_file($path)) {
+                File::delete($path);
+            }
         }
     }
 }

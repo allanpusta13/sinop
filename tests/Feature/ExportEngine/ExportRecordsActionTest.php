@@ -19,6 +19,7 @@ use App\Filament\Resources\TransferRequisitions\Pages\ListTransferRequisitions;
 use App\Filament\Resources\Warehouses\Pages\ListWarehouses;
 use App\Models\StockMovement;
 use App\Models\Warehouse;
+use App\Services\Export\ExportFileStore;
 use Filament\Notifications\NotificationMailbox;
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Reader;
@@ -28,6 +29,20 @@ use OpenSpout\Reader\XLSX\Reader as XlsxReader;
 beforeEach(function () {
     Storage::fake('local');
 });
+
+/**
+ * Export files only — every generated file now carries a `.scope.json`
+ * provenance sidecar next to it on disk.
+ *
+ * @return array<int, string>
+ */
+function exportActionFiles(int $userId): array
+{
+    return array_values(array_filter(
+        Storage::disk('local')->files('exports/'.$userId),
+        static fn (string $file): bool => ! str_ends_with($file, ExportFileStore::META_SUFFIX),
+    ));
+}
 
 test('exposes an export action on every exportable list page', function (string $page, string $action) {
     actingAsAdmin();
@@ -55,7 +70,7 @@ test('exports a single-type page', function () {
         ->callAction('exportWarehouses', data: ['format' => 'csv'])
         ->assertNotified(__('exports.notifications.completed_title'));
 
-    $files = Storage::disk('local')->files('exports/'.auth()->id());
+    $files = exportActionFiles((int) auth()->id());
 
     expect($files)->toHaveCount(1)
         ->and($files[0])->toContain('sinop_export_warehouses_')
@@ -73,7 +88,7 @@ test('exports the chosen type from a multi-type page', function () {
         ])
         ->assertNotified(__('exports.notifications.completed_title'));
 
-    $files = Storage::disk('local')->files('exports/'.auth()->id());
+    $files = exportActionFiles((int) auth()->id());
 
     expect($files)->toHaveCount(1)
         ->and($files[0])->toContain('sinop_export_transfer_requisitions_items_')
@@ -109,7 +124,7 @@ test('exports only the rows a warehouse-scoped user can see', function () {
     Livewire::test(ListStockMovements::class)
         ->callAction('exportStockMovements', data: ['format' => 'csv']);
 
-    $files = Storage::disk('local')->files('exports/'.$staff->getKey());
+    $files = exportActionFiles((int) $staff->getKey());
 
     expect($files)->toHaveCount(1);
 
@@ -169,7 +184,7 @@ test('carries the table filters into the file', function () {
         ->filterTable('is_active', 'true')
         ->callAction('exportWarehouses', data: ['format' => 'csv']);
 
-    $files = Storage::disk('local')->files('exports/'.auth()->id());
+    $files = exportActionFiles((int) auth()->id());
 
     $records = array_values(iterator_to_array(
         Reader::createFromPath(Storage::disk('local')->path($files[0]), 'r')->getRecords(),

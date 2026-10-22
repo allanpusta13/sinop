@@ -37,6 +37,18 @@ class ProcessExportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
+     * A full-table export may legitimately run for minutes; the
+     * worker's default 60s would SIGTERM it mid-write. A SIGTERM
+     * bypasses the catch-alls in handle(), so failed() below discards
+     * the partial file when that happens. One attempt only: every
+     * failure already reports itself, and a blind retry would re-run a
+     * query whose scope may have changed meanwhile.
+     */
+    public int $timeout = 300;
+
+    public int $tries = 1;
+
+    /**
      * @param  array<int, mixed>  $bindings
      */
     public function __construct(
@@ -101,6 +113,11 @@ class ProcessExportJob implements ShouldQueue
                 throw $exception;
             }
 
+            // Provenance for the download route: the scope the file was
+            // actually narrowed to (re-derived here, not the dispatch
+            // snapshot's), so a later shrink is caught at download.
+            $fileStore->writeScopeMeta($userId, $this->filename, $this->definitionKey, $scope);
+
             Notification::make()
                 ->success()
                 ->title(__('exports.notifications.completed_title'))
@@ -125,6 +142,26 @@ class ProcessExportJob implements ShouldQueue
                 ->title(__('exports.notifications.failed_title'))
                 ->body(__('exports.notifications.failed_body'))
                 ->sendToDatabase($this->user);
+
+            // Rethrown so the failure reaches failed_jobs — swallowed
+            // here it would only exist as one database notification.
+            throw $exception;
+        }
+    }
+
+    /**
+     * A SIGTERM (worker timeout) bypasses handle()'s catch-alls, so the
+     * half-written file would otherwise sit on its own download link
+     * until the sweep. For ordinary failures this is a no-op: the
+     * generator catch already discarded, and discard() is idempotent.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        try {
+            app(ExportFileStore::class)->discard((int) $this->user->getKey(), $this->filename);
+        } catch (Throwable) {
+            // The user may already be gone (model restore fails); the
+            // cleanup hook must never mask the original failure.
         }
     }
 }

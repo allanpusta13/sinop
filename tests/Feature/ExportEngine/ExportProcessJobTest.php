@@ -13,7 +13,10 @@ use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportFileStore;
 use App\Services\Export\ExportGenerator;
 use App\Services\Export\ExportService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\QueryException;
+use Illuminate\Queue\TimeoutExceededException;
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Reader;
 
@@ -95,6 +98,13 @@ test('generates the file and reports it as a database notification', function ()
 
     expect(Storage::disk('local')->exists('exports/'.$user->getKey().'/'.$filename))->toBeTrue();
 
+    // The provenance sidecar travels with the file so the download
+    // route can re-check the scope later (null = unrestricted admin).
+    $meta = json_decode(Storage::disk('local')->get('exports/'.$user->getKey().'/'.$filename.ExportFileStore::META_SUFFIX), true);
+
+    expect($meta['definition'])->toBe('warehouses')
+        ->and($meta['scope'])->toBeNull();
+
     $notifications = $user->notifications()->get();
 
     expect($notifications)->toHaveCount(1);
@@ -111,11 +121,13 @@ test('re-authorizes the snapshot instead of trusting it', function () {
 
     [$sql, $bindings] = exportJobSnapshot('direct_transfers');
 
-    (new ProcessExportJob($sql, $bindings, 'direct_transfers', 'csv', 'sinop_export_x.csv', $staff))->handle(
+    // The failure is notified *and* rethrown, so it also reaches
+    // failed_jobs instead of living on as one notification.
+    expect(fn () => (new ProcessExportJob($sql, $bindings, 'direct_transfers', 'csv', 'sinop_export_x.csv', $staff))->handle(
         app(ExportService::class),
         app(ExportGenerator::class),
         app(ExportFileStore::class),
-    );
+    ))->toThrow(AuthorizationException::class);
 
     $notifications = $staff->notifications()->get();
 
@@ -127,11 +139,11 @@ test('re-authorizes the snapshot instead of trusting it', function () {
 test('reports an unknown definition key as a failed notification', function () {
     $user = actingAsAdmin();
 
-    (new ProcessExportJob('select 1', [], 'nope.nope', 'csv', 'sinop_export_x.csv', $user))->handle(
+    expect(fn () => (new ProcessExportJob('select 1', [], 'nope.nope', 'csv', 'sinop_export_x.csv', $user))->handle(
         app(ExportService::class),
         app(ExportGenerator::class),
         app(ExportFileStore::class),
-    );
+    ))->toThrow(InvalidArgumentException::class, 'nope.nope');
 
     $notifications = $user->notifications()->get();
 
@@ -148,11 +160,11 @@ test('refuses a filename that travelled through the queue in an unsafe shape', f
     $fileStore = app(ExportFileStore::class);
     $fileStore->ensureUserDirectory((int) $user->getKey());
 
-    (new ProcessExportJob($sql, $bindings, 'warehouses', 'csv', '../../.env', $user))->handle(
+    expect(fn () => (new ProcessExportJob($sql, $bindings, 'warehouses', 'csv', '../../.env', $user))->handle(
         app(ExportService::class),
         app(ExportGenerator::class),
         $fileStore,
-    );
+    ))->toThrow(InvalidArgumentException::class, __('exports.errors.invalid_filename'));
 
     $notifications = $user->notifications()->get();
 
@@ -189,8 +201,14 @@ test('narrows a queued export when a warehouse was taken away while it waited', 
     $records = exportCsvRecords($fileStore->absolutePath((int) $staff->getKey(), $filename));
     $warehouseColumn = exportCsvColumnIndex('stock_movements', 'warehouse_id');
 
+    // The provenance sidecar records the execution-time scope the
+    // file was actually narrowed to, not the dispatch snapshot's.
+    $meta = json_decode(Storage::disk('local')->get('exports/'.$staff->getKey().'/'.$filename.ExportFileStore::META_SUFFIX), true);
+
     expect($records)->toHaveCount(1)
-        ->and((int) $records[0][$warehouseColumn])->toBe($mine->getKey());
+        ->and((int) $records[0][$warehouseColumn])->toBe($mine->getKey())
+        ->and($meta['definition'])->toBe('stock_movements')
+        ->and($meta['scope'])->toBe([(int) $mine->getKey()]);
 });
 
 test('does not widen a queued export when a warehouse was added while it waited', function () {
@@ -263,15 +281,33 @@ test('discards a half written file when generation fails part way', function () 
     // The header row reaches disk before the first page is read, so a
     // snapshot that cannot run would otherwise leave a partial file
     // behind — still reachable by its own download link.
-    (new ProcessExportJob('select * from not_a_table', [], 'warehouses', 'csv', $filename, $user))->handle(
+    expect(fn () => (new ProcessExportJob('select * from not_a_table', [], 'warehouses', 'csv', $filename, $user))->handle(
         app(ExportService::class),
         app(ExportGenerator::class),
         $fileStore,
-    );
+    ))->toThrow(QueryException::class);
 
     $notifications = $user->notifications()->get();
 
     expect(Storage::disk('local')->files('exports/'.$user->getKey()))->toBeEmpty()
         ->and($notifications)->toHaveCount(1)
         ->and($notifications->first()->data['title'])->toBe(__('exports.notifications.failed_title'));
+});
+
+test('discards a partial file on timeout, where the catch-alls never ran', function () {
+    $user = actingAsAdmin();
+
+    $fileStore = app(ExportFileStore::class);
+    $fileStore->ensureUserDirectory((int) $user->getKey());
+    $filename = $fileStore->allocateFilename((int) $user->getKey(), 'warehouses', 'csv');
+
+    // A SIGTERM mid-write: the header is on disk and handle()'s
+    // catch-alls never ran — only failed() can clean this up.
+    file_put_contents($fileStore->absolutePath((int) $user->getKey(), $filename), "code,name\n");
+
+    (new ProcessExportJob('select 1', [], 'warehouses', 'csv', $filename, $user))->failed(
+        new TimeoutExceededException('timeout'),
+    );
+
+    expect(Storage::disk('local')->files('exports/'.$user->getKey()))->toBeEmpty();
 });
