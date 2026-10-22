@@ -383,6 +383,39 @@ it('applies the active flag from mapped cells', function () {
         ->and(ProductVariant::query()->where('sku', 'SKU-ZERO')->first()?->is_active)->toBeFalse();
 });
 
+it('rejects an unrecognized active flag instead of guessing', function () {
+    $family = Product::factory()->create(['name' => 'Hot Drinks']);
+    ProductVariant::factory()->create([
+        'product_id' => $family->id,
+        'sku' => 'SKU-TEA',
+        'name' => 'Earl Grey',
+        'is_active' => false,
+    ]);
+
+    // "inactive" is not a boolean token — the old fallback silently
+    // reactivated the deactivated variant.
+    $file = importTempFile(implode("\n", [
+        'Family ID,SKU,Variant Name,Base Unit Name,Active Status',
+        "{$family->id},SKU-TEA,Earl Grey,Box,inactive",
+    ]));
+
+    $columnMap = variantImportColumnMap() + ['is_active' => 'Active Status'];
+    $service = app(ImportService::class);
+    $user = auth()->user();
+
+    $preview = $service->preview($file, 'variants.csv', 'products.variants', $columnMap, $user);
+
+    expect($preview['counts']['reject'])->toBe(1)
+        ->and($preview['rows'][0]['errors'][0])->toBe([
+            'key' => 'resources.products.import.errors.is_active_invalid',
+            'params' => [],
+        ]);
+
+    $service->execute($file, 'variants.csv', 'products.variants', $columnMap, $preview['counts'], false, $user);
+
+    expect(ProductVariant::query()->where('sku', 'SKU-TEA')->first()?->is_active)->toBeFalse();
+});
+
 it('never writes stock movement or price rows', function () {
     $family = Product::factory()->create(['name' => 'Coffee Beans']);
 

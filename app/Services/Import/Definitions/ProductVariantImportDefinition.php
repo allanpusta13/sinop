@@ -162,7 +162,11 @@ class ProductVariantImportDefinition extends ImportDefinition
             }
         }
 
-        $allFamilies = Product::withTrashed()->get();
+        // Only the columns validate() actually reads — id+name for the
+        // family maps, id+sku+barcode for the existing-variant maps —
+        // so a big catalogue can't drag its full rows (images, spec
+        // fields) into memory on every preview.
+        $allFamilies = Product::withTrashed()->select(['id', 'name'])->get();
         $familiesById = $allFamilies->keyBy('id')->all();
         $familiesByName = [];
 
@@ -170,7 +174,7 @@ class ProductVariantImportDefinition extends ImportDefinition
             $familiesByName[mb_strtolower(trim($family->name))][] = $family;
         }
 
-        $existingVariants = ProductVariant::withTrashed()->get();
+        $existingVariants = ProductVariant::withTrashed()->select(['id', 'sku', 'barcode'])->get();
         $variantsBySku = $existingVariants->keyBy(
             static fn (ProductVariant $variant): string => strtoupper(trim((string) $variant->sku))
         );
@@ -250,7 +254,15 @@ class ProductVariantImportDefinition extends ImportDefinition
 
             if ($isActiveRaw !== '') {
                 $filtered = filter_var($isActiveRaw, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-                $isActive = $filtered ?? true;
+
+                if ($filtered === null) {
+                    // A typo must never silently flip a variant's state —
+                    // "inactive" or "ture" reactivating a deactivated
+                    // variant is a rejected row the user corrects.
+                    $errors[] = $this->rowError('resources.products.import.errors.is_active_invalid');
+                } else {
+                    $isActive = $filtered;
+                }
             }
 
             $existingVariantId = null;
@@ -301,6 +313,20 @@ class ProductVariantImportDefinition extends ImportDefinition
         $updated = 0;
         $skipped = 0;
 
+        // One prefetch for every update row's existing_id instead of a
+        // find() per row (withTrashed kept: validate() resolves soft-
+        // deleted variants too, and updates may reactivate their data).
+        $updateIds = collect($rows)
+            ->map(static fn (array $row): mixed => $row['existing_id'] ?? null)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $existing = $updateIds === []
+            ? collect()
+            : ProductVariant::withTrashed()->whereIn('id', $updateIds)->get()->keyBy('id');
+
         foreach ($rows as $row) {
             $status = $row['status'] ?? null;
             $data = $row['data'];
@@ -323,7 +349,7 @@ class ProductVariantImportDefinition extends ImportDefinition
             }
 
             if ($status === 'update') {
-                $variant = ProductVariant::withTrashed()->find($row['existing_id'] ?? null);
+                $variant = $existing->get($row['existing_id'] ?? null);
 
                 if ($variant === null) {
                     $skipped++;
