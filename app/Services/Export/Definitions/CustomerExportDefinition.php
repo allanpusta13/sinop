@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Export\Definitions;
 
 use App\Models\Customer;
-use App\Models\User;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * CustomerExportDefinition — "customers" (#225): the Customers List
@@ -30,11 +28,6 @@ class CustomerExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return Customer::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', Customer::class);
     }
 
     /**

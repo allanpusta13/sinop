@@ -6,11 +6,9 @@ namespace App\Services\Export\Definitions;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
-use App\Models\User;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * PurchaseOrderItemExportDefinition — "purchase_orders.items" (#226):
@@ -35,11 +33,6 @@ class PurchaseOrderItemExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return PurchaseOrder::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', PurchaseOrder::class);
     }
 
     /**

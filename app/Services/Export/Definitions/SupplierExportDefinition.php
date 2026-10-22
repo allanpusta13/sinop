@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Export\Definitions;
 
 use App\Models\Supplier;
-use App\Models\User;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * SupplierExportDefinition — "suppliers" (#225): the Suppliers List
@@ -31,11 +29,6 @@ class SupplierExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return Supplier::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', Supplier::class);
     }
 
     /**

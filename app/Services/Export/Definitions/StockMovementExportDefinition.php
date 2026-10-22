@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Export\Definitions;
 
 use App\Models\StockMovement;
-use App\Models\User;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * StockMovementExportDefinition — "stock_movements" (#226): the stock
@@ -39,11 +37,6 @@ class StockMovementExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return StockMovement::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', StockMovement::class);
     }
 
     /**

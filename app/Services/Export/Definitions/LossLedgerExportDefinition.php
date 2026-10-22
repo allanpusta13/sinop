@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Export\Definitions;
 
 use App\Models\LossLedger;
-use App\Models\User;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * LossLedgerExportDefinition — "loss_ledgers" (#226): the loss ledger,
@@ -34,11 +32,6 @@ class LossLedgerExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return LossLedger::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', LossLedger::class);
     }
 
     /**

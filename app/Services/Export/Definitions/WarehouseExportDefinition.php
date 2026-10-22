@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Export\Definitions;
 
-use App\Models\User;
 use App\Models\Warehouse;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * WarehouseExportDefinition — "warehouses" (#225): the Warehouses List
@@ -35,11 +33,6 @@ class WarehouseExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return Warehouse::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', Warehouse::class);
     }
 
     /**

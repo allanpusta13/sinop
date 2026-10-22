@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Export\Definitions;
 
 use App\Models\InTransit;
-use App\Models\User;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * InTransitExportDefinition — "in_transits" (#226): goods dispatched
@@ -35,11 +33,6 @@ class InTransitExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return InTransit::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', InTransit::class);
     }
 
     /**

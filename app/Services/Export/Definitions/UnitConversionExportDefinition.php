@@ -6,11 +6,9 @@ namespace App\Services\Export\Definitions;
 
 use App\Models\ProductVariant;
 use App\Models\ProductVariantUnitConversion;
-use App\Models\User;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * UnitConversionExportDefinition — "products.unit_conversions" (#225):
@@ -35,11 +33,6 @@ class UnitConversionExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return ProductVariant::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', ProductVariant::class);
     }
 
     /**

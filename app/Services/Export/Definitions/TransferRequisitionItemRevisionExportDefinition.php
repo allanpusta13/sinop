@@ -6,11 +6,9 @@ namespace App\Services\Export\Definitions;
 
 use App\Models\TransferRequisitionItem;
 use App\Models\TransferRequisitionItemRevision;
-use App\Models\User;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * TransferRequisitionItemRevisionExportDefinition —
@@ -37,11 +35,6 @@ class TransferRequisitionItemRevisionExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return TransferRequisitionItemRevision::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', TransferRequisitionItemRevision::class);
     }
 
     /**

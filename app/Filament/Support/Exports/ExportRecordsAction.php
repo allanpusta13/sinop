@@ -136,11 +136,12 @@ abstract class ExportRecordsAction
      * Run the export against the page's table query and report the
      * result as a notification with its download link.
      *
-     * The three guards below are unreachable by construction — the action
-     * is only ever registered as a header action on an authenticated List
-     * page, so the actor is a user, the component is a `HasTable`, and
-     * Filament always hands back a builder. They stay silent because there
-     * is no user left to notify.
+     * The guards below narrow what PHP cannot express at this call
+     * site: the action only ever registers as a header action on an
+     * authenticated List page, but `auth()->user()` and the injected
+     * `$livewire` are both untyped here — and `getTableQueryForExport()`
+     * is return-typed `Builder`, so the last check is belt-and-braces.
+     * All three stay silent because there is no user left to notify.
      *
      * @param  array<string, mixed>  $data
      */
@@ -192,24 +193,24 @@ abstract class ExportRecordsAction
             return;
         }
 
-        $body = $result['status'] === 'queued'
-            ? __('exports.notifications.queued_body', [
-                'rows' => number_format($result['rows']),
-                'type' => $this->typeLabel($key),
-            ])
-            : __('exports.notifications.completed_body', [
-                'rows' => number_format($result['rows']),
-                'type' => $this->typeLabel($key),
-            ]);
+        $queued = $result['status'] === 'queued';
 
         $notification = Notification::make()
             ->success()
-            ->title($result['status'] === 'queued'
+            ->title($queued
                 ? __('exports.notifications.queued_title')
                 : __('exports.notifications.completed_title'))
-            ->body($body);
+            ->body($queued
+                ? __('exports.notifications.queued_body', [
+                    'rows' => number_format($result['rows']),
+                    'type' => $this->typeLabel($key),
+                ])
+                : __('exports.notifications.completed_body', [
+                    'rows' => number_format($result['rows']),
+                    'type' => $this->typeLabel($key),
+                ]));
 
-        if ($result['status'] === 'completed') {
+        if (! $queued) {
             $notification->actions([
                 Action::make('download')
                     ->label(__('exports.notifications.download_label'))

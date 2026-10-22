@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Export\Definitions;
 
 use App\Models\PurchaseOrder;
-use App\Models\User;
 use App\Services\Export\ExportColumn;
 use App\Services\Export\ExportDefinition;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * PurchaseOrderExportDefinition — "purchase_orders" (#226): purchase
@@ -34,11 +32,6 @@ class PurchaseOrderExportDefinition extends ExportDefinition
     public function modelClass(): string
     {
         return PurchaseOrder::class;
-    }
-
-    public function authorize(User $user): void
-    {
-        Gate::forUser($user)->authorize('viewAny', PurchaseOrder::class);
     }
 
     /**
