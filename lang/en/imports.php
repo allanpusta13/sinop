@@ -69,6 +69,8 @@ return [
         'corrupt_file' => 'The uploaded file is corrupt or is not a valid XLSX file.',
         'empty_file' => 'The uploaded file is empty or has no header row.',
         'unsupported_format' => 'Only CSV and XLSX templates are supported.',
+        'file_too_large' => 'The file size exceeds the 10MB limit.',
+        'max_rows_exceeded' => 'The import file exceeds the maximum allowed row limit of :max rows.',
         'unknown_definition' => 'Unknown import type ":key".',
         'missing_required_mapping' => 'The ":field" column must be mapped before previewing.',
         'preview_expired' => 'The preview expired. Go back to the mapping step and advance again to refresh it, then confirm.',

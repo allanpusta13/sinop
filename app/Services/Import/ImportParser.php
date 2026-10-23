@@ -30,6 +30,8 @@ use Throwable;
 class ImportParser
 {
     public const COMMENT_MARKER = '#';
+    public const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    public const MAX_ROW_COUNT = 5000;
 
     /**
      * Parse a CSV or XLSX file and return headers and 1-based row records.
@@ -61,6 +63,10 @@ class ImportParser
     {
         if (! file_exists($filePath) || ! is_readable($filePath)) {
             throw new RuntimeException(__('imports.errors.unreadable_file'));
+        }
+
+        if (filesize($filePath) > self::MAX_FILE_SIZE) {
+            throw new RuntimeException(__('imports.errors.file_too_large'));
         }
 
         $extension = strtolower(pathinfo($originalName ?? $filePath, PATHINFO_EXTENSION));
@@ -188,6 +194,9 @@ class ImportParser
             }
 
             $rowNumber++;
+            if ($rowNumber > self::MAX_ROW_COUNT) {
+                throw new RuntimeException(__('imports.errors.max_rows_exceeded', ['max' => self::MAX_ROW_COUNT]));
+            }
             $rows[$rowNumber] = $trimmed;
         }
 
@@ -267,6 +276,9 @@ class ImportParser
                     }
 
                     $rowNumber++;
+                    if ($rowNumber > self::MAX_ROW_COUNT) {
+                        throw new RuntimeException(__('imports.errors.max_rows_exceeded', ['max' => self::MAX_ROW_COUNT]));
+                    }
                     $rows[$rowNumber] = $trimmed;
                 }
 

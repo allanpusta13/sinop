@@ -151,3 +151,16 @@ test('rejects filenames carrying a path separator', function () {
 
     $this->get('/admin/exports/..%2F..%2Fsinop_export_x.csv/download')->assertNotFound();
 });
+
+test("refuses download when user policy authorization fails at download time", function () {
+    $staff = actingAsStaff();
+
+    $filename = "sinop_export_warehouses_20260101_000000_abcdefgh.csv";
+    putExportFileWithMeta((int) $staff->getKey(), $filename, "code,name\nMAIN,Main\n", null, "warehouses");
+
+    // Deny viewAny on Warehouse via Gate
+    Illuminate\Support\Facades\Gate::before(fn () => false);
+
+    $this->get(route("exports.download", ["file" => $filename]))
+        ->assertForbidden();
+});

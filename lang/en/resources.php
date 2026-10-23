@@ -155,6 +155,7 @@ return [
                 'attributes_invalid_json' => 'Attributes must be valid JSON.',
                 'is_active_invalid' => 'Active status must be a yes or no value.',
                 'family_identifier_mapping_required' => 'At least one family mapping column is required: Family ID or Family Name.',
+                'sku_belongs_to_deleted_variant' => 'SKU ":sku" belongs to a deleted product variant. Soft-deleted variants cannot be updated via import.',
             ],
         ],
     ],

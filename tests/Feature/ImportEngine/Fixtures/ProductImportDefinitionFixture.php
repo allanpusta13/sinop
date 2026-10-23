@@ -35,6 +35,8 @@ class ProductImportDefinitionFixture extends ImportDefinition
      * and the write.
      */
     public static bool $failPersistWithSkip = false;
+    public static ?\Illuminate\Database\QueryException $customPersistException = null;
+
 
     public static ?QueryException $customPersistException = null;
 

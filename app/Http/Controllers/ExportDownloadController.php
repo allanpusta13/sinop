@@ -51,6 +51,11 @@ class ExportDownloadController extends Controller
             $user,
         );
 
+        $definition = $exportService->resolveDefinition($meta['definition']);
+
+        // Re-evaluate definition policy authorization at download time
+        $definition->authorize($user);
+
         $stillHeld = $currentScope === null
             || ($meta['scope'] !== null && array_diff($meta['scope'], $currentScope) === []);
 
