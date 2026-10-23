@@ -70,6 +70,8 @@ return [
         'corrupt_file' => 'El archivo subido está dañado o no es un archivo XLSX válido.',
         'empty_file' => 'El archivo subido está vacío o no tiene fila de encabezados.',
         'unsupported_format' => 'Solo se admiten plantillas CSV y XLSX.',
+        'file_too_large' => 'El tamaño del archivo supera el límite de 10 MB.',
+        'max_rows_exceeded' => 'El archivo de importación supera el límite máximo permitido de :max filas.',
         'unknown_definition' => 'Tipo de importación desconocido ":key".',
         'missing_required_mapping' => 'La columna ":field" debe asignarse antes de la vista previa.',
         'preview_expired' => 'La vista previa expiró. Regrese al paso de asignación, avance de nuevo para actualizarla y confirme.',

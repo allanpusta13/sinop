@@ -67,7 +67,9 @@ return [
         'unreadable_file' => 'Hindi mabasa ang na-upload na file.', // TODO(i18n): verify
         'corrupt_file' => 'Corrupted ang na-upload na file o hindi ito valid na XLSX file.', // TODO(i18n): verify
         'empty_file' => 'Walang laman o walang header row ang na-upload na file.', // TODO(i18n): verify
-        'unsupported_format' => 'CSV at XLSX templates lamang ang tinatanggap.', // TODO(i18n): verify
+        'unsupported_format' => 'CSV at XLSX templates lamang ang tinatanggap.',
+        'file_too_large' => 'Ang laki ng file ay lumampas sa 10MB limit.',
+        'max_rows_exceeded' => 'Ang import file ay lumampas sa maximum na pinapayagani na :max na linya.', // TODO(i18n): verify
         'unknown_definition' => 'Hindi kilalang uri ng importasyon ":key".', // TODO(i18n): verify
         'missing_required_mapping' => 'Kailangang itugma ang ":field" na column bago mag-preview.', // TODO(i18n): verify
         'preview_expired' => 'Nag-expire ang preview. Bumalik sa hakbang ng pagtutugma, mag-proceed muli para i-refresh, pagkatapos kumpirmahin.', // TODO(i18n): verify

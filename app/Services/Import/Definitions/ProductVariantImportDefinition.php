@@ -174,7 +174,7 @@ class ProductVariantImportDefinition extends ImportDefinition
             $familiesByName[mb_strtolower(trim($family->name))][] = $family;
         }
 
-        $existingVariants = ProductVariant::withTrashed()->select(['id', 'sku', 'barcode'])->get();
+        $existingVariants = ProductVariant::withTrashed()->select(['id', 'sku', 'barcode', 'deleted_at'])->get();
         $variantsBySku = $existingVariants->keyBy(
             static fn (ProductVariant $variant): string => strtoupper(trim((string) $variant->sku))
         );
@@ -271,8 +271,13 @@ class ProductVariantImportDefinition extends ImportDefinition
                 $existing = $variantsBySku[$sku] ?? null;
 
                 if ($existing !== null) {
-                    $status = 'update';
-                    $existingVariantId = $existing->id;
+                    if ($existing->trashed()) {
+                        $errors[] = $this->rowError('resources.products.import.errors.sku_belongs_to_deleted_variant', ['sku' => $sku]);
+                        $status = 'reject';
+                    } else {
+                        $status = 'update';
+                        $existingVariantId = $existing->id;
+                    }
                 } else {
                     $status = 'create';
                 }
