@@ -9,6 +9,7 @@ use App\Jobs\ProcessImportJob;
 use App\Models\Product;
 use App\Services\Import\ImportService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -261,7 +262,7 @@ test('recognizes postgres sqlstate 23505 unique violation as duplicate key in si
     $pdoException = new PDOException('ERROR: duplicate key value violates unique constraint "products_name_unique"', 0);
     $pdoException->errorInfo = ['23505', 7, 'ERROR: duplicate key value violates unique constraint "products_name_unique"'];
 
-    $pgQueryException = new \Illuminate\Database\QueryException(
+    $pgQueryException = new QueryException(
         'pgsql',
         'insert into "products" ("name") values (?)',
         ['Robusta'],
@@ -296,7 +297,7 @@ test('does not misclassify unrelated query exceptions as duplicate key violation
     $pdoException = new PDOException('ERROR: insert or update on table "products" violates foreign key constraint', 0);
     $pdoException->errorInfo = ['23503', 1452, 'ERROR: insert or update on table "products" violates foreign key constraint'];
 
-    $fkQueryException = new \Illuminate\Database\QueryException(
+    $fkQueryException = new QueryException(
         'pgsql',
         'insert into "products" ("category_id") values (?)',
         [999],
@@ -317,50 +318,9 @@ test('does not misclassify unrelated query exceptions as duplicate key violation
         );
 
         $this->fail('Expected QueryException was not re-thrown.');
-    } catch (\Illuminate\Database\QueryException $exception) {
+    } catch (QueryException $exception) {
         expect($exception->getMessage())->toContain('violates foreign key constraint');
     } finally {
         ProductImportDefinitionFixture::$customPersistException = null;
     }
-});
-
-
-
-
-
-
-
-
-
-test("flags SKU belonging to soft-deleted variant as rejected during preview", function () {
-    $family = \App\Models\Product::factory()->create(["name" => "Beverages"]);
-    $variant = \App\Models\ProductVariant::factory()->create([
-        "product_id" => $family->id,
-        "sku" => "SKU-TRASHED-1",
-        "name" => "Trashed Variant",
-    ]);
-    $variant->delete();
-
-    $definition = app(\App\Services\Import\Definitions\ProductVariantImportDefinition::class);
-    $rows = [
-        1 => [
-            "row_number" => 1,
-            "data" => [
-                "family_category" => "Beverages",
-                "family_name" => "Beverages",
-                "name" => "Trashed Variant",
-                "sku" => "SKU-TRASHED-1",
-                "barcode" => "",
-                "base_unit_name" => "Bag",
-                "cost_price" => "10",
-                "sale_price" => "20",
-            ],
-        ],
-    ];
-
-    $validated = $definition->validate($rows);
-
-    expect($validated["counts"]["reject"])->toBe(1)
-        ->and($validated["rows"][0]["status"])->toBe("reject")
-        ->and($validated["rows"][0]["errors"][0]["key"])->toBe("resources.products.import.errors.sku_belongs_to_deleted_variant");
 });

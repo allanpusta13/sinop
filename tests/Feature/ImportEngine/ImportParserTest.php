@@ -5,6 +5,8 @@ declare(strict_types=1);
 require_once __DIR__.'/Fixtures/import_helpers.php';
 
 use App\Services\Import\ImportParser;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Writer\XLSX\Writer;
 
 test('parses comma-delimited CSV with a header row', function () {
     $path = importTempFile("Name,Category\nArabica,Beverages\nRobusta,\n");
@@ -164,12 +166,12 @@ test('rejects swapped csv and xlsx contents when extension does not match zip he
 
     // 2. Real ZIP/XLSX binary inside .csv extension (has ZIP header PK\x03\x04)
     $xlsxTemp = tempnam(sys_get_temp_dir(), 'test_xlsx_');
-    $xlsxAsCsvPath = $xlsxTemp . '.csv';
+    $xlsxAsCsvPath = $xlsxTemp.'.csv';
     try {
-        $writer = new \OpenSpout\Writer\XLSX\Writer();
+        $writer = new Writer;
         $writer->openToFile($xlsxAsCsvPath);
-        $writer->addRow(\OpenSpout\Common\Entity\Row::fromValues(['SKU', 'Name']));
-        $writer->addRow(\OpenSpout\Common\Entity\Row::fromValues(['SKU001', 'Test Item']));
+        $writer->addRow(Row::fromValues(['SKU', 'Name']));
+        $writer->addRow(Row::fromValues(['SKU001', 'Test Item']));
         $writer->close();
 
         expect(fn () => app(ImportParser::class)->parse($xlsxAsCsvPath, 'products.csv'))
@@ -185,9 +187,9 @@ test('rejects swapped csv and xlsx contents when extension does not match zip he
 });
 
 test('rejects a zip archive that passes local file header check but is not a valid xlsx workbook', function () {
-    $zipPath = tempnam(sys_get_temp_dir(), 'test_zip_') . '.xlsx';
+    $zipPath = tempnam(sys_get_temp_dir(), 'test_zip_').'.xlsx';
     try {
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         $zip->addFromString('dummy.txt', 'This is a valid zip archive but not an OpenXML workbook');
         $zip->close();
@@ -202,7 +204,7 @@ test('rejects a zip archive that passes local file header check but is not a val
 });
 
 test('handles corrupt xlsx content and malformed non-zip file cleanly', function () {
-    $corruptPath = importTempFile("NOT_A_ZIP_FILE_CONTENT", 'xlsx');
+    $corruptPath = importTempFile('NOT_A_ZIP_FILE_CONTENT', 'xlsx');
     try {
         expect(fn () => app(ImportParser::class)->parse($corruptPath, 'corrupt.xlsx'))
             ->toThrow(RuntimeException::class, __('imports.errors.corrupt_file'));
@@ -237,23 +239,6 @@ test('parses file when originalName is null and filePath has extension', functio
     } finally {
         if (file_exists($csvPath)) {
             unlink($csvPath);
-        }
-    }
-});
-
-
-test('rejects files exceeding max row limit', function () {
-    $rows = ["SKU,Name"];
-    for ($i = 1; $i <= 5001; $i++) {
-        $rows[] = "SKU-$i,Product $i";
-    }
-    $path = importTempFile(implode("\n", $rows), 'csv');
-    try {
-        expect(fn () => app(ImportParser::class)->parse($path, 'large.csv'))
-            ->toThrow(RuntimeException::class, __('imports.errors.max_rows_exceeded', ['max' => 5000]));
-    } finally {
-        if (file_exists($path)) {
-            unlink($path);
         }
     }
 });

@@ -82,7 +82,7 @@ class ImportParser
             fclose($handle);
         }
 
-        $isZipSignature = $headerBytes === "PK";
+        $isZipSignature = $headerBytes === 'PK';
 
         if ($extension === 'xlsx' && ! $isZipSignature) {
             throw new RuntimeException(__('imports.errors.corrupt_file'));

@@ -223,7 +223,7 @@ test('xlsx formula injection protects formula strings and keeps numeric types', 
 
     $path = Storage::disk('local')->path('exports/'.auth()->id().'/'.$result['filename']);
 
-    $zip = new ZipArchive();
+    $zip = new ZipArchive;
     expect($zip->open($path))->toBeTrue();
 
     $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');

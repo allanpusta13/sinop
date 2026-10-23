@@ -215,7 +215,7 @@ class ImportService
         }
 
         $errorInfo = $exception->errorInfo
-            ?? ($previous instanceof PDOException ? $previous->errorInfo : null);
+             ?? ($previous instanceof PDOException ? $previous->errorInfo : null);
 
         $sqlStateFromInfo = is_array($errorInfo) ? (string) ($errorInfo[0] ?? '') : '';
         $driverCode = is_array($errorInfo) ? (int) ($errorInfo[1] ?? 0) : 0;

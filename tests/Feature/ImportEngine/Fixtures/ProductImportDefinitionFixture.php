@@ -37,6 +37,7 @@ class ProductImportDefinitionFixture extends ImportDefinition
     public static bool $failPersistWithSkip = false;
     public static ?\Illuminate\Database\QueryException $customPersistException = null;
 
+
     public function key(): string
     {
         return self::KEY;
