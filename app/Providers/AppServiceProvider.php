@@ -59,6 +59,11 @@ use App\Policies\TransferRequisitionPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\WarehousePolicy;
 use Carbon\CarbonImmutable;
+use Filament\Forms\Components\Field;
+use Filament\Infolists\Components\Entry;
+use Filament\Support\Components\Component;
+use Filament\Tables\Columns\Column;
+use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Table;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
@@ -87,6 +92,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         $this->configureTable();
+        $this->translatableComponents();
 
         $this->registerObservers();
         $this->registerPolicies();
@@ -267,5 +273,32 @@ class AppServiceProvider extends ServiceProvider
                 ->deferLoading();
             $table->recordActionsAlignment('end');
         });
+    }
+
+    /**
+     * §17.2 — project-wide label translation for Filament components.
+     *
+     * Every `Field`, `BaseFilter`, `Column`, and `Entry` created anywhere
+     * in the application attempts to translate its label by default, so a
+     * component given a raw label string renders the catalogue value for
+     * the active locale without a per-callsite `->label(__())`.
+     *
+     * The configured closure is the *fallback*, not an override: a call
+     * site that passes an already-translated label still wins, because
+     * `getLabel()` evaluates the label the component was given and only
+     * consults the translation when a plain string is present.
+     *
+     * The closure parameter is typed `Filament\Support\Components\Component`
+     * — the common ancestor of all four targets — and NOT
+     * `Livewire\Component` (§27 v13.9.1 row 10).
+     */
+    private function translatableComponents(): void
+    {
+        foreach ([Field::class, BaseFilter::class, Column::class, Entry::class] as $component) {
+            $component::configureUsing(function (Component $translatable): void {
+                /** @phpstan-ignore method.notFound */
+                $translatable->translateLabel();
+            });
+        }
     }
 }
