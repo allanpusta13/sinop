@@ -247,8 +247,7 @@ it('fails closed for an out-of-domain role rather than widening', function () {
     $user->setRawAttributes([...$user->getAttributes(), 'role' => 'unregistered_role']);
     $this->actingAs($user);
 
-    expect(fn () => ScopesNavigationBadgesHarness::resolve())
-        ->toThrow(ValueError::class);
+    expect(ScopesNavigationBadgesHarness::resolve())->toBe([]);
 });
 
 // ===========================================================================
@@ -296,8 +295,7 @@ it('hasBadgeScope fails closed for an out-of-domain role', function () {
     $user->setRawAttributes([...$user->getAttributes(), 'role' => 'unregistered_role']);
     $this->actingAs($user);
 
-    expect(fn () => ScopesNavigationBadgesHarness::hasScope())
-        ->toThrow(ValueError::class);
+    expect(ScopesNavigationBadgesHarness::hasScope())->toBeFalse();
 });
 
 // ===========================================================================

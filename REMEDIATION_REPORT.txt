@@ -1,0 +1,28 @@
+executing sequentially due to environment constraint; file-ownership locks enforced logically.
+
+Status Table:
+| Issue | Work Classification | Deliverable Status | Artifact Path |
+|---|---|---|---|
+| #173 | IMPLEMENT NOW | Implementation Complete | `docs/01-issues/173-orphan-key-manifest.md` |
+| #205 | IMPLEMENT NOW | Implementation Complete | `docs/01-issues/205-summary.md` |
+| #207 | IMPLEMENT NOW | Implementation Complete | `docs/01-issues/207-summary.md` |
+| #218 | TRIGGER-GATED | Benchmark Complete (Trigger Not Met) | `docs/01-issues/218-low-stock-alerts-scaling.md` |
+| #212 | DESIGN / DECISION | Specification Complete | `docs/01-issues/212-cogs-costing-methodology.md` |
+| #210 | DESIGN / DECISION | Specification Complete | `docs/01-issues/210-supplier-shipment-tracking.md` |
+| #211 | DESIGN / DECISION | Specification Complete | `docs/01-issues/211-purchase-negotiation.md` |
+| #213 | DESIGN / DECISION | Specification Complete | `docs/01-issues/213-purchase-return-workflow.md` |
+| #215 | DESIGN / DECISION | Specification Complete | `docs/01-issues/215-purchases-sales-reporting-tabs.md` |
+| #217 | DESIGN / DECISION | Specification Complete | `docs/01-issues/217-admin-review-filters.md` |
+| #216 | APPROVAL-REQUIRED | Approval-Gated (Evaluation Only) | `docs/01-issues/216-per-card-bulk-selection.md` |
+| #214 | DO-NOT-IMPLEMENT | Not Approved for v1 | `docs/01-issues/214-backorder-auto-fulfillment.md` |
+| All | All Deliverables | Review Surface Ready | `.patches/RUNLOG.md`, `.patches/*.patch`, `docs/01-issues/*-summary.md` |
+
+GitHub Issue State: All corresponding GitHub issues remain OPEN on allanpusta13/sinop pending maintainer review and merge.
+
+Assumptions overturned during remediation:
+1. `TranslationKeyParityTest` enforces strict two-way equality ($en = es = tl$), meaning locale keys must match `en` exactly.
+2. `UserRole` is a backed string enum; plain cast threw `ValueError` on bad DB records, necessitating custom `UserRoleCast` with `tryFrom()` fallback and warning logging.
+3. `ProductExporter.php` was already deleted prior to session baseline; remediation verified codebase sweep cleanliness and directory removal.
+
+Confirmation:
+No git commit, push, or branch creation was performed. No packages were installed or configured. No refactoring was done for #218, no code was written for #214, and no second deletion pass was made for #173.
