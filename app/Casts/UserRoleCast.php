@@ -38,8 +38,12 @@ class UserRoleCast implements CastsAttributes
     /**
      * Prepare the given value for storage.
      */
-    public function set(Model $model, string $key, mixed $value, array $attributes): string
+    public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
+        if ($value === null) {
+            return null;
+        }
+
         if ($value instanceof UserRole) {
             return $value->value;
         }

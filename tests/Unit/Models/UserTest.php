@@ -125,7 +125,7 @@ it('declares the §3.18 blueprint-mandated casts', function () {
     // §3.18 mandates role, is_active, password.
     $casts = (new User)->getCasts();
 
-    expect($casts['role'])->toBe(UserRole::class);
+    expect($casts['role'])->toBe(\App\Casts\UserRoleCast::class);
     expect($casts['is_active'])->toBe('boolean');
     expect($casts['password'])->toBe('hashed');
 });
