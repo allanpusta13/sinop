@@ -43,3 +43,8 @@ Execution Mode: Sequential passes with logical file locks
   - #214 Backorder auto-fulfillment (DO-NOT-IMPLEMENT)
   - #216 Per-card bulk selection (APPROVAL-REQUIRED)
   - #218 LowStockAlertsWidget scaling (TRIGGER-GATED, evidence recorded: 12 active variants, 15ms duration; trigger not met)
+
+### Wave 2 Conflict/Parity Pass — $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+- Issue #173 patch: `lang/es/*`, `lang/tl/*`
+- Issue #205 patch: `app/Models/User.php`, `app/Casts/UserRoleCast.php`, `app/Console/Commands/AuditUserRoles.php`, `lang/*/validation.php`, `tests/Unit/Models/UserTest.php`
+- Overlap Analysis: `lang/*/validation.php` modified by #205 for `validation.role.invalid` without conflict against #173's retired `forms/tables/widgets` namespaces. Net parity remains green.

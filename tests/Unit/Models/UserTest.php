@@ -517,7 +517,6 @@ function filamentPanel(string $id = 'admin'): Panel
 }
 
 it('fails closed when role attribute contains an invalid value', function () {
-    use Illuminate\Support\Facades\Log;
 
     $user = new \App\Models\User();
     $user->id = 999;
@@ -525,7 +524,7 @@ it('fails closed when role attribute contains an invalid value', function () {
     // Simulate database value returning invalid string through cast
     $cast = new \App\Casts\UserRoleCast();
 
-    Log::shouldReceive('warning')
+    \Illuminate\Support\Facades\Log::shouldReceive('warning')
         ->once()
         ->with('invalid_user_role', [
             'user_id' => 999,
