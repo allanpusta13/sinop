@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\UserRoleCast;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
@@ -56,7 +57,7 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
      */
     protected $casts = [
         // §3.18 — blueprint-mandated.
-        'role' => UserRole::class,
+        'role' => UserRoleCast::class,
         'is_active' => 'boolean',
         'password' => 'hashed',
 

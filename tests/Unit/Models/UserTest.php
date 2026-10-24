@@ -515,3 +515,38 @@ function filamentPanel(string $id = 'admin'): Panel
 {
     return Panel::make()->id($id);
 }
+
+it('fails closed when role attribute contains an invalid value', function () {
+    use Illuminate\Support\Facades\Log;
+
+    $user = new \App\Models\User();
+    $user->id = 999;
+
+    // Simulate database value returning invalid string through cast
+    $cast = new \App\Casts\UserRoleCast();
+
+    Log::shouldReceive('warning')
+        ->once()
+        ->with('invalid_user_role', [
+            'user_id' => 999,
+            'raw_role' => 'unregistered_role',
+        ]);
+
+    $role = $cast->get($user, 'role', 'unregistered_role', []);
+    expect($role)->toBeNull();
+
+    $user->role = $role;
+    expect($user->isAdmin())->toBeFalse();
+    expect($user->isAuditor())->toBeFalse();
+    expect($user->isWarehouseStaff())->toBeFalse();
+    expect($user->isBranchManager())->toBeFalse();
+    expect($user->hasAccessToWarehouse(1))->toBeFalse();
+});
+
+it('rejects invalid role assignment on set', function () {
+    $cast = new \App\Casts\UserRoleCast();
+    $user = new \App\Models\User();
+
+    expect(fn () => $cast->set($user, 'role', 'invalid_role_value', []))
+        ->toThrow(\InvalidArgumentException::class);
+});
