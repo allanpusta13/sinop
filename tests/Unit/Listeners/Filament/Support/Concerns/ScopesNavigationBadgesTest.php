@@ -247,7 +247,7 @@ it('fails closed for an out-of-domain role rather than widening', function () {
     $user->setRawAttributes([...$user->getAttributes(), 'role' => 'unregistered_role']);
     $this->actingAs($user);
 
-    expect(ScopesNavigationBadgesHarness::resolve())->toBeNull();
+    expect(ScopesNavigationBadgesHarness::resolve())->toBe([]);
 });
 
 // ===========================================================================
