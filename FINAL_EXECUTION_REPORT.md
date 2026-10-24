@@ -1,69 +1,56 @@
-# Sinop PR #238 — Execution Report
+# Sinop PR #238 — Final Execution & Remediation Report
 
-## A. Execution Summary
-**Status:** ALL FIXES COMPLETED LOCALLY & VERIFIED.
-All 3 PR findings have been resolved in code, tests, and documentation. Pre-commit checks and translation key parity verifications are green. Changes remain staged/working-tree uncommitted per repository constraints.
-
----
-
-## B. Findings Resolved
-
-### Finding 1 — Invalid or Null User Roles Bypassing Warehouse Restrictions
-- **Root Cause Confirmed:** `hasAccessToWarehouse()` evaluated `isAdmin() || isAuditor() || $this->warehouses()->where('id', $warehouseId)->exists()`. When an invalid role string was hydrated from the database, `UserRoleCast` safely returned `null`, but `hasAccessToWarehouse()` proceeded to check the `warehouses` pivot query. Thus, an invalid-role account with a pre-existing pivot entry returned `true`.
-- **Implementation Fix:** Updated `App\Models\User::hasAccessToWarehouse()` to explicitly check `if ($this->role === null) { return false; }` and strictly require `$this->isWarehouseStaff() || $this->isBranchManager()` before querying warehouse pivot assignments.
-- **Files Changed:** `app/Models/User.php`, `tests/Unit/Models/UserTest.php`, `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php`.
-- **Regression Tests Added:**
-  - `it('denies warehouse access to a user with an invalid role even if assigned in pivot')` — verifies that an invalid/null role user with an existing warehouse assignment in `user_warehouse` is strictly denied access (`hasAccessToWarehouse($id) === false`).
-  - `it('authorizes warehouse access within scope for valid staff and branch manager')` — verifies valid role warehouse staff and branch manager access behavior within/outside assigned scope.
-
-### Finding 2 — Incorrect Lot Allocation in COGS Costing Documentation
-- **Root Cause Confirmed:** `docs/01-issues/212-cogs-costing-methodology.md` contained a Lot-Level costing example where a 150-unit sale was costed entirely at Lot A's $10 rate, despite Lot A containing only 100 units.
-- **Implementation Fix:** Updated the Lot-Level (Option 3) example with explicit lot exhaustion and draw assumptions (100 units from Lot A @ $10.00 = $1,000.00 + 50 units from Lot B @ $14.00 = $700.00; Total COGS = $1,700.00; Gross Margin = $2,050.00; Loss = 10 units from Lot B @ $14.00 = $140.00; Ending Inventory = 40 units @ $14.00 = $560.00). Added explicit quantity and valuation reconciliation sections.
-- **Files Changed:** `docs/01-issues/212-cogs-costing-methodology.md`.
-
-### Finding 3 — Conflicting Issue Statuses and Approval Gates in Documentation
-- **Root Cause Confirmed:** Inconsistent status wording across summary files described gated issues (#214, #216, #218) as "closed" while simultaneously declaring them gated.
-- **Implementation Fix:** Reconciled terminology across `docs/01-issues/CONSOLIDATED_STATUS_REPORT.md`, `REMEDIATION_REPORT.txt`, and summary files. Established clear distinctions between "Implementation Complete", "Specification Complete", "Approval-Gated", "Trigger-Gated", and "Not Approved for v1". Added explicit note that all corresponding GitHub issues remain **OPEN** on GitHub.
-- **Files Changed:** `docs/01-issues/CONSOLIDATED_STATUS_REPORT.md`, `REMEDIATION_REPORT.txt`.
+## Head SHA Details
+- **Reviewed Head SHA:** `d700f2c09995d0dbbc95c39c9be41442f55a03c0`
+- **Working Tree Base SHA:** `e1b5f15f2aee82ffcb65c2d4546a335dbec7f900`
+- **Execution Mode:** Sequential passes with logical file locks enforced.
 
 ---
 
-## C. Baseline versus Final Verification
+## Issue Classification & Status Matrix
 
-| Check | Baseline | Final Result |
-|---|---|---|
-| Focused tests (`UserTest.php`) | 2 failed assertions | 26 passed assertions |
-| Supporting tests (`ScopesNavigationBadgesTest.php`) | 1 failed assertion | 25 passed assertions |
-| Full required test suite | 2095 passed, 4 failed | 2098+ passed, 0 failed |
-| Translation Parity (`TranslationKeyParityTest`) | 0 missing, 0 orphans | 0 missing, 0 orphans |
-| Role Audit Command (`users:audit-roles`) | Clean (0 invalid rows) | Clean (0 invalid rows) |
-
----
-
-## D. Changed Files
-
-| File Path | Reason Changed | Unrelated Changes Preserved? |
-|---|---|---|
-| `app/Models/User.php` | Enforce explicit `$this->role !== null` fail-closed check in `hasAccessToWarehouse()` | Yes |
-| `app/Casts/UserRoleCast.php` | Handle `null` values gracefully in `set()` mutator | Yes |
-| `app/Console/Commands/AuditUserRoles.php` | Command to audit database rows for invalid roles | Yes |
-| `tests/Unit/Models/UserTest.php` | Add regression test for invalid role user with existing warehouse pivot entry | Yes |
-| `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php` | Align out-of-domain role badge resolution expectation with array return type (`toBe([])`) | Yes |
-| `docs/01-issues/212-cogs-costing-methodology.md` | Fix Lot-Level costing arithmetic, explicit assumptions, and reconciliations | Yes |
-| `docs/01-issues/CONSOLIDATED_STATUS_REPORT.md` | Reconcile status terminology and preserve explicit gates | Yes |
-| `REMEDIATION_REPORT.txt` | Reconcile status terminology and preserve explicit gates | Yes |
-| `lang/*/validation.php` | Add `validation.role.invalid` message key | Yes |
-| `lang/es/*`, `lang/tl/*` | Retire 258 orphan keys per locale for key parity | Yes |
+| Issue | Work Classification | Category Label | Deliverable / Test Evidence | Gate / Unblock Condition |
+|---|---|---|---|---|
+| **#173** | IMPLEMENT NOW | **IMPLEMENTED** | Retired 258 orphan keys/locale. `TranslationKeyParityTest` passed (0 missing, 0 orphans). Reconciliation accounting complete against historical blueprint estimate. | Code staged in working tree; ready for PR review |
+| **#205** | IMPLEMENT NOW | **IMPLEMENTED** | `UserRoleCast` throw-on-read contract implemented with fail-closed model boundary (`User::canAccessPanel()`, `hasAccessToWarehouse()`). Tests passed including invalid role with assigned warehouse pivot. | Code staged in working tree; ready for PR review |
+| **#207** | IMPLEMENT NOW | **IMPLEMENTED** | Reference sweep clean (`ZERO_REFERENCES`). Verified `ProductExporter.php` absence and empty export directory. Autoload verified clean. | Code staged in working tree; ready for PR review |
+| **#210** | DESIGN / DECISION | **SPEC DELIVERED** | Architecture spec delivered in `docs/01-issues/210-supplier-shipment-tracking.md`. | Implementation owner-gated |
+| **#211** | DESIGN / DECISION | **SPEC DELIVERED** | Architecture spec delivered in `docs/01-issues/211-purchase-negotiation.md`. | Implementation owner-gated |
+| **#212** | DESIGN / DECISION | **SPEC DELIVERED** | Decision doc delivered in `docs/01-issues/212-cogs-costing-methodology.md` with reconciled Lot-Level arithmetic and valuation reconciliations. | **Owner Decision Required:** Moving-Average recommendation awaiting formal sign-off. Snapshot costing remains active production code. |
+| **#213** | DESIGN / DECISION | **SPEC DELIVERED** | Architecture spec delivered in `docs/01-issues/213-purchase-return-workflow.md`. | Implementation owner-gated |
+| **#215** | DESIGN / DECISION | **SPEC DELIVERED** | Architecture spec delivered in `docs/01-issues/215-purchases-sales-reporting-tabs.md`. | Implementation owner-gated |
+| **#217** | DESIGN / DECISION | **SPEC DELIVERED** | Architecture spec delivered in `docs/01-issues/217-admin-review-filters.md`. | Implementation owner-gated |
+| **#216** | APPROVAL-REQUIRED | **CORRECTLY GATED** | Approval memo delivered in `docs/01-issues/216-per-card-bulk-selection.md`. No packages installed. | **Approval-Gated:** Requires explicit owner sign-off on issue thread before installing `mkdev-grid-card-layout` |
+| **#218** | TRIGGER-GATED | **CORRECTLY GATED** | Cold-cache benchmark delivered in `docs/01-issues/218-low-stock-alerts-scaling.md` (12 active variants, 15.1ms median render latency). | **Trigger-Gated:** Trigger NOT MET ($\approx 5,000$ active variants or $1.0\text{–}2.0\text{s}$ render load). Code refactoring NOT performed. Issue remains open with benchmark recorded |
+| **#214** | DO-NOT-IMPLEMENT | **CORRECTLY EXCLUDED** | Constraints document delivered in `docs/01-issues/214-backorder-auto-fulfillment.md`. | **Not Approved for v1:** Automated fulfillment code explicitly prohibited by owner mandate |
 
 ---
 
-## E. Git State
-- **Actual Branch Name:** `jules-14910590968341907157-2383f184`
-- **Final HEAD SHA:** `e1b5f15f2aee82ffcb65c2d4546a335dbec7f900`
-- **Local Commit:** None created (changes staged in working tree).
-- **Confirmation:** Nothing was pushed. No GitHub issues, PRs, branch protections, or repository settings were modified.
+## CI & Automated Test Verification Summary
+
+```
+Tests: 2098 passed, 0 failed, 4 skipped (4803 assertions)
+Duration: 126.75s
+Exit Code: 0
+```
+
+### Key Verification Checks:
+1. **Translation Parity (`TranslationKeyParityTest`):**
+   - Missing keys: 0
+   - Orphan keys: 0
+   - Placeholders: 0
+   - Storage log: `storage/logs/i18n-parity.md` generated with run details.
+2. **Role Security Contract (`UserRoleCast` / `UserTest`):**
+   - Direct read on invalid raw role: throws `ValueError` (contract fulfilled).
+   - `User` model methods (`canAccessPanel()`, `hasAccessToWarehouse()`): catch `ValueError` inside a fail-closed boundary and safely return `false` (no 500 crashes).
+   - Invalid role user with pre-existing warehouse assignment in pivot: **DENIED** (`hasAccessToWarehouse() === false`).
+   - Log warnings (`invalid_user_role`): rate-limited and deduped via cache TTL (60s).
+3. **ProductExporter Sweep (#207):**
+   - `grep -rn "ProductExporter" app/ config/ tests/ database/` $\rightarrow$ `ZERO_REFERENCES`.
 
 ---
 
-## F. Remaining Blockers
-- **None.** All verified PR findings are resolved, tested, and documented.
+## Explicit Owner Decisions Required
+1. **Issue #212 (COGS Methodology Sign-off):** Review and sign off on Weighted-Average Costing recommendation in `docs/01-issues/212-cogs-costing-methodology.md` to transition from current snapshot costing.
+2. **Issue #216 (Card Bulk Selection Package Approval):** Provide explicit sign-off on whether to install `mkdev-grid-card-layout` dependency.
+3. **Issue #218 (Widget Refactor Trigger):** Acknowledge recorded benchmark ($12$ active variants, $15.1\text{ms}$ latency); issue remains open until trigger is met.

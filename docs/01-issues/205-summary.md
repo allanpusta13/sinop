@@ -1,42 +1,26 @@
-# Issue #205 Summary — Out-of-Domain Role Fail-Closed Contract (Remediated)
+# Issue #205 Summary — Out-of-Domain Role Fail-Closed Contract & Boundary (Remediated)
 
-## a) UserRole Type & Model Cast Verification
-- **UserRole Column Type:** String column (`users.role`), defaulting to `'warehouse_staff'`.
-- **UserRole Enum Definition:** Backed PHP string enum (`App\Enums\UserRole: string`) with 4 cases (`admin`, `auditor`, `warehouse_staff`, `branch_manager`).
-- **Nullable:** Column is nullable in database schema.
-- **Role Assignment:** Single-role per user.
-- **Cast Behavior Fix (`UserRoleCast`):**
-  - Plain Laravel `UserRole::class` cast throws `ValueError` on database read if an unrecognized string exists in the `role` column.
-  - Replaced with custom `App\Casts\UserRoleCast`.
-  - `UserRoleCast::get()` uses `UserRole::tryFrom($value)`. If invalid, it logs a warning security event (`invalid_user_role`) and returns `null` **without throwing an exception**.
+## a) Throw-on-Read Contract Implementation
+- **Cast (`UserRoleCast`):** When reading an invalid or unrecognized string from `users.role`, `UserRoleCast::get()` explicitly throws `ValueError`:
+  ```php
+  throw new ValueError("{$stringValue} is not a valid backing value for enum App\\Enums\\UserRole");
+  ```
+- **Fail-Closed Authorization Boundary (`User` Model):**
+  The `User` model methods (`canAccessPanel()`, `isAdmin()`, `isAuditor()`, `isWarehouseStaff()`, `isBranchManager()`, `hasAccessToWarehouse()`) catch `ValueError` inside a fail-closed boundary and safely evaluate to `false`. This guarantees that a corrupted database row or raw attribute bypass cannot crash panel rendering or grant unauthorized access.
 
-## b) Fail-Closed Test Assertions List
-In `tests/Unit/Models/UserTest.php`:
-1. **Assertion 1 (`hasAccessToWarehouse`):**
-   `$user->role = null; expect($user->hasAccessToWarehouse(1))->toBeFalse();` — Unrecognized scope/role strictly denies warehouse access and does NOT broaden permissions.
-2. **Assertion 2 (Role Predicates):**
-   `expect($user->isAdmin())->toBeFalse(); expect($user->isAuditor())->toBeFalse(); expect($user->isWarehouseStaff())->toBeFalse(); expect($user->isBranchManager())->toBeFalse();`
-3. **Assertion 3 (Page Render / Login Path Non-Crashing):**
-   `$cast->get($user, 'role', 'corrupted_role', []);` returns `null` and allows model instantiation without breaking rendering.
-4. **Assertion 4 (Write Path Rejection):**
-   `expect(fn() => $cast->set($user, 'role', 'invalid_string', []))->toThrow(InvalidArgumentException::class);`
-5. **Assertion 5 (Validation Layer Message Key):**
-   Added key `validation.role.invalid` across `en`, `es`, `tl` for form validation errors on field `role`.
+## b) Deduplicated Logging Evidence
+- Log warning `invalid_user_role` is rate-limited via Laravel `Cache::put("invalid_user_role_logged_{$userId}_{$stringValue}", true, 60)`.
+- Multiple reads of an invalid role within the TTL window emit exactly **one** log entry.
 
-## c) Audit Command Evidence (`users:audit-roles`)
-Run against current database state:
-```
-$ php artisan users:audit-roles
-Audit clean: 0 users carry invalid or out-of-domain role values.
-```
+## c) Panel Authorization Boundary Test Evidence (`canAccessPanel`)
+- Test `it('denies panel access to an active user with an invalid role')` creates an active user (`is_active = true`) with `role = 'unregistered_role'`.
+- Result: `canAccessPanel()` returns **`false`**.
 
-## d) Security Event Logging & Rate Limiting Confirmation
-`UserRoleCast::get()` logs security warnings:
-```php
-Log::warning('invalid_user_role', [
-    'user_id' => $model->getKey(),
-    'raw_role' => $stringValue,
-]);
-```
-- Logs raw invalid string and user ID.
-- Deduped via log driver configuration to prevent log flooding on bad database records.
+## d) Fail-Closed Test Assertions List (All Passing)
+1. `UserRoleCast` throws `ValueError` on direct attribute read (`$user->role`).
+2. Invalid role user with existing warehouse pivot entry $\rightarrow$ `hasAccessToWarehouse($id) === false`.
+3. Invalid role user with no assignment $\rightarrow$ `hasAccessToWarehouse($id) === false`.
+4. Invalid role active user $\rightarrow$ `canAccessPanel() === false`.
+5. Invalid role user $\rightarrow$ `isAdmin() === false`, `isAuditor() === false`, `isWarehouseStaff() === false`, `isBranchManager() === false`.
+6. Invalid role set $\rightarrow$ `UserRoleCast::set()` throws `InvalidArgumentException`.
+7. Log deduplication $\rightarrow$ 3 consecutive invalid reads emit exactly 1 `invalid_user_role` log warning.

@@ -1,0 +1,24 @@
+# Orphan Keys Inventory — Tagalog (tl)
+# Namespace: forms (140 keys)
+forms.required
+forms.optional
+forms.placeholder
+forms.select_option
+forms.search
+
+# Namespace: tables (83 keys)
+tables.actions
+tables.no_records
+tables.loading
+tables.search_placeholder
+tables.filter_button
+
+# Namespace: widgets (35 keys)
+widgets.loading
+widgets.no_data
+widgets.error
+widgets.refresh
+widgets.last_updated
+
+TOTAL RETIRED ORPHAN KEYS: 258
+HISTORICAL PRE-CATALOGUE ESTIMATE: 847 (See docs/02-research/2026-10-23-i18n-count-verification.md §5 for full provenance)
