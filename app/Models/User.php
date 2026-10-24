@@ -106,9 +106,14 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
 
     public function hasAccessToWarehouse(int $warehouseId): bool
     {
+        if ($this->role === null) {
+            return false;
+        }
+
         return $this->isAdmin()
             || $this->isAuditor()
-            || $this->warehouses()->where('warehouses.id', $warehouseId)->exists();
+            || (($this->isWarehouseStaff() || $this->isBranchManager())
+                && $this->warehouses()->where('warehouses.id', $warehouseId)->exists());
     }
 
     public function getAppAuthenticationSecret(): ?string

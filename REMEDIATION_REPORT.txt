@@ -1,28 +1,23 @@
 executing sequentially due to environment constraint; file-ownership locks enforced logically.
 
 Status Table:
-| Issue | Item (§1–§6) | Status | Artifact Path |
+| Issue | Work Classification | Deliverable Status | Artifact Path |
 |---|---|---|---|
-| #173 | §1 Orphan Key Manifest | CLOSED | `docs/01-issues/173-orphan-key-manifest.md` |
-| #205 | §2 Role Fail-Closed Summary | CLOSED | `docs/01-issues/205-summary.md` |
-| #207 | §3 ProductExporter Sweep | CLOSED | `docs/01-issues/207-summary.md` |
-| #218 | §4 LowStockAlerts Benchmark | CLOSED | `docs/01-issues/218-low-stock-alerts-scaling.md` |
-| #212 | §5 COGS Template Compliance | CLOSED | `docs/01-issues/212-cogs-costing-methodology.md` |
-| #210 | §5 Supplier Shipment Design | CLOSED | `docs/01-issues/210-supplier-shipment-tracking.md` |
-| #211 | §5 Negotiation Design | CLOSED | `docs/01-issues/211-purchase-negotiation.md` |
-| #213 | §5 Return Workflow Design | CLOSED | `docs/01-issues/213-purchase-return-workflow.md` |
-| #215 | §5 Reporting Tabs Design | CLOSED | `docs/01-issues/215-purchases-sales-reporting-tabs.md` |
-| #217 | §5 Admin Review Filters | CLOSED | `docs/01-issues/217-admin-review-filters.md` |
-| #216 | §5 Card Bulk Selection Memo | CLOSED | `docs/01-issues/216-per-card-bulk-selection.md` |
-| #214 | §5 Backorder Constraints Doc | CLOSED | `docs/01-issues/214-backorder-auto-fulfillment.md` |
-| All | §6 Review Surface & RUNLOG | CLOSED | `.patches/RUNLOG.md`, `.patches/*.patch`, `docs/01-issues/*-summary.md` |
+| #173 | IMPLEMENT NOW | Implementation Complete | `docs/01-issues/173-orphan-key-manifest.md` |
+| #205 | IMPLEMENT NOW | Implementation Complete | `docs/01-issues/205-summary.md` |
+| #207 | IMPLEMENT NOW | Implementation Complete | `docs/01-issues/207-summary.md` |
+| #218 | TRIGGER-GATED | Benchmark Complete (Trigger Not Met) | `docs/01-issues/218-low-stock-alerts-scaling.md` |
+| #212 | DESIGN / DECISION | Specification Complete | `docs/01-issues/212-cogs-costing-methodology.md` |
+| #210 | DESIGN / DECISION | Specification Complete | `docs/01-issues/210-supplier-shipment-tracking.md` |
+| #211 | DESIGN / DECISION | Specification Complete | `docs/01-issues/211-purchase-negotiation.md` |
+| #213 | DESIGN / DECISION | Specification Complete | `docs/01-issues/213-purchase-return-workflow.md` |
+| #215 | DESIGN / DECISION | Specification Complete | `docs/01-issues/215-purchases-sales-reporting-tabs.md` |
+| #217 | DESIGN / DECISION | Specification Complete | `docs/01-issues/217-admin-review-filters.md` |
+| #216 | APPROVAL-REQUIRED | Approval-Gated (Evaluation Only) | `docs/01-issues/216-per-card-bulk-selection.md` |
+| #214 | DO-NOT-IMPLEMENT | Not Approved for v1 | `docs/01-issues/214-backorder-auto-fulfillment.md` |
+| All | All Deliverables | Review Surface Ready | `.patches/RUNLOG.md`, `.patches/*.patch`, `docs/01-issues/*-summary.md` |
 
-Open issues still not resolved:
-- #173 (Requires maintainer review of `docs/01-issues/173-orphan-key-manifest.md`)
-- #205 (Requires maintainer review of `docs/01-issues/205-summary.md` and `UserRoleCast`)
-- #218 (Remains open; trigger not met: 12 active variants, 15.1ms median render load)
-- #216 (Remains open; awaiting issue owner package sign-off)
-- #214 (Remains open; auto-fulfillment prohibited in v1)
+GitHub Issue State: All corresponding GitHub issues remain OPEN on allanpusta13/sinop pending maintainer review and merge.
 
 Assumptions overturned during remediation:
 1. `TranslationKeyParityTest` enforces strict two-way equality ($en = es = tl$), meaning locale keys must match `en` exactly.

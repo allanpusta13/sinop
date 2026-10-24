@@ -549,3 +549,32 @@ it('rejects invalid role assignment on set', function () {
     expect(fn () => $cast->set($user, 'role', 'invalid_role_value', []))
         ->toThrow(\InvalidArgumentException::class);
 });
+
+it('denies warehouse access to a user with an invalid role even if assigned in pivot', function () {
+    $warehouse = \App\Models\Warehouse::factory()->create();
+    $user = \App\Models\User::factory()->create();
+    $user->warehouses()->attach($warehouse->id);
+
+    // Set invalid role bypassing mutator to simulate raw DB value
+    $user->setRawAttributes([...$user->getAttributes(), 'role' => 'invalid_unrecognized_role']);
+
+    expect($user->role)->toBeNull();
+    expect($user->hasAccessToWarehouse($warehouse->id))->toBeFalse();
+});
+
+it('authorizes warehouse access within scope for valid staff and branch manager', function () {
+    $w1 = \App\Models\Warehouse::factory()->create();
+    $w2 = \App\Models\Warehouse::factory()->create();
+
+    $staff = \App\Models\User::factory()->create(['role' => \App\Enums\UserRole::WarehouseStaff->value]);
+    $staff->warehouses()->attach($w1->id);
+
+    expect($staff->hasAccessToWarehouse($w1->id))->toBeTrue();
+    expect($staff->hasAccessToWarehouse($w2->id))->toBeFalse();
+
+    $bm = \App\Models\User::factory()->branchManager()->create();
+    $bm->warehouses()->attach($w1->id);
+
+    expect($bm->hasAccessToWarehouse($w1->id))->toBeTrue();
+    expect($bm->hasAccessToWarehouse($w2->id))->toBeFalse();
+});
