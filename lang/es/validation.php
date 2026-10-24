@@ -179,4 +179,7 @@ return array (
   array (
     'invalid' => 'El rol seleccionado no es válido.',
   ),
+  'attributes' =>
+  array (
+  ),
 );

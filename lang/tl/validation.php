@@ -179,4 +179,7 @@ return array (
   array (
     'invalid' => 'Ang napiling papel ay hindi balido.',
   ),
+  'attributes' =>
+  array (
+  ),
 );
