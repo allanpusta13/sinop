@@ -4,35 +4,35 @@ declare(strict_types=1);
 
 return [
     'transfer_review' => [
-        'title' => 'Transfer review', // TODO(i18n): translate
-        'from' => 'From', // TODO(i18n): translate
-        'to' => 'To', // TODO(i18n): translate
-        'sku' => 'SKU', // TODO(i18n): translate
-        'qty' => 'Qty', // TODO(i18n): translate
-        'unit' => 'Unit', // TODO(i18n): translate
+        'title' => 'Pagsusuri ng transfer',
+        'from' => 'Mula',
+        'to' => 'Sa',
+        'sku' => 'SKU',
+        'qty' => 'Dami',
+        'unit' => 'Yunit',
     ],
     'purchase_order_review' => [
-        'title' => 'Purchase order review', // TODO(i18n): translate
-        'supplier' => 'Supplier', // TODO(i18n): translate
-        'warehouse' => 'Warehouse', // TODO(i18n): translate
-        'sku' => 'SKU', // TODO(i18n): translate
-        'qty' => 'Qty', // TODO(i18n): translate
-        'unit_cost' => 'Unit cost', // TODO(i18n): translate
+        'title' => 'Pagsusuri ng purchase order',
+        'supplier' => 'Supplier',
+        'warehouse' => 'Bodega',
+        'sku' => 'SKU',
+        'qty' => 'Dami',
+        'unit_cost' => 'Unit Cost',
     ],
     'sales_order_review' => [
-        'title' => 'Sales order review', // TODO(i18n): translate
-        'customer' => 'Customer', // TODO(i18n): translate
-        'warehouse' => 'Warehouse', // TODO(i18n): translate
-        'sku' => 'SKU', // TODO(i18n): translate
-        'qty' => 'Qty', // TODO(i18n): translate
-        'unit' => 'Unit', // TODO(i18n): translate
+        'title' => 'Pagsusuri ng sales order',
+        'customer' => 'Kustomer',
+        'warehouse' => 'Bodega',
+        'sku' => 'SKU',
+        'qty' => 'Dami',
+        'unit' => 'Yunit',
     ],
     'direct_transfer_review' => [
-        'title' => 'Direct transfer review', // TODO(i18n): translate
-        'from' => 'From', // TODO(i18n): translate
-        'to' => 'To', // TODO(i18n): translate
-        'sku' => 'SKU', // TODO(i18n): translate
-        'qty' => 'Qty', // TODO(i18n): translate
-        'unit' => 'Unit', // TODO(i18n): translate
+        'title' => 'Pagsusuri ng direct transfer',
+        'from' => 'Mula',
+        'to' => 'Sa',
+        'sku' => 'SKU',
+        'qty' => 'Dami',
+        'unit' => 'Yunit',
     ],
 ];

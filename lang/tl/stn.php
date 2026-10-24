@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 return [
     'print' => [
-        'title' => 'Shipment note :ref', // TODO(i18n): translate
-        'heading' => 'Shipment note', // TODO(i18n): translate
-        'route' => ':from → :to', // TODO(i18n): translate
-        'status' => 'Status: :status', // TODO(i18n): translate
-        'variant' => 'Variant', // TODO(i18n): translate
-        'sku' => 'SKU', // TODO(i18n): translate
-        'qty' => 'Qty', // TODO(i18n): translate
-        'print_button' => 'Print', // TODO(i18n): translate
+        'title' => 'Nota ng Pagpapadala :ref',
+        'heading' => 'Nota ng Pagpapadala',
+        'route' => ':from → :to',
+        'status' => 'Katayuan: :status',
+        'variant' => 'Variant',
+        'sku' => 'SKU',
+        'qty' => 'Dami',
+        'print_button' => 'I-print',
     ],
     'scan' => [
-        'title' => 'Scan intake :ref', // TODO(i18n): translate
-        'heading' => 'Scan intake', // TODO(i18n): translate
-        'route' => ':from → :to', // TODO(i18n): translate
-        'sku' => 'SKU', // TODO(i18n): translate
-        'received_good' => 'Received (good)', // TODO(i18n): translate
-        'received_damaged' => 'Received (damaged)', // TODO(i18n): translate
-        'submit' => 'Submit scan', // TODO(i18n): translate
+        'title' => 'Scan ng Intake :ref',
+        'heading' => 'Scan ng Intake',
+        'route' => ':from → :to',
+        'sku' => 'SKU',
+        'received_good' => 'Natanggap (maayos)',
+        'received_damaged' => 'Natanggap (sira)',
+        'submit' => 'Isumite ang scan',
     ],
 ];

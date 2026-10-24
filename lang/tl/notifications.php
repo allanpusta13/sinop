@@ -4,28 +4,28 @@ declare(strict_types=1);
 
 return [
     'transfer_confirmed' => [
-        'body' => 'Transfer :reference has been confirmed.', // TODO(i18n): translate
+        'body' => 'Nakumpirma na ang transfer :reference.',
     ],
     'transfer_cancelled' => [
-        'body' => 'Transfer :reference has been cancelled.', // TODO(i18n): translate
+        'body' => 'Kinansela na ang transfer :reference.',
     ],
     'transfer_dispatched' => [
-        'body' => 'Transfer :reference has been dispatched.', // TODO(i18n): translate
+        'body' => 'Naipadala na ang transfer :reference.',
     ],
     'transfer_received' => [
-        'body' => 'Transfer :reference has been received.', // TODO(i18n): translate
+        'body' => 'Natanggap na ang transfer :reference.',
     ],
     'loss_recorded' => [
-        'body' => 'Loss of :qty base units recorded for :sku.', // TODO(i18n): translate
+        'body' => 'May naitalang pagkawala na :qty base units para sa :sku.',
     ],
     'purchase_order_received' => [
-        'body' => 'Purchase order :reference has been received.', // TODO(i18n): translate
+        'body' => 'Natanggap na ang purchase order :reference.',
     ],
     'purchase_order_cancelled' => [
-        'body' => 'Purchase order :reference has been cancelled.', // TODO(i18n): translate
+        'body' => 'Kinansela na ang purchase order :reference.',
     ],
     'sales_order_dispatched' => [
-        'body' => 'Sales order :reference has been dispatched.', // TODO(i18n): translate
+        'body' => 'Naipadala na ang sales order :reference.',
     ],
     'sales_order_cancelled' => [
         'body' => 'Kinansela ang sales order :reference.',
@@ -34,6 +34,6 @@ return [
         'body' => 'May naitalang return ang sales order :reference.',
     ],
     'inventory_below_reorder_point' => [
-        'body' => ':sku is below its reorder point in :warehouse.', // TODO(i18n): translate
+        'body' => 'Nasa ibaba na ng reorder point nito ang :sku sa :warehouse.',
     ],
 ];

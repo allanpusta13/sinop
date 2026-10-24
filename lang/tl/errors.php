@@ -4,136 +4,136 @@ declare(strict_types=1);
 
 return [
     'insufficient_stock' => [
-        'title' => 'Insufficient stock', // TODO(i18n): translate
-        'body' => 'Requested :requested, available :available for variant :variant.', // TODO(i18n): translate
+        'title' => 'Hindi sapat ang stock',
+        'body' => 'Hiniling :requested, available :available para sa variant :variant.',
     ],
     'outstanding_quantity_exceeded' => [
-        'title' => 'Outstanding quantity exceeded', // TODO(i18n): translate
-        'body' => 'Attempted :attempted against outstanding :outstanding for item :item.', // TODO(i18n): translate
+        'title' => 'Lumampas sa outstanding quantity',
+        'body' => 'Sinubukang :attempted laban sa outstanding :outstanding para sa item :item.',
     ],
     'invalid_document_state' => [
-        'title' => 'Invalid document state', // TODO(i18n): translate
-        'body' => 'Action :action is not allowed while status is :status.', // TODO(i18n): translate
+        'title' => 'Invalid na estado ng dokumento',
+        'body' => 'Hindi pinapayagan ang action :action habang :status ang katayuan.',
     ],
     'invalid_revision_transition' => [
-        'title' => 'Invalid revision transition', // TODO(i18n): translate
-        'body' => 'Cannot move revision from :actual to :target.', // TODO(i18n): translate
+        'title' => 'Invalid na revision transition',
+        'body' => 'Hindi mailipat ang revision mula :actual papuntang :target.',
     ],
     'product_family_has_variants' => [
-        'title' => 'Product family has variants', // TODO(i18n): translate
-        'body' => 'Product :product still has variants and cannot be deleted.', // TODO(i18n): translate
+        'title' => 'May variants ang product family',
+        'body' => 'May variants pa ang product :product at hindi maaaring tanggalin.',
     ],
     'negotiation_not_allowed' => [
-        'title' => 'Negotiation not allowed', // TODO(i18n): translate
-        'body' => 'Requisition :requisition cannot be negotiated while :status.', // TODO(i18n): translate
+        'title' => 'Hindi pinapayagan ang negotiation',
+        'body' => 'Hindi maaaring i-negotiate ang requisition :requisition habang :status.',
     ],
     'revision_already_resolved' => [
-        'title' => 'Revision already resolved', // TODO(i18n): translate
-        'body' => 'Revision :revision has already been resolved.', // TODO(i18n): translate
+        'title' => 'Naayos na ang revision',
+        'body' => 'Naayos na ang revision :revision.',
     ],
     'invalid_movement_type' => [
-        'title' => 'Invalid movement type', // TODO(i18n): translate
-        'body' => 'Movement type :type is not allowed here.', // TODO(i18n): translate
+        'title' => 'Invalid na uri ng galaw',
+        'body' => 'Hindi pinapayagan ang movement type :type dito.',
     ],
     'invalid_unit_ratio' => [
-        'title' => 'Invalid unit ratio', // TODO(i18n): translate
-        'body' => 'Unit ratio :ratio is invalid.', // TODO(i18n): translate
+        'title' => 'Invalid na unit ratio',
+        'body' => 'Invalid ang unit ratio :ratio.',
     ],
     'same_warehouse_transfer' => [
-        'title' => 'Same warehouse transfer', // TODO(i18n): translate
-        'body' => 'Source and destination warehouse :warehouse must differ.', // TODO(i18n): translate
+        'title' => 'Parehong bodega ang transfer',
+        'body' => 'Dapat magkaiba ang source at destination warehouse :warehouse.',
     ],
     'empty_transfer_items' => [
-        'title' => 'Empty transfer', // TODO(i18n): translate
-        'body' => 'A direct transfer requires at least one line item.', // TODO(i18n): translate
+        'title' => 'Walang laman ang transfer',
+        'body' => 'Kailangan ng direct transfer ng hindi bababa sa isang line item.',
     ],
     'duplicate_transfer_variant' => [
-        'title' => 'Duplicate transfer variant', // TODO(i18n): translate
-        'body' => 'Line :index repeats variant :variant; a transfer contains distinct variants only.', // TODO(i18n): translate
+        'title' => 'Duplicate na transfer variant',
+        'body' => 'Inuulit ng line :index ang variant :variant; dapat natatanging variants lamang ang nasa isang transfer.',
     ],
     'empty_purchase_items' => [
-        'title' => 'Empty purchase order', // TODO(i18n): translate
-        'body' => 'A purchase order requires at least one line item.', // TODO(i18n): translate
+        'title' => 'Walang laman ang purchase order',
+        'body' => 'Kailangan ng purchase order ng hindi bababa sa isang line item.',
     ],
     'empty_purchase_receipt' => [
-        'title' => 'Empty purchase receipt', // TODO(i18n): translate
-        'body' => 'No receipt quantities were provided.', // TODO(i18n): translate
+        'title' => 'Walang laman ang purchase receipt',
+        'body' => 'Walang naibigay na receipt quantities.',
     ],
     'empty_sales_items' => [
-        'title' => 'Empty sales order', // TODO(i18n): translate
-        'body' => 'A sales order requires at least one line item.', // TODO(i18n): translate
+        'title' => 'Walang laman ang sales order',
+        'body' => 'Kailangan ng sales order ng hindi bababa sa isang line item.',
     ],
     'empty_sales_dispatch' => [
-        'title' => 'Empty sales dispatch', // TODO(i18n): translate
-        'body' => 'No dispatch quantities were provided.', // TODO(i18n): translate
+        'title' => 'Walang laman ang sales dispatch',
+        'body' => 'Walang naibigay na dispatch quantities.',
     ],
     'empty_requisition_items' => [
-        'title' => 'Empty requisition', // TODO(i18n): translate
-        'body' => 'A transfer requisition requires at least one manifest item.', // TODO(i18n): translate
+        'title' => 'Walang laman ang requisition',
+        'body' => 'Kailangan ng transfer requisition ng hindi bababa sa isang manifest item.',
     ],
     'invalid_return_quantity' => [
-        'title' => 'Invalid return quantity', // TODO(i18n): translate
-        'body' => 'Return quantity :qty for item :item must be at least 1.', // TODO(i18n): translate
+        'title' => 'Invalid na return quantity',
+        'body' => 'Dapat hindi bababa sa 1 ang return quantity :qty para sa item :item.',
     ],
     'missing_item_field' => [
-        'title' => 'Missing item field', // TODO(i18n): translate
-        'body' => 'Line :index is missing :field.', // TODO(i18n): translate
+        'title' => 'Kulang na field ng item',
+        'body' => 'Kulang ng :field ang line :index.',
     ],
     'invalid_item_quantity' => [
-        'title' => 'Invalid item quantity', // TODO(i18n): translate
-        'body' => 'Line :index has invalid quantity :qty.', // TODO(i18n): translate
+        'title' => 'Invalid na item quantity',
+        'body' => 'May invalid na quantity :qty ang line :index.',
     ],
     'unknown_variant' => [
-        'title' => 'Unknown variant', // TODO(i18n): translate
-        'body' => 'Variant :variant does not exist.', // TODO(i18n): translate
+        'title' => 'Hindi kilalang variant',
+        'body' => 'Hindi umiiral ang variant :variant.',
     ],
     'undefined_unit' => [
-        'title' => 'Undefined unit', // TODO(i18n): translate
-        'body' => 'Unit :unit is not defined for variant :variant.', // TODO(i18n): translate
+        'title' => 'Hindi tinukoy na unit',
+        'body' => 'Hindi tinukoy ang unit :unit para sa variant :variant.',
     ],
     'unit_ratio_mismatch' => [
-        'title' => 'Unit ratio mismatch', // TODO(i18n): translate
-        'body' => 'Line :index declares unit :unit with a wrong ratio.', // TODO(i18n): translate
+        'title' => 'Hindi tugma ang unit ratio',
+        'body' => 'Idinedeklara ng line :index ang unit :unit na may maling ratio.',
     ],
     'unknown_requisition_item' => [
-        'title' => 'Unknown requisition item', // TODO(i18n): translate
-        'body' => 'Item :item does not belong to this requisition.', // TODO(i18n): translate
+        'title' => 'Hindi kilalang requisition item',
+        'body' => 'Hindi kabilang ang item :item sa requisition na ito.',
     ],
     'non_integer_payload' => [
-        'title' => 'Non-integer payload', // TODO(i18n): translate
-        'body' => 'Scan payload for item :item must be an integer.', // TODO(i18n): translate
+        'title' => 'Hindi integer ang payload',
+        'body' => 'Dapat integer ang scan payload para sa item :item.',
     ],
     'negative_payload' => [
-        'title' => 'Negative payload', // TODO(i18n): translate
-        'body' => 'Payload for item :item must not be negative.', // TODO(i18n): translate
+        'title' => 'Negatibong payload',
+        'body' => 'Hindi dapat negatibo ang payload para sa item :item.',
     ],
     'empty_loss' => [
-        'title' => 'Empty loss', // TODO(i18n): translate
-        'body' => 'Loss entry for item :item records zero quantity.', // TODO(i18n): translate
+        'title' => 'Walang laman ang loss',
+        'body' => 'Nagtatala ng zero quantity ang loss entry para sa item :item.',
     ],
     'invalid_proposed_quantity' => [
-        'title' => 'Invalid proposed quantity', // TODO(i18n): translate
-        'body' => 'Proposed quantity :qty is invalid.', // TODO(i18n): translate
+        'title' => 'Invalid na proposed quantity',
+        'body' => 'Invalid ang proposed quantity :qty.',
     ],
     'cross_item_revision' => [
-        'title' => 'Cross-item revision', // TODO(i18n): translate
-        'body' => 'Revision :revision does not belong to item :item.', // TODO(i18n): translate
+        'title' => 'Cross-item na revision',
+        'body' => 'Hindi kabilang ang revision :revision sa item :item.',
     ],
     'missing_approved_quantity' => [
-        'title' => 'Missing approved quantity', // TODO(i18n): translate
-        'body' => 'No approved quantity is set.', // TODO(i18n): translate
+        'title' => 'Kulang na approved quantity',
+        'body' => 'Walang nakatakdang approved quantity.',
     ],
     'warehouse_out_of_scope' => [
-        'title' => 'Warehouse out of scope', // TODO(i18n): translate
-        'body' => 'Warehouses :from / :to are outside your assignment.', // TODO(i18n): translate
+        'title' => 'Wala sa saklaw ang bodega',
+        'body' => 'Ang mga warehouse :from / :to ay wala sa iyong assignment.',
     ],
     'warehouse_code_exhausted' => [
-        'title' => 'Warehouse code exhausted', // TODO(i18n): translate
-        'body' => 'Could not derive a unique code for :name.', // TODO(i18n): translate
+        'title' => 'Naubos ang warehouse code',
+        'body' => 'Hindi makabuo ng natatanging code para sa :name.',
     ],
     'warehouse_assignment_count' => [
-        'title' => 'Too many warehouses', // TODO(i18n): translate
-        'body' => 'WarehouseStaff may hold at most one warehouse; :count were given.', // TODO(i18n): translate
+        'title' => 'Sobrang dami ng warehouse',
+        'body' => 'Maaari lamang maghawak ang WarehouseStaff ng isang warehouse; :count ang ibinigay.',
     ],
     'reference_code_exhausted' => [
         'title' => 'Naubos ang reference code',

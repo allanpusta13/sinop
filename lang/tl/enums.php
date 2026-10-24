@@ -4,67 +4,67 @@ declare(strict_types=1);
 
 return [
     'transfer_requisition_status' => [
-        'draft' => 'Draft', // TODO(i18n): translate
-        'requested' => 'Requested', // TODO(i18n): translate
-        'under_review_fulfiller' => 'Under review (fulfiller)', // TODO(i18n): translate
-        'under_review_requestor' => 'Under review (requestor)', // TODO(i18n): translate
-        'confirmed' => 'Confirmed', // TODO(i18n): translate
-        'dispatched' => 'Dispatched', // TODO(i18n): translate
-        'partially_received' => 'Partially received', // TODO(i18n): translate
-        'completed' => 'Completed', // TODO(i18n): translate
-        'closed_with_loss' => 'Closed with loss', // TODO(i18n): translate
-        'cancelled' => 'Cancelled', // TODO(i18n): translate
+        'draft' => 'Burador',
+        'requested' => 'Hiningi',
+        'under_review_fulfiller' => 'Sinusuri (fulfiller)',
+        'under_review_requestor' => 'Sinusuri (requestor)',
+        'confirmed' => 'Kinumpirma',
+        'dispatched' => 'Naipadala',
+        'partially_received' => 'Bahagyang natanggap',
+        'completed' => 'Natapos',
+        'closed_with_loss' => 'Isinara na may pagkawala',
+        'cancelled' => 'Kinansela',
     ],
     'purchase_order_status' => [
-        'draft' => 'Draft', // TODO(i18n): translate
-        'ordered' => 'Ordered', // TODO(i18n): translate
-        'partially_received' => 'Partially received', // TODO(i18n): translate
-        'received' => 'Received', // TODO(i18n): translate
-        'cancelled' => 'Cancelled', // TODO(i18n): translate
+        'draft' => 'Burador',
+        'ordered' => 'In-order',
+        'partially_received' => 'Bahagyang natanggap',
+        'received' => 'Natanggap',
+        'cancelled' => 'Kinansela',
     ],
     'sales_order_status' => [
-        'draft' => 'Draft', // TODO(i18n): translate
-        'confirmed' => 'Confirmed', // TODO(i18n): translate
-        'partially_dispatched' => 'Partially dispatched', // TODO(i18n): translate
-        'dispatched' => 'Dispatched', // TODO(i18n): translate
-        'cancelled' => 'Cancelled', // TODO(i18n): translate
+        'draft' => 'Burador',
+        'confirmed' => 'Kinumpirma',
+        'partially_dispatched' => 'Bahagyang naipadala',
+        'dispatched' => 'Naipadala',
+        'cancelled' => 'Kinansela',
     ],
     'stock_movement_type' => [
-        'transfer_in' => 'Transfer in', // TODO(i18n): translate
-        'transfer_out' => 'Transfer out', // TODO(i18n): translate
-        'purchase' => 'Purchase', // TODO(i18n): translate
-        'purchase_return' => 'Purchase return', // TODO(i18n): translate
-        'sale' => 'Sale', // TODO(i18n): translate
-        'sale_return' => 'Sale return', // TODO(i18n): translate
-        'adjustment' => 'Adjustment', // TODO(i18n): translate
-        'loss' => 'Loss', // TODO(i18n): translate
-        'damage' => 'Damage', // TODO(i18n): translate
+        'transfer_in' => 'Pagpasok ng transfer',
+        'transfer_out' => 'Paglabas ng transfer',
+        'purchase' => 'Pagbili',
+        'purchase_return' => 'Pagbabalik ng pagbili',
+        'sale' => 'Benta',
+        'sale_return' => 'Pagbabalik ng benta',
+        'adjustment' => 'Adjustment',
+        'loss' => 'Pagkawala',
+        'damage' => 'Pinsala',
     ],
     'revision_status' => [
-        'pending' => 'Pending', // TODO(i18n): translate
-        'accepted' => 'Accepted', // TODO(i18n): translate
-        'rejected' => 'Rejected', // TODO(i18n): translate
+        'pending' => 'Naghihintay',
+        'accepted' => 'Tinanggap',
+        'rejected' => 'Tinanggihan',
     ],
     'negotiation_side' => [
-        'requestor' => 'Requestor', // TODO(i18n): translate
-        'fulfiller' => 'Fulfiller', // TODO(i18n): translate
+        'requestor' => 'Requestor',
+        'fulfiller' => 'Fulfiller',
     ],
     'in_transit_status' => [
-        'in_transit' => 'In transit', // TODO(i18n): translate
-        'cleared' => 'Cleared', // TODO(i18n): translate
-        'lost' => 'Lost', // TODO(i18n): translate
+        'in_transit' => 'In-Transit',
+        'cleared' => 'Na-clear',
+        'lost' => 'Nawala',
     ],
     'loss_category' => [
-        'shortfall' => 'Shortfall', // TODO(i18n): translate
-        'damage' => 'Damage', // TODO(i18n): translate
-        'spoilage' => 'Spoilage', // TODO(i18n): translate
-        'theft' => 'Theft', // TODO(i18n): translate
-        'other' => 'Other', // TODO(i18n): translate
+        'shortfall' => 'Kakulangan',
+        'damage' => 'Pinsala',
+        'spoilage' => 'Pagkabulok',
+        'theft' => 'Pagnanakaw',
+        'other' => 'Iba pa',
     ],
     'user_role' => [
-        'admin' => 'Admin', // TODO(i18n): translate
-        'auditor' => 'Auditor', // TODO(i18n): translate
-        'warehouse_staff' => 'Warehouse staff', // TODO(i18n): translate
-        'branch_manager' => 'Branch manager', // TODO(i18n): translate
+        'admin' => 'Admin',
+        'auditor' => 'Auditor',
+        'warehouse_staff' => 'Kawani ng bodega',
+        'branch_manager' => 'Manager ng branch',
     ],
 ];

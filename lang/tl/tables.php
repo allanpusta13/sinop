@@ -12,7 +12,7 @@ return [
     'clear_filters' => 'Linisiin ang filters',
     'showing' => 'Ipinapakita :from hanggang :of ng :total results',
     'per_page' => 'Bawat page: :count',
-    'page' => 'Page :page',
+    'page' => 'Pahina :page',
     'of' => 'ng :pages',
 
     // Direct Transfer table
@@ -20,8 +20,8 @@ return [
     'reference_code' => 'Kodigo ng Sanggunian',
     'from' => 'Mula',
     'to' => 'Sa',
-    'from_warehouse' => 'Origin Warehouse',
-    'to_warehouse' => 'Destination Warehouse',
+    'from_warehouse' => 'Bodegang pinagmulan',
+    'to_warehouse' => 'Bodegang paroroonan',
     'by' => 'Ni',
     'transferred_by' => 'Inilipat Ni',
     'transferred_at' => 'Inilipat Noong',
@@ -29,11 +29,11 @@ return [
     'items_count' => 'Bilang ng Item',
     'sku' => 'SKU',
     'variant' => 'Variant',
-    'qty_unit' => 'Qty / Unit',
-    'base_units' => 'Base Units',
+    'qty_unit' => 'Dami / Yunit',
+    'base_units' => 'Mga Base Unit',
     'line_notes' => 'Mga Tala ng Linya',
-    'filter_from_warehouse' => 'I-filter by Origin Warehouse',
-    'filter_to_warehouse' => 'I-filter by Destination Warehouse',
+    'filter_from_warehouse' => 'I-filter ayon sa pinagmulang bodega',
+    'filter_to_warehouse' => 'I-filter ayon sa paroroonang bodega',
 
     // Stock Movement table
     'movement_type' => 'Uri',
@@ -96,7 +96,7 @@ return [
     'loss_requisition' => 'Requisition',
     'loss_variant' => 'Variant',
     'loss_qty' => 'Natapusang Dami',
-    'loss_cost' => 'Unit Cost',
+    'loss_cost' => 'Gastos ng Yunit',
     'loss_total' => 'Kabuuang Loss',
     'loss_category' => 'Kategorya',
     'loss_recorded_at' => 'Naitala Noong',
@@ -105,7 +105,7 @@ return [
     // User table
     'user_name' => 'Pangalan',
     'user_email' => 'Email',
-    'user_role' => 'Rol',
+    'user_role' => 'Role',
     'user_warehouses' => 'Mga Bodega',
     'user_active' => 'Active',
 ];

@@ -281,11 +281,10 @@ it('all_locales_match_canonical_key_set', function () {
 
     expect($missing)->toBeEmpty("Translation key parity FAILED (§0A.15).\nFull report: storage/logs/i18n-parity.md\n\n{$report}");
 
-    // Placeholder presence is a MEASUREMENT, not an enforcement: while any
-    // locale still carries `// TODO(i18n): translate` placeholders the count
-    // must be > 0 (documents migration state). Flip to toBe(0) only once the
-    // separate content-backfill workstream has translated every placeholder.
+    // Placeholder presence is now enforced at zero: the content-backfill
+    // workstream (#172) has translated every `// TODO(i18n): translate` entry,
+    // so any surviving marker is a regression, not migration state.
     foreach ($placeholderCounts as $locale => $data) {
-        expect($data['total'])->toBeGreaterThan(0, "Expected {$locale} to still carry untranslated placeholders; if the content backfill completed, update this assertion to toBe(0).");
+        expect($data['total'])->toBe(0, "Expected {$locale} to carry zero untranslated placeholders; found {$data['total']}.");
     }
 });

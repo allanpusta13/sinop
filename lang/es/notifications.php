@@ -4,28 +4,28 @@ declare(strict_types=1);
 
 return [
     'transfer_confirmed' => [
-        'body' => 'Transfer :reference has been confirmed.', // TODO(i18n): translate
+        'body' => 'La transferencia :reference ha sido confirmada.',
     ],
     'transfer_cancelled' => [
-        'body' => 'Transfer :reference has been cancelled.', // TODO(i18n): translate
+        'body' => 'La transferencia :reference ha sido cancelada.',
     ],
     'transfer_dispatched' => [
-        'body' => 'Transfer :reference has been dispatched.', // TODO(i18n): translate
+        'body' => 'La transferencia :reference ha sido despachada.',
     ],
     'transfer_received' => [
-        'body' => 'Transfer :reference has been received.', // TODO(i18n): translate
+        'body' => 'La transferencia :reference ha sido recibida.',
     ],
     'loss_recorded' => [
-        'body' => 'Loss of :qty base units recorded for :sku.', // TODO(i18n): translate
+        'body' => 'Se registró una pérdida de :qty unidades base para :sku.',
     ],
     'purchase_order_received' => [
-        'body' => 'Purchase order :reference has been received.', // TODO(i18n): translate
+        'body' => 'La orden de compra :reference ha sido recibida.',
     ],
     'purchase_order_cancelled' => [
-        'body' => 'Purchase order :reference has been cancelled.', // TODO(i18n): translate
+        'body' => 'La orden de compra :reference ha sido cancelada.',
     ],
     'sales_order_dispatched' => [
-        'body' => 'Sales order :reference has been dispatched.', // TODO(i18n): translate
+        'body' => 'La orden de venta :reference ha sido despachada.',
     ],
     'sales_order_cancelled' => [
         'body' => 'La orden de venta :reference ha sido cancelada.',
@@ -34,6 +34,6 @@ return [
         'body' => 'La orden de venta :reference tiene una devolución registrada.',
     ],
     'inventory_below_reorder_point' => [
-        'body' => ':sku is below its reorder point in :warehouse.', // TODO(i18n): translate
+        'body' => ':sku está por debajo de su punto de reorden en :warehouse.',
     ],
 ];

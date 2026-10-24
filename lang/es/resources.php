@@ -9,95 +9,95 @@ return [
             'plural' => 'Productos',
         ],
         'navigation' => [
-            'label' => 'Products', // TODO(i18n): translate
+            'label' => 'Productos',
         ],
         'sections' => [
             'inventory' => 'Inventario',
         ],
         'tabs' => [
-            'identity' => 'Identity', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'stock_pricing' => 'Stock & Pricing', // TODO(i18n): translate
+            'identity' => 'Identidad',
+            'status' => 'Estado',
+            'stock_pricing' => 'Stock y precios',
         ],
         'wizard' => [
             'review' => 'Revisar',
         ],
         'fields' => [
             'sku' => 'SKU',
-            'family_name' => 'Family name', // TODO(i18n): translate
-            'family_category' => 'Category', // TODO(i18n): translate
-            'variant_name' => 'Variant name', // TODO(i18n): translate
+            'family_name' => 'Nombre de familia',
+            'family_category' => 'Categoría',
+            'variant_name' => 'Nombre de variante',
             'barcode' => 'Código de barras',
             'base_unit' => 'Unidad base',
-            'base_unit_name' => 'Base unit', // TODO(i18n): translate
-            'base_unit_ratio' => 'Base unit ratio', // TODO(i18n): translate
-            'unit_name' => 'Unit', // TODO(i18n): translate
-            'unit_conversions' => 'Unit conversions', // TODO(i18n): translate
+            'base_unit_name' => 'Unidad base',
+            'base_unit_ratio' => 'Proporción de unidad base',
+            'unit_name' => 'Unidad',
+            'unit_conversions' => 'Conversiones de unidad',
             'reorder_point' => 'Punto de reorden',
-            'attributes' => 'Attributes', // TODO(i18n): translate
-            'images' => 'Images', // TODO(i18n): translate
-            'is_active' => 'Active', // TODO(i18n): translate
-            'is_default_purchase' => 'Default purchase unit', // TODO(i18n): translate
-            'is_default_transfer' => 'Default transfer unit', // TODO(i18n): translate
-            'cost_price' => 'Cost price', // TODO(i18n): translate
-            'sale_price' => 'Sale price', // TODO(i18n): translate
-            'price_change_notes' => 'Price change notes', // TODO(i18n): translate
-            'product_family' => 'Product family', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'signed_quantity_base' => 'Signed quantity (base units)', // TODO(i18n): translate
-            'adjustment_notes' => 'Adjustment notes', // TODO(i18n): translate
+            'attributes' => 'Atributos',
+            'images' => 'Imágenes',
+            'is_active' => 'Activo',
+            'is_default_purchase' => 'Unidad de compra predeterminada',
+            'is_default_transfer' => 'Unidad de transferencia predeterminada',
+            'cost_price' => 'Precio de costo',
+            'sale_price' => 'Precio de venta',
+            'price_change_notes' => 'Notas de cambio de precio',
+            'product_family' => 'Familia de producto',
+            'warehouse' => 'Almacén',
+            'signed_quantity_base' => 'Cantidad con signo (unidades base)',
+            'adjustment_notes' => 'Notas de ajuste',
         ],
         'hints' => [
-            'signed_quantity' => 'Positive adds stock, negative removes stock.', // TODO(i18n): translate
+            'signed_quantity' => 'Los valores positivos suman stock; los negativos lo reducen.',
         ],
         'filters' => [
-            'is_active' => 'Active', // TODO(i18n): translate
-            'product_family' => 'Product family', // TODO(i18n): translate
+            'is_active' => 'Activo',
+            'product_family' => 'Familia de producto',
         ],
         'table' => [
-            'sku' => 'SKU', // TODO(i18n): translate
-            'name' => 'Name', // TODO(i18n): translate
-            'family' => 'Family', // TODO(i18n): translate
-            'base_unit' => 'Base unit', // TODO(i18n): translate
-            'reorder_point' => 'Reorder point', // TODO(i18n): translate
-            'sale_price' => 'Sale price', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'empty_heading' => 'No products found', // TODO(i18n): translate
-            'empty_description' => 'Create your first product to get started.', // TODO(i18n): translate
+            'sku' => 'SKU',
+            'name' => 'Nombre',
+            'family' => 'Familia',
+            'base_unit' => 'Unidad base',
+            'reorder_point' => 'Punto de reorden',
+            'sale_price' => 'Precio de venta',
+            'status' => 'Estado',
+            'empty_heading' => 'No se encontraron productos',
+            'empty_description' => 'Cree su primer producto para comenzar.',
         ],
         'infolist' => [
-            'identity' => 'Identity', // TODO(i18n): translate
-            'pricing' => 'Pricing', // TODO(i18n): translate
-            'unit_conversions' => 'Unit conversions', // TODO(i18n): translate
+            'identity' => 'Identidad',
+            'pricing' => 'Precios',
+            'unit_conversions' => 'Conversiones de unidad',
         ],
         'actions' => [
-            'create' => 'New product', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
-            'set_current_price' => 'Set current price', // TODO(i18n): translate
-            'set_current_price_heading' => 'Set current price', // TODO(i18n): translate
-            'set_current_price_description' => 'Replace the current price for this variant.', // TODO(i18n): translate
+            'create' => 'Nuevo producto',
+            'edit' => 'Editar',
+            'view' => 'Ver',
+            'delete' => 'Eliminar',
+            'restore' => 'Restaurar',
+            'force_delete' => 'Eliminar permanentemente',
+            'set_current_price' => 'Establecer precio actual',
+            'set_current_price_heading' => 'Establecer precio actual',
+            'set_current_price_description' => 'Reemplace el precio actual de esta variante.',
             'manage_units' => 'Gestionar unidades',
-            'manage_units_heading' => 'Manage units', // TODO(i18n): translate
-            'manage_units_description' => 'Edit unit conversions for this variant.', // TODO(i18n): translate
-            'edit_family' => 'Edit family', // TODO(i18n): translate
-            'edit_family_heading' => 'Edit family', // TODO(i18n): translate
-            'edit_family_description' => 'Edit the parent product family.', // TODO(i18n): translate
+            'manage_units_heading' => 'Gestionar unidades',
+            'manage_units_description' => 'Edite las conversiones de unidad de esta variante.',
+            'edit_family' => 'Editar familia',
+            'edit_family_heading' => 'Editar familia',
+            'edit_family_description' => 'Edite la familia de producto principal.',
             'quick_adjustment' => 'Ajuste rápido',
-            'quick_adjustment_heading' => 'Quick stock adjustment', // TODO(i18n): translate
-            'quick_adjustment_description' => 'Record a manual stock adjustment.', // TODO(i18n): translate
-            'more_actions' => 'More actions', // TODO(i18n): translate
+            'quick_adjustment_heading' => 'Ajuste rápido de stock',
+            'quick_adjustment_description' => 'Registre un ajuste manual de stock.',
+            'more_actions' => 'Más acciones',
         ],
         'notifications' => [
             'created' => 'Producto creado correctamente.',
             'updated' => 'Producto actualizado correctamente.',
-            'price_updated' => 'Price updated.', // TODO(i18n): translate
-            'adjustment_recorded' => 'Adjustment recorded.', // TODO(i18n): translate
-            'family_updated' => 'Family updated.', // TODO(i18n): translate
-            'family_missing' => 'Product family is missing.', // TODO(i18n): translate
+            'price_updated' => 'Precio actualizado.',
+            'adjustment_recorded' => 'Ajuste registrado.',
+            'family_updated' => 'Familia actualizada.',
+            'family_missing' => 'Falta la familia de producto.',
         ],
     ],
     'transfer_requisitions' => [
@@ -106,76 +106,76 @@ return [
             'plural' => 'Requisiciones de transferencia',
         ],
         'navigation' => [
-            'label' => 'Transfer Requisitions', // TODO(i18n): translate
+            'label' => 'Requisiciones de transferencia',
         ],
-        'badge_tooltip' => 'Requisitions awaiting review', // TODO(i18n): translate
+        'badge_tooltip' => 'Requisiciones pendientes de revisión',
         'sections' => [
-            'routing' => 'Routing', // TODO(i18n): translate
+            'routing' => 'Enrutamiento',
             'revision_manifest' => 'Revisión',
         ],
         'steps' => [
             'routing' => 'Enrutamiento',
-            'routing_description' => 'Choose source and destination warehouses.', // TODO(i18n): translate
-            'manifest' => 'Manifest', // TODO(i18n): translate
-            'manifest_description' => 'Add requested line items.', // TODO(i18n): translate
+            'routing_description' => 'Elija los almacenes de origen y destino.',
+            'manifest' => 'Manifiesto',
+            'manifest_description' => 'Agregue las líneas solicitadas.',
             'review' => 'Revisar',
-            'review_description' => 'Verify before creating.', // TODO(i18n): translate
+            'review_description' => 'Verifique antes de crear.',
         ],
         'fields' => [
-            'reference_code' => 'Reference', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'from_warehouse' => 'Desde almacén',
-            'to_warehouse' => 'Hacia almacén',
-            'notes' => 'Notes', // TODO(i18n): translate
-            'variant_sku' => 'Variant SKU', // TODO(i18n): translate
-            'original_sku' => 'Original SKU', // TODO(i18n): translate
-            'substitute_sku' => 'Substitute SKU', // TODO(i18n): translate
-            'unit' => 'Unit', // TODO(i18n): translate
-            'ratio_base' => 'Ratio (base)', // TODO(i18n): translate
-            'qty' => 'Qty', // TODO(i18n): translate
-            'requested' => 'Requested', // TODO(i18n): translate
-            'approved' => 'Approved', // TODO(i18n): translate
-            'proposed' => 'Proposed', // TODO(i18n): translate
-            'requested_by' => 'Requested by', // TODO(i18n): translate
-            'approved_by' => 'Approved by', // TODO(i18n): translate
-            'dispatched_by' => 'Dispatched by', // TODO(i18n): translate
-            'received_by' => 'Received by', // TODO(i18n): translate
-            'shipped_base' => 'Shipped (base)', // TODO(i18n): translate
-            'received_good_base' => 'Received good (base)', // TODO(i18n): translate
-            'revision' => 'Revision', // TODO(i18n): translate
-            'revisions' => 'Revisions', // TODO(i18n): translate
-            'revision_item' => 'Revision item', // TODO(i18n): translate
-            'negotiation_side' => 'Side', // TODO(i18n): translate
-            'negotiation_reason' => 'Negotiation reason', // TODO(i18n): translate
-            'negotiation_reason_placeholder' => 'Explain the reason for the proposed change.', // TODO(i18n): translate
-            'proposed_by' => 'Proposed by', // TODO(i18n): translate
-            'responds_to' => 'Responds to', // TODO(i18n): translate
-            'responded_at' => 'Responded at', // TODO(i18n): translate
+            'reference_code' => 'Referencia',
+            'status' => 'Estado',
+            'from_warehouse' => 'Almacén origen',
+            'to_warehouse' => 'Almacén destino',
+            'notes' => 'Notas',
+            'variant_sku' => 'SKU de variante',
+            'original_sku' => 'SKU original',
+            'substitute_sku' => 'SKU sustituto',
+            'unit' => 'Unidad',
+            'ratio_base' => 'Proporción (base)',
+            'qty' => 'Cantidad',
+            'requested' => 'Solicitado',
+            'approved' => 'Aprobado',
+            'proposed' => 'Propuesto',
+            'requested_by' => 'Solicitado por',
+            'approved_by' => 'Aprobado por',
+            'dispatched_by' => 'Despachado por',
+            'received_by' => 'Recibido por',
+            'shipped_base' => 'Enviado (base)',
+            'received_good_base' => 'Recibido bueno (base)',
+            'revision' => 'Revisión',
+            'revisions' => 'Revisiones',
+            'revision_item' => 'Ítem de revisión',
+            'negotiation_side' => 'Lado',
+            'negotiation_reason' => 'Motivo de negociación',
+            'negotiation_reason_placeholder' => 'Explique el motivo del cambio propuesto.',
+            'proposed_by' => 'Propuesto por',
+            'responds_to' => 'Responde a',
+            'responded_at' => 'Respondido el',
         ],
         'hints' => [
-            'ratio_auto' => 'Ratio is resolved automatically from the unit.', // TODO(i18n): translate
+            'ratio_auto' => 'La proporción se resuelve automáticamente según la unidad.',
         ],
         'filters' => [
-            'from_warehouse' => 'From warehouse', // TODO(i18n): translate
-            'to_warehouse' => 'To warehouse', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
+            'from_warehouse' => 'Almacén origen',
+            'to_warehouse' => 'Almacén destino',
+            'status' => 'Estado',
         ],
         'table' => [
-            'reference' => 'Reference', // TODO(i18n): translate
-            'from' => 'From', // TODO(i18n): translate
-            'to' => 'To', // TODO(i18n): translate
-            'items' => 'Items', // TODO(i18n): translate
-            'requested_by' => 'Requested by', // TODO(i18n): translate
-            'requested' => 'Requested', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'empty_heading' => 'No transfer requisitions found', // TODO(i18n): translate
-            'empty_description' => 'Create your first requisition to get started.', // TODO(i18n): translate
+            'reference' => 'Referencia',
+            'from' => 'Desde',
+            'to' => 'Hacia',
+            'items' => 'Ítems',
+            'requested_by' => 'Solicitado por',
+            'requested' => 'Solicitado',
+            'status' => 'Estado',
+            'empty_heading' => 'No se encontraron requisiciones de transferencia',
+            'empty_description' => 'Cree su primera requisición para comenzar.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'signoffs' => 'Sign-offs', // TODO(i18n): translate
-            'manifest' => 'Manifest', // TODO(i18n): translate
-            'negotiation_history' => 'Negotiation history', // TODO(i18n): translate
+            'profile' => 'Perfil',
+            'signoffs' => 'Firmas',
+            'manifest' => 'Manifiesto',
+            'negotiation_history' => 'Historial de negociación',
         ],
         'placeholders' => [
             'system_initialized' => 'Sistema',
@@ -185,46 +185,46 @@ return [
             'not_yet_responded' => 'Aún sin respuesta',
         ],
         'actions' => [
-            'create' => 'New transfer requisition', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
-            'submit' => 'Submit request', // TODO(i18n): translate
-            'submit_heading' => 'Submit request', // TODO(i18n): translate
-            'submit_description' => 'Send this requisition for review.', // TODO(i18n): translate
-            'review' => 'Review / negotiate', // TODO(i18n): translate
-            'propose_revision' => 'Propose revision', // TODO(i18n): translate
-            'propose_revision_heading' => 'Propose revision', // TODO(i18n): translate
-            'propose_revision_description' => 'Propose a substitute variant or quantity.', // TODO(i18n): translate
-            'accept_revision' => 'Accept revision', // TODO(i18n): translate
-            'accept_revision_heading' => 'Accept revision', // TODO(i18n): translate
-            'accept_revision_description' => 'Accept the selected pending revision.', // TODO(i18n): translate
-            'reject_revision' => 'Reject revision', // TODO(i18n): translate
-            'reject_revision_heading' => 'Reject revision', // TODO(i18n): translate
-            'reject_revision_description' => 'Reject the selected pending revision.', // TODO(i18n): translate
+            'create' => 'Nueva requisición de transferencia',
+            'edit' => 'Editar',
+            'view' => 'Ver',
+            'delete' => 'Eliminar',
+            'restore' => 'Restaurar',
+            'force_delete' => 'Eliminar permanentemente',
+            'submit' => 'Enviar solicitud',
+            'submit_heading' => 'Enviar solicitud',
+            'submit_description' => 'Envíe esta requisición para revisión.',
+            'review' => 'Revisar / negociar',
+            'propose_revision' => 'Proponer revisión',
+            'propose_revision_heading' => 'Proponer revisión',
+            'propose_revision_description' => 'Proponga una variante o cantidad sustituta.',
+            'accept_revision' => 'Aceptar revisión',
+            'accept_revision_heading' => 'Aceptar revisión',
+            'accept_revision_description' => 'Acepte la revisión pendiente seleccionada.',
+            'reject_revision' => 'Rechazar revisión',
+            'reject_revision_heading' => 'Rechazar revisión',
+            'reject_revision_description' => 'Rechace la revisión pendiente seleccionada.',
             'confirm' => 'Confirmar',
-            'confirm_heading' => 'Confirm requisition', // TODO(i18n): translate
-            'confirm_description' => 'Confirm the negotiated manifest.', // TODO(i18n): translate
+            'confirm_heading' => 'Confirmar requisición',
+            'confirm_description' => 'Confirme el manifiesto negociado.',
             'dispatch' => 'Despachar',
-            'dispatch_heading' => 'Dispatch stock', // TODO(i18n): translate
-            'dispatch_description' => 'Dispatch approved quantities.', // TODO(i18n): translate
+            'dispatch_heading' => 'Despachar stock',
+            'dispatch_description' => 'Despache las cantidades aprobadas.',
             'receive' => 'Recibir',
-            'record_loss' => 'Record loss', // TODO(i18n): translate
-            'record_loss_heading' => 'Record loss', // TODO(i18n): translate
-            'record_loss_description' => 'Record lost or damaged quantities.', // TODO(i18n): translate
-            'cancel' => 'Cancel', // TODO(i18n): translate
-            'cancel_heading' => 'Cancel requisition', // TODO(i18n): translate
-            'cancel_description' => 'Cancel this requisition.', // TODO(i18n): translate
-            'more_actions' => 'More actions', // TODO(i18n): translate
+            'record_loss' => 'Registrar pérdida',
+            'record_loss_heading' => 'Registrar pérdida',
+            'record_loss_description' => 'Registre las cantidades perdidas o dañadas.',
+            'cancel' => 'Cancelar',
+            'cancel_heading' => 'Cancelar requisición',
+            'cancel_description' => 'Cancele esta requisición.',
+            'more_actions' => 'Más acciones',
         ],
         'notifications' => [
             'dispatched' => 'Requisición de transferencia despachada.',
-            'loss_recorded' => 'Loss recorded.', // TODO(i18n): translate
-            'revision_submitted' => 'Revision submitted.', // TODO(i18n): translate
-            'revision_accepted' => 'Revision accepted.', // TODO(i18n): translate
-            'revision_rejected' => 'Revision rejected.', // TODO(i18n): translate
+            'loss_recorded' => 'Pérdida registrada.',
+            'revision_submitted' => 'Revisión enviada.',
+            'revision_accepted' => 'Revisión aceptada.',
+            'revision_rejected' => 'Revisión rechazada.',
         ],
     ],
     'direct_transfers' => [
@@ -233,191 +233,191 @@ return [
             'plural' => 'Transferencias directas',
         ],
         'navigation' => [
-            'label' => 'Direct Transfers', // TODO(i18n): translate
+            'label' => 'Transferencias directas',
         ],
         'sections' => [
-            'routing' => 'Routing', // TODO(i18n): translate
-            'stock_allocation' => 'Stock allocation', // TODO(i18n): translate
+            'routing' => 'Enrutamiento de almacén',
+            'stock_allocation' => 'Asignación de stock',
         ],
         'steps' => [
-            'location_mapping' => 'Locations', // TODO(i18n): translate
-            'location_mapping_description' => 'Choose source and destination.', // TODO(i18n): translate
-            'stock_allocation' => 'Stock allocation', // TODO(i18n): translate
-            'stock_allocation_description' => 'Allocate line quantities.', // TODO(i18n): translate
-            'review_verify' => 'Review', // TODO(i18n): translate
-            'review_verify_description' => 'Verify before transferring.', // TODO(i18n): translate
+            'location_mapping' => 'Ubicaciones',
+            'location_mapping_description' => 'Seleccione almacenes de origen y destino.',
+            'stock_allocation' => 'Asignación de stock',
+            'stock_allocation_description' => 'Asigne variantes de producto y cantidades a transferir.',
+            'review_verify' => 'Revisar',
+            'review_verify_description' => 'Verifique antes de transferir.',
         ],
         'fields' => [
             'from_warehouse' => 'Almacén origen',
             'to_warehouse' => 'Almacén destino',
-            'variant_sku' => 'Variant SKU', // TODO(i18n): translate
+            'variant_sku' => 'SKU de variante',
             'sku' => 'SKU',
-            'unit' => 'Unit', // TODO(i18n): translate
+            'unit' => 'Unidad',
             'ratio' => 'Proporción',
-            'ratio_base' => 'Ratio (base)', // TODO(i18n): translate
+            'ratio_base' => 'Proporción (base)',
             'qty' => 'Cantidad',
             'base_qty' => 'Cantidad base',
-            'notes' => 'Notes', // TODO(i18n): translate
-            'reference_code' => 'Código de referencia',
+            'notes' => 'Notas',
+            'reference_code' => 'Referencia',
             'transferred_by' => 'Transferido por',
             'transferred_at' => 'Transferido el',
         ],
         'hints' => [
-            'ratio_auto' => 'Ratio is resolved automatically from the unit.', // TODO(i18n): translate
+            'ratio_auto' => 'La proporción se resuelve automáticamente según la unidad seleccionada.',
         ],
         'filters' => [
-            'from_warehouse' => 'From warehouse', // TODO(i18n): translate
-            'to_warehouse' => 'To warehouse', // TODO(i18n): translate
+            'from_warehouse' => 'Almacén origen',
+            'to_warehouse' => 'Almacén destino',
         ],
         'table' => [
             'reference' => 'Referencia',
-            'from' => 'From', // TODO(i18n): translate
-            'to' => 'To', // TODO(i18n): translate
+            'from' => 'Desde',
+            'to' => 'Hacia',
             'items' => 'Líneas',
-            'by' => 'By', // TODO(i18n): translate
+            'by' => 'Por',
             'transferred_at' => 'Transferido el',
-            'empty_heading' => 'No direct transfers found', // TODO(i18n): translate
-            'empty_description' => 'Create your first direct transfer to get started.', // TODO(i18n): translate
+            'empty_heading' => 'No se encontraron transferencias directas',
+            'empty_description' => 'Cree su primera transferencia directa para comenzar.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'manifest' => 'Manifest', // TODO(i18n): translate
-            'authorization' => 'Authorization', // TODO(i18n): translate
+            'profile' => 'Perfil',
+            'manifest' => 'Manifiesto',
+            'authorization' => 'Autorización',
         ],
         'actions' => [
-            'create' => 'New direct transfer', // TODO(i18n): translate
+            'create' => 'Nueva transferencia directa',
             'view' => 'Ver',
-            'delete' => 'Delete', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'delete' => 'Eliminar',
+            'force_delete' => 'Eliminar permanentemente',
         ],
     ],
     'in_transits' => [
         'model' => [
-            'singular' => 'En Tránsito',
-            'plural' => 'En Tránsitos',
+            'singular' => 'Carga en tránsito',
+            'plural' => 'Cargas en tránsito',
         ],
         'navigation' => [
-            'label' => 'In-Transit Cargo', // TODO(i18n): translate
+            'label' => 'Carga en tránsito',
         ],
-        'badge_tooltip' => 'Cargo currently in transit', // TODO(i18n): translate
+        'badge_tooltip' => 'Carga actualmente en tránsito',
         'fields' => [
             'requisition' => 'Requisición',
             'sku' => 'SKU',
             'status' => 'Estado',
-            'dispatched_base' => 'Despachado (Base)',
+            'dispatched_base' => 'Despachado (base)',
             'dispatched_at' => 'Despachado el',
-            'cleared_at' => 'Despejado el',
+            'cleared_at' => 'Liberado el',
         ],
         'filters' => [
-            'status' => 'Status', // TODO(i18n): translate
+            'status' => 'Estado',
         ],
         'table' => [
-            'requisition' => 'Requisition', // TODO(i18n): translate
-            'sku' => 'SKU', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'dispatched' => 'Dispatched', // TODO(i18n): translate
-            'dispatched_at' => 'Dispatched at', // TODO(i18n): translate
-            'empty_heading' => 'No in-transit cargo', // TODO(i18n): translate
-            'empty_description' => 'All dispatched cargo has been accounted for.', // TODO(i18n): translate
+            'requisition' => 'Requisición',
+            'sku' => 'SKU',
+            'status' => 'Estado',
+            'dispatched' => 'Despachado',
+            'dispatched_at' => 'Despachado el',
+            'empty_heading' => 'Sin carga en tránsito',
+            'empty_description' => 'Toda la carga despachada ha sido contabilizada.',
         ],
         'infolist' => [
-            'cargo' => 'Cargo', // TODO(i18n): translate
+            'cargo' => 'Carga',
         ],
         'actions' => [
-            'view' => 'View', // TODO(i18n): translate
+            'view' => 'Ver',
         ],
     ],
     'stock_movements' => [
         'model' => [
-            'singular' => 'Movimiento de Stock',
-            'plural' => 'Movimientos de Stock',
+            'singular' => 'Movimiento de stock',
+            'plural' => 'Movimientos de stock',
         ],
         'navigation' => [
-            'label' => 'Stock Movements', // TODO(i18n): translate
+            'label' => 'Movimientos de stock',
         ],
         'fields' => [
-            'sku' => 'SKU', // TODO(i18n): translate
+            'sku' => 'SKU',
             'warehouse' => 'Almacén',
-            'unit' => 'Unit', // TODO(i18n): translate
-            'by' => 'By', // TODO(i18n): translate
-            'timestamp' => 'Timestamp', // TODO(i18n): translate
-            'reference_code' => 'Reference', // TODO(i18n): translate
+            'unit' => 'Unidad',
+            'by' => 'Por',
+            'timestamp' => 'Fecha y hora',
+            'reference_code' => 'Referencia',
             'type' => 'Tipo',
             'quantity' => 'Cantidad',
-            'notes' => 'Notes', // TODO(i18n): translate
+            'notes' => 'Notas',
         ],
         'filters' => [
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'variant' => 'Variant', // TODO(i18n): translate
-            'type' => 'Type', // TODO(i18n): translate
+            'warehouse' => 'Almacén',
+            'variant' => 'Variante',
+            'type' => 'Tipo',
         ],
         'table' => [
-            'sku' => 'SKU', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'type' => 'Type', // TODO(i18n): translate
-            'qty' => 'Qty', // TODO(i18n): translate
-            'unit' => 'Unit', // TODO(i18n): translate
-            'by' => 'By', // TODO(i18n): translate
-            'timestamp' => 'Timestamp', // TODO(i18n): translate
-            'reference_code' => 'Reference', // TODO(i18n): translate
-            'empty_heading' => 'No stock movements found', // TODO(i18n): translate
-            'empty_description' => 'Adjust the filters to see more.', // TODO(i18n): translate
+            'sku' => 'SKU',
+            'warehouse' => 'Almacén',
+            'type' => 'Tipo',
+            'qty' => 'Cantidad',
+            'unit' => 'Unidad',
+            'by' => 'Por',
+            'timestamp' => 'Fecha y hora',
+            'reference_code' => 'Referencia',
+            'empty_heading' => 'No se encontraron movimientos de stock',
+            'empty_description' => 'Ajuste los filtros para ver más.',
         ],
         'infolist' => [
-            'movement' => 'Movement', // TODO(i18n): translate
+            'movement' => 'Movimiento',
         ],
         'actions' => [
-            'view' => 'View', // TODO(i18n): translate
+            'view' => 'Ver',
         ],
     ],
     'loss_ledgers' => [
         'model' => [
-            'singular' => 'Registro de Pérdidas',
-            'plural' => 'Registros de Pérdidas',
+            'singular' => 'Registro de pérdidas',
+            'plural' => 'Registros de pérdidas',
         ],
         'navigation' => [
-            'label' => 'Loss Ledgers', // TODO(i18n): translate
+            'label' => 'Registros de pérdidas',
         ],
         'fields' => [
             'requisition' => 'Requisición',
-            'sku' => 'SKU', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'lost_base' => 'Lost (base)', // TODO(i18n): translate
-            'damaged_base' => 'Damaged (base)', // TODO(i18n): translate
-            'notes' => 'Notes', // TODO(i18n): translate
-            'transfer_requisition_item' => 'Requisition item', // TODO(i18n): translate
+            'sku' => 'SKU',
+            'warehouse' => 'Almacén',
+            'lost_base' => 'Perdido (base)',
+            'damaged_base' => 'Dañado (base)',
+            'notes' => 'Notas',
+            'transfer_requisition_item' => 'Ítem de requisición',
             'recorded_at' => 'Registrado el',
-            'loss_category' => 'Loss category', // TODO(i18n): translate
-            'unit_cost_price' => 'Unit cost', // TODO(i18n): translate
-            'total_financial_loss' => 'Total loss', // TODO(i18n): translate
+            'loss_category' => 'Categoría de pérdida',
+            'unit_cost_price' => 'Costo unitario',
+            'total_financial_loss' => 'Pérdida total',
         ],
         'filters' => [
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'loss_category' => 'Loss category', // TODO(i18n): translate
+            'warehouse' => 'Almacén',
+            'loss_category' => 'Categoría de pérdida',
         ],
         'table' => [
-            'requisition' => 'Requisition', // TODO(i18n): translate
-            'sku' => 'SKU', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'lost' => 'Lost', // TODO(i18n): translate
-            'damaged' => 'Damaged', // TODO(i18n): translate
-            'category' => 'Category', // TODO(i18n): translate
-            'unit_cost' => 'Unit cost', // TODO(i18n): translate
-            'total_loss' => 'Total loss', // TODO(i18n): translate
-            'by' => 'By', // TODO(i18n): translate
-            'recorded' => 'Recorded', // TODO(i18n): translate
-            'empty_heading' => 'No losses recorded', // TODO(i18n): translate
-            'empty_description' => 'Adjust the filters to see more.', // TODO(i18n): translate
+            'requisition' => 'Requisición',
+            'sku' => 'SKU',
+            'warehouse' => 'Almacén',
+            'lost' => 'Perdido',
+            'damaged' => 'Dañado',
+            'category' => 'Categoría',
+            'unit_cost' => 'Costo unitario',
+            'total_loss' => 'Pérdida total',
+            'by' => 'Por',
+            'recorded' => 'Registrado',
+            'empty_heading' => 'No se registraron pérdidas',
+            'empty_description' => 'Ajuste los filtros para ver más.',
         ],
         'infolist' => [
-            'record' => 'Record', // TODO(i18n): translate
-            'financial_impact' => 'Financial impact', // TODO(i18n): translate
+            'record' => 'Registro',
+            'financial_impact' => 'Impacto financiero',
         ],
         'notes' => [
-            'cost_missing' => 'Cost price missing or zero at time of write-off.', // TODO(i18n): translate
+            'cost_missing' => 'Precio de costo faltante o en cero al momento de la baja.',
         ],
         'actions' => [
-            'view' => 'View', // TODO(i18n): translate
+            'view' => 'Ver',
         ],
     ],
     'warehouses' => [
@@ -426,53 +426,53 @@ return [
             'plural' => 'Almacenes',
         ],
         'navigation' => [
-            'label' => 'Warehouses', // TODO(i18n): translate
+            'label' => 'Almacenes',
         ],
         'fields' => [
             'code' => 'Código',
             'name' => 'Nombre',
             'location' => 'Ubicación',
             'is_active' => 'Activo',
-            'users' => 'Users', // TODO(i18n): translate
-            'assigned_staff' => 'Assigned staff', // TODO(i18n): translate
+            'users' => 'Usuarios',
+            'assigned_staff' => 'Personal asignado',
         ],
         'help' => [
-            'code' => 'Leave empty to derive from the name.', // TODO(i18n): translate
-            'users_readonly' => 'Assignments are edited from the user record.', // TODO(i18n): translate
+            'code' => 'Deje vacío para derivarlo del nombre.',
+            'users_readonly' => 'Las asignaciones se editan desde el registro del usuario.',
         ],
         'placeholders' => [
-            'code' => 'Auto-derived when empty', // TODO(i18n): translate
+            'code' => 'Se deriva automáticamente si está vacío',
         ],
         'filters' => [
-            'is_active' => 'Active', // TODO(i18n): translate
+            'is_active' => 'Activo',
         ],
         'form' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'access_status' => 'Access & status', // TODO(i18n): translate
+            'profile' => 'Perfil',
+            'access_status' => 'Acceso y estado',
         ],
         'table' => [
-            'code' => 'Code', // TODO(i18n): translate
-            'name' => 'Name', // TODO(i18n): translate
-            'location' => 'Location', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'staff' => 'Staff', // TODO(i18n): translate
-            'ledger_entries' => 'Ledger entries', // TODO(i18n): translate
-            'empty_heading' => 'No warehouses found', // TODO(i18n): translate
-            'empty_description' => 'Create your first warehouse to get started.', // TODO(i18n): translate
+            'code' => 'Código',
+            'name' => 'Nombre',
+            'location' => 'Ubicación',
+            'status' => 'Estado',
+            'staff' => 'Personal',
+            'ledger_entries' => 'Entradas de registro',
+            'empty_heading' => 'No se encontraron almacenes',
+            'empty_description' => 'Cree su primer almacén para comenzar.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'assigned_staff' => 'Assigned staff', // TODO(i18n): translate
+            'profile' => 'Perfil',
+            'status' => 'Estado',
+            'assigned_staff' => 'Personal asignado',
         ],
-        'empty_staff' => 'No staff assigned.', // TODO(i18n): translate
-        'delete_confirm_description' => 'Delete this warehouse. This action cannot be undone.', // TODO(i18n): translate
+        'empty_staff' => 'Sin personal asignado.',
+        'delete_confirm_description' => 'Elimine este almacén. Esta acción no se puede deshacer.',
         'actions' => [
-            'create' => 'New warehouse', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'create' => 'Nuevo almacén',
+            'edit' => 'Editar',
+            'view' => 'Ver',
+            'delete' => 'Eliminar',
+            'force_delete' => 'Eliminar permanentemente',
         ],
     ],
     'users' => [
@@ -481,136 +481,136 @@ return [
             'plural' => 'Usuarios',
         ],
         'navigation' => [
-            'label' => 'Users', // TODO(i18n): translate
+            'label' => 'Usuarios',
         ],
         'fields' => [
             'name' => 'Nombre',
             'email' => 'Correo',
-            'password' => 'Password', // TODO(i18n): translate
-            'current_password' => 'Current password', // TODO(i18n): translate
-            'new_password' => 'New password', // TODO(i18n): translate
-            'password_confirmation' => 'Confirm password', // TODO(i18n): translate
+            'password' => 'Contraseña',
+            'current_password' => 'Contraseña actual',
+            'new_password' => 'Nueva contraseña',
+            'password_confirmation' => 'Confirmar contraseña',
             'role' => 'Rol',
-            'is_active' => 'Active', // TODO(i18n): translate
+            'is_active' => 'Activo',
             'warehouses' => 'Almacenes',
         ],
         'help' => [
-            'warehouses' => 'Warehouses this user may operate in.', // TODO(i18n): translate
-            'warehouses_branch_manager' => 'A branch manager needs at least one warehouse, and may manage staff only within them.', // TODO(i18n): translate
-            'warehouses_staff' => 'A warehouse staff member is capped at one warehouse and receives stock only.', // TODO(i18n): translate
-            'password_leave_blank' => 'Leave blank to keep the current password.', // TODO(i18n): translate
+            'warehouses' => 'Almacenes en los que este usuario puede operar.',
+            'warehouses_branch_manager' => 'Un gerente de sucursal necesita al menos un almacén, y solo puede gestionar personal dentro de ellos.',
+            'warehouses_staff' => 'Un miembro del personal de almacén está limitado a un almacén y solo recibe stock.',
+            'password_leave_blank' => 'Deje vacío para mantener la contraseña actual.',
         ],
         'filters' => [
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'role' => 'Role', // TODO(i18n): translate
-            'is_active' => 'Active', // TODO(i18n): translate
+            'warehouse' => 'Almacén',
+            'role' => 'Rol',
+            'is_active' => 'Activo',
         ],
         'table' => [
-            'name' => 'Name', // TODO(i18n): translate
-            'email' => 'Email', // TODO(i18n): translate
-            'role' => 'Role', // TODO(i18n): translate
-            'active' => 'Active', // TODO(i18n): translate
-            'warehouses' => 'Warehouses', // TODO(i18n): translate
-            'created' => 'Created', // TODO(i18n): translate
-            'empty_heading' => 'No users found', // TODO(i18n): translate
-            'empty_description' => 'Invite your first team member to get started.', // TODO(i18n): translate
+            'name' => 'Nombre',
+            'email' => 'Correo',
+            'role' => 'Rol',
+            'active' => 'Activo',
+            'warehouses' => 'Almacenes',
+            'created' => 'Creado',
+            'empty_heading' => 'No se encontraron usuarios',
+            'empty_description' => 'Invite a su primer miembro del equipo para comenzar.',
         ],
         'actions' => [
-            'create' => 'New user', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'edit_profile' => 'Edit profile', // TODO(i18n): translate
-            'logout' => 'Sign out', // TODO(i18n): translate
-            'reassign_warehouses' => 'Reassign warehouses', // TODO(i18n): translate
+            'create' => 'Nuevo usuario',
+            'edit' => 'Editar',
+            'delete' => 'Eliminar',
+            'edit_profile' => 'Editar perfil',
+            'logout' => 'Cerrar sesión',
+            'reassign_warehouses' => 'Reasignar almacenes',
         ],
     ],
     'purchase_orders' => [
         'model' => [
-            'singular' => 'Orden de Compra',
-            'plural' => 'Órdenes de Compra',
+            'singular' => 'Orden de compra',
+            'plural' => 'Órdenes de compra',
         ],
         'navigation' => [
-            'label' => 'Purchase Orders', // TODO(i18n): translate
+            'label' => 'Órdenes de compra',
         ],
-        'badge_tooltip' => 'Orders awaiting receipt', // TODO(i18n): translate
+        'badge_tooltip' => 'Órdenes pendientes de recepción',
         'form' => [
-            'supplier_warehouse' => 'Supplier & warehouse', // TODO(i18n): translate
+            'supplier_warehouse' => 'Proveedor y almacén',
         ],
         'steps' => [
-            'supplier_warehouse' => 'Proveedor y Almacén',
-            'supplier_warehouse_description' => 'Choose supplier and receiving warehouse.', // TODO(i18n): translate
-            'line_items' => 'Líneas del Pedido',
-            'line_items_description' => 'Add ordered line items.', // TODO(i18n): translate
-            'review_verify' => 'Revisar y Notas',
-            'review_verify_description' => 'Verify before creating.', // TODO(i18n): translate
+            'supplier_warehouse' => 'Proveedor y almacén',
+            'supplier_warehouse_description' => 'Elija el proveedor y el almacén de recepción.',
+            'line_items' => 'Líneas del pedido',
+            'line_items_description' => 'Agregue las líneas pedidas.',
+            'review_verify' => 'Revisar y notas',
+            'review_verify_description' => 'Verifique antes de crear.',
         ],
         'fields' => [
             'supplier' => 'Proveedor',
-            'receiving_warehouse' => 'Receiving warehouse', // TODO(i18n): translate
-            'variant_sku' => 'Variant SKU', // TODO(i18n): translate
-            'sku' => 'SKU', // TODO(i18n): translate
-            'product' => 'Product', // TODO(i18n): translate
-            'unit' => 'Unit', // TODO(i18n): translate
-            'ratio_base' => 'Ratio (base)', // TODO(i18n): translate
-            'qty' => 'Qty', // TODO(i18n): translate
-            'ordered_base' => 'Ordered (base)', // TODO(i18n): translate
-            'received_base' => 'Received (base)', // TODO(i18n): translate
-            'unit_cost' => 'Unit cost', // TODO(i18n): translate
-            'update_cost_price' => 'Update cost price', // TODO(i18n): translate
-            'notes' => 'Notes', // TODO(i18n): translate
-            'reference_code' => 'Reference', // TODO(i18n): translate
-            'ordered_by' => 'Ordered by', // TODO(i18n): translate
-            'received_by' => 'Received by', // TODO(i18n): translate
-            'ordered_at' => 'Ordered at', // TODO(i18n): translate
-            'received_at' => 'Received at', // TODO(i18n): translate
-            'receive_line' => ':sku — outstanding :outstanding :unit (:base base)', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
+            'receiving_warehouse' => 'Almacén de recepción',
+            'variant_sku' => 'SKU de variante',
+            'sku' => 'SKU',
+            'product' => 'Producto',
+            'unit' => 'Unidad',
+            'ratio_base' => 'Proporción (base)',
+            'qty' => 'Cantidad',
+            'ordered_base' => 'Pedido (base)',
+            'received_base' => 'Recibido (base)',
+            'unit_cost' => 'Costo unitario',
+            'update_cost_price' => 'Actualizar precio de costo',
+            'notes' => 'Notas',
+            'reference_code' => 'Referencia',
+            'ordered_by' => 'Pedido por',
+            'received_by' => 'Recibido por',
+            'ordered_at' => 'Pedido el',
+            'received_at' => 'Recibido el',
+            'receive_line' => ':sku — pendiente :outstanding :unit (:base base)',
+            'status' => 'Estado',
         ],
         'hints' => [
-            'ratio_auto' => 'Ratio is resolved automatically from the unit.', // TODO(i18n): translate
+            'ratio_auto' => 'La proporción se resuelve automáticamente según la unidad.',
         ],
         'help' => [
-            'update_cost_price' => 'Update the variant cost price on receipt.', // TODO(i18n): translate
-            'receive_display_equivalent' => ':display :unit', // TODO(i18n): translate
+            'update_cost_price' => 'Actualice el precio de costo de la variante al recibir.',
+            'receive_display_equivalent' => ':display :unit',
         ],
         'filters' => [
-            'supplier' => 'Supplier', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
+            'supplier' => 'Proveedor',
+            'warehouse' => 'Almacén',
+            'status' => 'Estado',
         ],
         'table' => [
-            'reference' => 'Reference', // TODO(i18n): translate
-            'supplier' => 'Supplier', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'items' => 'Items', // TODO(i18n): translate
-            'ordered' => 'Ordered', // TODO(i18n): translate
-            'received' => 'Received', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'empty_heading' => 'No purchase orders found', // TODO(i18n): translate
-            'empty_description' => 'Create your first purchase order to get started.', // TODO(i18n): translate
+            'reference' => 'Referencia',
+            'supplier' => 'Proveedor',
+            'warehouse' => 'Almacén',
+            'items' => 'Ítems',
+            'ordered' => 'Pedido',
+            'received' => 'Recibido',
+            'status' => 'Estado',
+            'empty_heading' => 'No se encontraron órdenes de compra',
+            'empty_description' => 'Cree su primera orden de compra para comenzar.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'signoffs' => 'Sign-offs', // TODO(i18n): translate
-            'line_items' => 'Line items', // TODO(i18n): translate
+            'profile' => 'Perfil',
+            'signoffs' => 'Firmas',
+            'line_items' => 'Líneas',
         ],
         'actions' => [
-            'create' => 'New purchase order', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
-            'order' => 'Order', // TODO(i18n): translate
-            'order_heading' => 'Place order', // TODO(i18n): translate
-            'order_description' => 'Send this purchase order to the supplier.', // TODO(i18n): translate
+            'create' => 'Nueva orden de compra',
+            'edit' => 'Editar',
+            'view' => 'Ver',
+            'delete' => 'Eliminar',
+            'restore' => 'Restaurar',
+            'force_delete' => 'Eliminar permanentemente',
+            'order' => 'Pedir',
+            'order_heading' => 'Realizar pedido',
+            'order_description' => 'Envíe esta orden de compra al proveedor.',
             'receive' => 'Recibir',
-            'receive_heading' => 'Receive purchase', // TODO(i18n): translate
-            'receive_description' => 'Record received base quantities.', // TODO(i18n): translate
-            'cancel' => 'Cancel', // TODO(i18n): translate
-            'cancel_heading' => 'Cancel purchase order', // TODO(i18n): translate
-            'cancel_description' => 'Cancel this purchase order.', // TODO(i18n): translate
-            'more_actions' => 'More actions', // TODO(i18n): translate
+            'receive_heading' => 'Recibir compra',
+            'receive_description' => 'Registre las cantidades base recibidas.',
+            'cancel' => 'Cancelar',
+            'cancel_heading' => 'Cancelar orden de compra',
+            'cancel_description' => 'Cancele esta orden de compra.',
+            'more_actions' => 'Más acciones',
         ],
         'notifications' => [
             'received' => 'Orden de compra recibida.',
@@ -622,143 +622,143 @@ return [
             'plural' => 'Proveedores',
         ],
         'navigation' => [
-            'label' => 'Suppliers', // TODO(i18n): translate
+            'label' => 'Proveedores',
         ],
         'fields' => [
             'name' => 'Nombre',
-            'contact_person' => 'Persona de Contacto',
+            'contact_person' => 'Persona de contacto',
             'phone' => 'Teléfono',
             'email' => 'Correo',
             'address' => 'Dirección',
-            'is_active' => 'Active', // TODO(i18n): translate
+            'is_active' => 'Activo',
         ],
         'filters' => [
-            'is_active' => 'Active', // TODO(i18n): translate
+            'is_active' => 'Activo',
         ],
         'table' => [
-            'name' => 'Name', // TODO(i18n): translate
-            'contact' => 'Contact', // TODO(i18n): translate
-            'email' => 'Email', // TODO(i18n): translate
-            'phone' => 'Phone', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'purchase_orders' => 'Purchase orders', // TODO(i18n): translate
-            'empty_heading' => 'No suppliers found', // TODO(i18n): translate
-            'empty_description' => 'Create your first supplier to get started.', // TODO(i18n): translate
+            'name' => 'Nombre',
+            'contact' => 'Contacto',
+            'email' => 'Correo',
+            'phone' => 'Teléfono',
+            'status' => 'Estado',
+            'purchase_orders' => 'Órdenes de compra',
+            'empty_heading' => 'No se encontraron proveedores',
+            'empty_description' => 'Cree su primer proveedor para comenzar.',
         ],
         'infolist' => [
-            'profile' => 'Supplier profile', // TODO(i18n): translate
-            'purchase_orders' => 'Purchase orders', // TODO(i18n): translate
+            'profile' => 'Perfil del proveedor',
+            'purchase_orders' => 'Órdenes de compra',
         ],
         'actions' => [
-            'create' => 'New supplier', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'create' => 'Nuevo proveedor',
+            'edit' => 'Editar',
+            'delete' => 'Eliminar',
+            'restore' => 'Restaurar',
+            'force_delete' => 'Eliminar permanentemente',
         ],
     ],
     'sales_orders' => [
         'model' => [
-            'singular' => 'Orden de Venta',
+            'singular' => 'Orden de venta',
             'plural' => 'Órdenes de Venta',
         ],
         'navigation' => [
-            'label' => 'Sales Orders', // TODO(i18n): translate
+            'label' => 'Órdenes de venta',
         ],
-        'badge_tooltip' => 'Orders awaiting dispatch', // TODO(i18n): translate
+        'badge_tooltip' => 'Órdenes pendientes de despacho',
         'form' => [
-            'customer_warehouse' => 'Customer & warehouse', // TODO(i18n): translate
+            'customer_warehouse' => 'Cliente y almacén',
         ],
         'steps' => [
-            'customer_warehouse' => 'Cliente y Almacén',
-            'customer_warehouse_description' => 'Choose customer and dispatching warehouse.', // TODO(i18n): translate
-            'line_items' => 'Líneas (Vista Previa Precio de Venta)',
-            'line_items_description' => 'Add sold line items.', // TODO(i18n): translate
-            'review_verify' => 'Revisar y Notas',
-            'review_verify_description' => 'Verify before creating.', // TODO(i18n): translate
+            'customer_warehouse' => 'Cliente y almacén',
+            'customer_warehouse_description' => 'Elija el cliente y el almacén de despacho.',
+            'line_items' => 'Líneas (vista previa de precio de venta)',
+            'line_items_description' => 'Agregue las líneas vendidas.',
+            'review_verify' => 'Revisar y notas',
+            'review_verify_description' => 'Verifique antes de crear.',
         ],
         'fields' => [
             'customer' => 'Cliente',
-            'dispatching_warehouse' => 'Dispatching warehouse', // TODO(i18n): translate
-            'variant_sku' => 'Variant SKU', // TODO(i18n): translate
-            'sku' => 'SKU', // TODO(i18n): translate
-            'product' => 'Product', // TODO(i18n): translate
-            'unit' => 'Unit', // TODO(i18n): translate
-            'ratio_base' => 'Ratio (base)', // TODO(i18n): translate
-            'qty' => 'Qty', // TODO(i18n): translate
-            'ordered_base' => 'Ordered (base)', // TODO(i18n): translate
-            'dispatched_base' => 'Dispatched (base)', // TODO(i18n): translate
-            'snapshot_price' => 'Snapshot price', // TODO(i18n): translate
-            'catalog_sale_price' => 'Catalog sale price', // TODO(i18n): translate
-            'notes' => 'Notes', // TODO(i18n): translate
-            'reference_code' => 'Reference', // TODO(i18n): translate
-            'ordered_by' => 'Ordered by', // TODO(i18n): translate
-            'ordered_at' => 'Ordered at', // TODO(i18n): translate
-            'dispatched_by' => 'Dispatched by', // TODO(i18n): translate
-            'confirmed_at' => 'Confirmed at', // TODO(i18n): translate
-            'dispatched_at' => 'Dispatched at', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'line_item' => 'Line item', // TODO(i18n): translate
-            'dispatch_line' => ':sku — outstanding :outstanding :unit (available :available)', // TODO(i18n): translate
-            'return_option' => ':sku — dispatched :dispatched, returned :returned', // TODO(i18n): translate
-            'returned_qty_base' => 'Returned qty (base)', // TODO(i18n): translate
+            'dispatching_warehouse' => 'Almacén de despacho',
+            'variant_sku' => 'SKU de variante',
+            'sku' => 'SKU',
+            'product' => 'Producto',
+            'unit' => 'Unidad',
+            'ratio_base' => 'Proporción (base)',
+            'qty' => 'Cantidad',
+            'ordered_base' => 'Pedido (base)',
+            'dispatched_base' => 'Despachado (base)',
+            'snapshot_price' => 'Precio al momento',
+            'catalog_sale_price' => 'Precio de venta de catálogo',
+            'notes' => 'Notas',
+            'reference_code' => 'Referencia',
+            'ordered_by' => 'Pedido por',
+            'ordered_at' => 'Pedido el',
+            'dispatched_by' => 'Despachado por',
+            'confirmed_at' => 'Confirmado el',
+            'dispatched_at' => 'Despachado el',
+            'status' => 'Estado',
+            'line_item' => 'Línea',
+            'dispatch_line' => ':sku — pendiente :outstanding :unit (disponible :available)',
+            'return_option' => ':sku — despachado :dispatched, devuelto :returned',
+            'returned_qty_base' => 'Cantidad devuelta (base)',
         ],
         'hints' => [
-            'ratio_auto' => 'Ratio is resolved automatically from the unit.', // TODO(i18n): translate
+            'ratio_auto' => 'La proporción se resuelve automáticamente según la unidad.',
         ],
         'help' => [
-            'reference_code' => 'Auto-generated when left empty.', // TODO(i18n): translate
-            'no_stock' => 'No stock available for this line.', // TODO(i18n): translate
-            'insufficient_stock' => 'Available stock is below the outstanding quantity.', // TODO(i18n): translate
+            'reference_code' => 'Se genera automáticamente si se deja vacío.',
+            'no_stock' => 'No hay stock disponible para esta línea.',
+            'insufficient_stock' => 'El stock disponible es inferior a la cantidad pendiente.',
         ],
         'placeholders' => [
-            'reference_code' => 'Auto-generated when empty', // TODO(i18n): translate
+            'reference_code' => 'Se genera automáticamente si está vacío',
         ],
         'filters' => [
-            'customer' => 'Customer', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
+            'customer' => 'Cliente',
+            'warehouse' => 'Almacén',
+            'status' => 'Estado',
         ],
         'table' => [
-            'reference' => 'Reference', // TODO(i18n): translate
-            'customer' => 'Customer', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'items' => 'Items', // TODO(i18n): translate
-            'confirmed' => 'Confirmed', // TODO(i18n): translate
-            'dispatched' => 'Dispatched', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'empty_heading' => 'No sales orders found', // TODO(i18n): translate
-            'empty_description' => 'Create your first sales order to get started.', // TODO(i18n): translate
+            'reference' => 'Referencia',
+            'customer' => 'Cliente',
+            'warehouse' => 'Almacén',
+            'items' => 'Ítems',
+            'confirmed' => 'Confirmado',
+            'dispatched' => 'Despachado',
+            'status' => 'Estado',
+            'empty_heading' => 'No se encontraron órdenes de venta',
+            'empty_description' => 'Cree su primera orden de venta para comenzar.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'signoffs' => 'Sign-offs', // TODO(i18n): translate
-            'line_items' => 'Line items', // TODO(i18n): translate
+            'profile' => 'Perfil',
+            'signoffs' => 'Firmas',
+            'line_items' => 'Líneas',
         ],
         'actions' => [
-            'create' => 'New sales order', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
-            'confirm' => 'Confirm', // TODO(i18n): translate
-            'confirm_heading' => 'Confirm sales order', // TODO(i18n): translate
-            'confirm_description' => 'Confirm and reserve stock for this order.', // TODO(i18n): translate
+            'create' => 'Nueva orden de venta',
+            'edit' => 'Editar',
+            'view' => 'Ver',
+            'delete' => 'Eliminar',
+            'restore' => 'Restaurar',
+            'force_delete' => 'Eliminar permanentemente',
+            'confirm' => 'Confirmar',
+            'confirm_heading' => 'Confirmar orden de venta',
+            'confirm_description' => 'Confirme y reserve el stock para esta orden.',
             'dispatch' => 'Despachar',
-            'dispatch_heading' => 'Dispatch sale', // TODO(i18n): translate
-            'dispatch_description' => 'Dispatch quantities against reservations.', // TODO(i18n): translate
-            'return' => 'Return', // TODO(i18n): translate
-            'return_heading' => 'Record sales return', // TODO(i18n): translate
-            'return_description' => 'Record returned base quantities.', // TODO(i18n): translate
-            'cancel' => 'Cancel', // TODO(i18n): translate
-            'cancel_heading' => 'Cancel sales order', // TODO(i18n): translate
-            'cancel_description' => 'Cancel this sales order.', // TODO(i18n): translate
-            'more_actions' => 'More actions', // TODO(i18n): translate
+            'dispatch_heading' => 'Despachar venta',
+            'dispatch_description' => 'Despache las cantidades contra las reservas.',
+            'return' => 'Devolver',
+            'return_heading' => 'Registrar devolución de venta',
+            'return_description' => 'Registre las cantidades base devueltas.',
+            'cancel' => 'Cancelar',
+            'cancel_heading' => 'Cancelar orden de venta',
+            'cancel_description' => 'Cancele esta orden de venta.',
+            'more_actions' => 'Más acciones',
         ],
         'notifications' => [
             'dispatched' => 'Orden de venta despachada.',
-            'return_recorded' => 'Return recorded.', // TODO(i18n): translate
+            'return_recorded' => 'Devolución registrada.',
         ],
     ],
     'customers' => [
@@ -767,39 +767,39 @@ return [
             'plural' => 'Clientes',
         ],
         'navigation' => [
-            'label' => 'Customers', // TODO(i18n): translate
+            'label' => 'Clientes',
         ],
         'fields' => [
             'name' => 'Nombre',
-            'contact_person' => 'Persona de Contacto',
+            'contact_person' => 'Persona de contacto',
             'phone' => 'Teléfono',
             'email' => 'Correo',
             'address' => 'Dirección',
-            'is_active' => 'Active', // TODO(i18n): translate
+            'is_active' => 'Activo',
         ],
         'filters' => [
-            'is_active' => 'Active', // TODO(i18n): translate
+            'is_active' => 'Activo',
         ],
         'table' => [
-            'name' => 'Name', // TODO(i18n): translate
-            'contact' => 'Contact', // TODO(i18n): translate
-            'email' => 'Email', // TODO(i18n): translate
-            'phone' => 'Phone', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'sales_orders' => 'Sales orders', // TODO(i18n): translate
-            'empty_heading' => 'No customers found', // TODO(i18n): translate
-            'empty_description' => 'Create your first customer to get started.', // TODO(i18n): translate
+            'name' => 'Nombre',
+            'contact' => 'Contacto',
+            'email' => 'Correo',
+            'phone' => 'Teléfono',
+            'status' => 'Estado',
+            'sales_orders' => 'Órdenes de venta',
+            'empty_heading' => 'No se encontraron clientes',
+            'empty_description' => 'Cree su primer cliente para comenzar.',
         ],
         'infolist' => [
-            'profile' => 'Customer profile', // TODO(i18n): translate
-            'sales_orders' => 'Sales orders', // TODO(i18n): translate
+            'profile' => 'Perfil del cliente',
+            'sales_orders' => 'Órdenes de venta',
         ],
         'actions' => [
-            'create' => 'New customer', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'create' => 'Nuevo cliente',
+            'edit' => 'Editar',
+            'delete' => 'Eliminar',
+            'restore' => 'Restaurar',
+            'force_delete' => 'Eliminar permanentemente',
         ],
     ],
 ];

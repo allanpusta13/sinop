@@ -5,99 +5,99 @@ declare(strict_types=1);
 return [
     'products' => [
         'model' => [
-            'singular' => 'Product',
-            'plural' => 'Products',
+            'singular' => 'Produkto',
+            'plural' => 'Mga Produkto',
         ],
         'navigation' => [
-            'label' => 'Products', // TODO(i18n): translate
+            'label' => 'Mga Produkto',
         ],
         'sections' => [
-            'inventory' => 'Inventory',
+            'inventory' => 'Imbentaryo',
         ],
         'tabs' => [
-            'identity' => 'Identity', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'stock_pricing' => 'Stock & Pricing', // TODO(i18n): translate
+            'identity' => 'Pagkakakilanlan',
+            'status' => 'Katayuan',
+            'stock_pricing' => 'Stock at Presyo',
         ],
         'wizard' => [
-            'review' => 'Review',
+            'review' => 'Pagsusuri',
         ],
         'fields' => [
             'sku' => 'SKU',
-            'family_name' => 'Family name', // TODO(i18n): translate
-            'family_category' => 'Category', // TODO(i18n): translate
-            'variant_name' => 'Variant name', // TODO(i18n): translate
+            'family_name' => 'Pangalan ng pamilya',
+            'family_category' => 'Kategorya',
+            'variant_name' => 'Pangalan ng variant',
             'barcode' => 'Barcode',
             'base_unit' => 'Base Unit',
-            'base_unit_name' => 'Base unit', // TODO(i18n): translate
-            'base_unit_ratio' => 'Base unit ratio', // TODO(i18n): translate
-            'unit_name' => 'Unit', // TODO(i18n): translate
-            'unit_conversions' => 'Unit conversions', // TODO(i18n): translate
+            'base_unit_name' => 'Base Unit',
+            'base_unit_ratio' => 'Rasyo ng base unit',
+            'unit_name' => 'Yunit',
+            'unit_conversions' => 'Mga conversion ng yunit',
             'reorder_point' => 'Reorder Point',
-            'attributes' => 'Attributes', // TODO(i18n): translate
-            'images' => 'Images', // TODO(i18n): translate
-            'is_active' => 'Active', // TODO(i18n): translate
-            'is_default_purchase' => 'Default purchase unit', // TODO(i18n): translate
-            'is_default_transfer' => 'Default transfer unit', // TODO(i18n): translate
-            'cost_price' => 'Cost price', // TODO(i18n): translate
-            'sale_price' => 'Sale price', // TODO(i18n): translate
-            'price_change_notes' => 'Price change notes', // TODO(i18n): translate
-            'product_family' => 'Product family', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'signed_quantity_base' => 'Signed quantity (base units)', // TODO(i18n): translate
-            'adjustment_notes' => 'Adjustment notes', // TODO(i18n): translate
+            'attributes' => 'Mga katangian',
+            'images' => 'Mga larawan',
+            'is_active' => 'Active',
+            'is_default_purchase' => 'Default na yunit ng pagbili',
+            'is_default_transfer' => 'Default na yunit ng transfer',
+            'cost_price' => 'Presyo ng gastos',
+            'sale_price' => 'Presyo ng benta',
+            'price_change_notes' => 'Mga tala ng pagbabago ng presyo',
+            'product_family' => 'Pamilya ng produkto',
+            'warehouse' => 'Bodega',
+            'signed_quantity_base' => 'Dami na may senyas (base units)',
+            'adjustment_notes' => 'Mga tala ng adjustment',
         ],
         'hints' => [
-            'signed_quantity' => 'Positive adds stock, negative removes stock.', // TODO(i18n): translate
+            'signed_quantity' => 'Nagdadagdag ng stock ang positibo, nag-aalis ng stock ang negatibo.',
         ],
         'filters' => [
-            'is_active' => 'Active', // TODO(i18n): translate
-            'product_family' => 'Product family', // TODO(i18n): translate
+            'is_active' => 'Active',
+            'product_family' => 'Pamilya ng produkto',
         ],
         'table' => [
-            'sku' => 'SKU', // TODO(i18n): translate
-            'name' => 'Name', // TODO(i18n): translate
-            'family' => 'Family', // TODO(i18n): translate
-            'base_unit' => 'Base unit', // TODO(i18n): translate
-            'reorder_point' => 'Reorder point', // TODO(i18n): translate
-            'sale_price' => 'Sale price', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'empty_heading' => 'No products found', // TODO(i18n): translate
-            'empty_description' => 'Create your first product to get started.', // TODO(i18n): translate
+            'sku' => 'SKU',
+            'name' => 'Pangalan',
+            'family' => 'Pamilya',
+            'base_unit' => 'Base Unit',
+            'reorder_point' => 'Reorder Point',
+            'sale_price' => 'Presyo ng benta',
+            'status' => 'Katayuan',
+            'empty_heading' => 'Walang nahanap na produkto',
+            'empty_description' => 'Lumikha ng iyong unang produkto para makapagsimula.',
         ],
         'infolist' => [
-            'identity' => 'Identity', // TODO(i18n): translate
-            'pricing' => 'Pricing', // TODO(i18n): translate
-            'unit_conversions' => 'Unit conversions', // TODO(i18n): translate
+            'identity' => 'Pagkakakilanlan',
+            'pricing' => 'Presyo',
+            'unit_conversions' => 'Mga conversion ng yunit',
         ],
         'actions' => [
-            'create' => 'New product', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
-            'set_current_price' => 'Set current price', // TODO(i18n): translate
-            'set_current_price_heading' => 'Set current price', // TODO(i18n): translate
-            'set_current_price_description' => 'Replace the current price for this variant.', // TODO(i18n): translate
-            'manage_units' => 'Manage Units',
-            'manage_units_heading' => 'Manage units', // TODO(i18n): translate
-            'manage_units_description' => 'Edit unit conversions for this variant.', // TODO(i18n): translate
-            'edit_family' => 'Edit family', // TODO(i18n): translate
-            'edit_family_heading' => 'Edit family', // TODO(i18n): translate
-            'edit_family_description' => 'Edit the parent product family.', // TODO(i18n): translate
-            'quick_adjustment' => 'Quick Adjustment',
-            'quick_adjustment_heading' => 'Quick stock adjustment', // TODO(i18n): translate
-            'quick_adjustment_description' => 'Record a manual stock adjustment.', // TODO(i18n): translate
-            'more_actions' => 'More actions', // TODO(i18n): translate
+            'create' => 'Bagong produkto',
+            'edit' => 'I-edit',
+            'view' => 'Tingnan',
+            'delete' => 'Burahin',
+            'restore' => 'Ibalik',
+            'force_delete' => 'Burahin nang tuluyan',
+            'set_current_price' => 'Itakda ang kasalukuyang presyo',
+            'set_current_price_heading' => 'Itakda ang kasalukuyang presyo',
+            'set_current_price_description' => 'Palitan ang kasalukuyang presyo para sa variant na ito.',
+            'manage_units' => 'Pamahalaan ang mga yunit',
+            'manage_units_heading' => 'Pamahalaan ang mga yunit',
+            'manage_units_description' => 'I-edit ang mga conversion ng yunit para sa variant na ito.',
+            'edit_family' => 'I-edit ang pamilya',
+            'edit_family_heading' => 'I-edit ang pamilya',
+            'edit_family_description' => 'I-edit ang parent na pamilya ng produkto.',
+            'quick_adjustment' => 'Mabilis na adjustment',
+            'quick_adjustment_heading' => 'Mabilis na stock adjustment',
+            'quick_adjustment_description' => 'Magtala ng manwal na stock adjustment.',
+            'more_actions' => 'Iba pang aksyon',
         ],
         'notifications' => [
             'created' => 'Nalikha ng matagumpay ang product.',
             'updated' => 'Na-update ng matagumpay ang product.',
-            'price_updated' => 'Price updated.', // TODO(i18n): translate
-            'adjustment_recorded' => 'Adjustment recorded.', // TODO(i18n): translate
-            'family_updated' => 'Family updated.', // TODO(i18n): translate
-            'family_missing' => 'Product family is missing.', // TODO(i18n): translate
+            'price_updated' => 'Na-update ang presyo.',
+            'adjustment_recorded' => 'Naitala ang adjustment.',
+            'family_updated' => 'Na-update ang pamilya.',
+            'family_missing' => 'Nawawala ang pamilya ng produkto.',
         ],
     ],
     'transfer_requisitions' => [
@@ -106,189 +106,189 @@ return [
             'plural' => 'Transfer Requisitions',
         ],
         'navigation' => [
-            'label' => 'Transfer Requisitions', // TODO(i18n): translate
+            'label' => 'Mga Transfer Requisition',
         ],
-        'badge_tooltip' => 'Requisitions awaiting review', // TODO(i18n): translate
+        'badge_tooltip' => 'Mga requisition na naghihintay ng review',
         'sections' => [
-            'routing' => 'Routing', // TODO(i18n): translate
+            'routing' => 'Ruta',
             'revision_manifest' => 'Rebisyon',
         ],
         'steps' => [
-            'routing' => 'Routing',
-            'routing_description' => 'Choose source and destination warehouses.', // TODO(i18n): translate
-            'manifest' => 'Manifest', // TODO(i18n): translate
-            'manifest_description' => 'Add requested line items.', // TODO(i18n): translate
-            'review' => 'Review',
-            'review_description' => 'Verify before creating.', // TODO(i18n): translate
+            'routing' => 'Ruta',
+            'routing_description' => 'Pumili ng pinagmulan at paroroonang bodega.',
+            'manifest' => 'Manifest',
+            'manifest_description' => 'Magdagdag ng hiniling na mga line item.',
+            'review' => 'Pagsusuri',
+            'review_description' => 'I-verify bago maglikha.',
         ],
         'fields' => [
-            'reference_code' => 'Reference', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'from_warehouse' => 'From Warehouse',
-            'to_warehouse' => 'To Warehouse',
-            'notes' => 'Notes', // TODO(i18n): translate
-            'variant_sku' => 'Variant SKU', // TODO(i18n): translate
-            'original_sku' => 'Original SKU', // TODO(i18n): translate
-            'substitute_sku' => 'Substitute SKU', // TODO(i18n): translate
-            'unit' => 'Unit', // TODO(i18n): translate
-            'ratio_base' => 'Ratio (base)', // TODO(i18n): translate
-            'qty' => 'Qty', // TODO(i18n): translate
-            'requested' => 'Requested', // TODO(i18n): translate
-            'approved' => 'Approved', // TODO(i18n): translate
-            'proposed' => 'Proposed', // TODO(i18n): translate
-            'requested_by' => 'Requested by', // TODO(i18n): translate
-            'approved_by' => 'Approved by', // TODO(i18n): translate
-            'dispatched_by' => 'Dispatched by', // TODO(i18n): translate
-            'received_by' => 'Received by', // TODO(i18n): translate
-            'shipped_base' => 'Shipped (base)', // TODO(i18n): translate
-            'received_good_base' => 'Received good (base)', // TODO(i18n): translate
-            'revision' => 'Revision', // TODO(i18n): translate
-            'revisions' => 'Revisions', // TODO(i18n): translate
-            'revision_item' => 'Revision item', // TODO(i18n): translate
-            'negotiation_side' => 'Side', // TODO(i18n): translate
-            'negotiation_reason' => 'Negotiation reason', // TODO(i18n): translate
-            'negotiation_reason_placeholder' => 'Explain the reason for the proposed change.', // TODO(i18n): translate
-            'proposed_by' => 'Proposed by', // TODO(i18n): translate
-            'responds_to' => 'Responds to', // TODO(i18n): translate
-            'responded_at' => 'Responded at', // TODO(i18n): translate
+            'reference_code' => 'Sanggunian',
+            'status' => 'Katayuan',
+            'from_warehouse' => 'Bodegang pinagmulan',
+            'to_warehouse' => 'Bodegang paroroonan',
+            'notes' => 'Mga Tala',
+            'variant_sku' => 'SKU ng variant',
+            'original_sku' => 'Orihinal na SKU',
+            'substitute_sku' => 'Kapalit na SKU',
+            'unit' => 'Yunit',
+            'ratio_base' => 'Rasyo (base)',
+            'qty' => 'Dami',
+            'requested' => 'Hiniling',
+            'approved' => 'Inaprubahan',
+            'proposed' => 'Iminungkahi',
+            'requested_by' => 'Hiniling ni',
+            'approved_by' => 'Inaprubahan ni',
+            'dispatched_by' => 'Ipinadala ni',
+            'received_by' => 'Natanggap ni',
+            'shipped_base' => 'Naipadala (base)',
+            'received_good_base' => 'Natanggap na maayos (base)',
+            'revision' => 'Rebisyon',
+            'revisions' => 'Mga rebisyon',
+            'revision_item' => 'Item ng rebisyon',
+            'negotiation_side' => 'Panig',
+            'negotiation_reason' => 'Dahilan ng negosasyon',
+            'negotiation_reason_placeholder' => 'Ipaliwanag ang dahilan ng iminungkahing pagbabago.',
+            'proposed_by' => 'Iminungkahi ni',
+            'responds_to' => 'Sinasagot ang',
+            'responded_at' => 'Sinagot noong',
         ],
         'hints' => [
-            'ratio_auto' => 'Ratio is resolved automatically from the unit.', // TODO(i18n): translate
+            'ratio_auto' => 'Awtomatikong nireresolba ang rasyo mula sa yunit.',
         ],
         'filters' => [
-            'from_warehouse' => 'From warehouse', // TODO(i18n): translate
-            'to_warehouse' => 'To warehouse', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
+            'from_warehouse' => 'Bodegang pinagmulan',
+            'to_warehouse' => 'Bodegang paroroonan',
+            'status' => 'Katayuan',
         ],
         'table' => [
-            'reference' => 'Reference', // TODO(i18n): translate
-            'from' => 'From', // TODO(i18n): translate
-            'to' => 'To', // TODO(i18n): translate
-            'items' => 'Items', // TODO(i18n): translate
-            'requested_by' => 'Requested by', // TODO(i18n): translate
-            'requested' => 'Requested', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'empty_heading' => 'No transfer requisitions found', // TODO(i18n): translate
-            'empty_description' => 'Create your first requisition to get started.', // TODO(i18n): translate
+            'reference' => 'Sanggunian',
+            'from' => 'Mula',
+            'to' => 'Sa',
+            'items' => 'Mga Item',
+            'requested_by' => 'Hiniling ni',
+            'requested' => 'Hiniling',
+            'status' => 'Katayuan',
+            'empty_heading' => 'Walang nahanap na transfer requisition',
+            'empty_description' => 'Lumikha ng iyong unang requisition para makapagsimula.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'signoffs' => 'Sign-offs', // TODO(i18n): translate
-            'manifest' => 'Manifest', // TODO(i18n): translate
-            'negotiation_history' => 'Negotiation history', // TODO(i18n): translate
+            'profile' => 'Profile',
+            'signoffs' => 'Mga Lagda',
+            'manifest' => 'Manifest',
+            'negotiation_history' => 'Kasaysayan ng negosasyon',
         ],
         'placeholders' => [
-            'system_initialized' => 'System',
+            'system_initialized' => 'Sistema',
             'pending_approval' => 'Naghihintay ng approval',
             'pending_dispatch' => 'Naghihintay ng dispatch',
             'pending_intake' => 'Naghihintay ng intake',
             'not_yet_responded' => 'Wala pang sagot',
         ],
         'actions' => [
-            'create' => 'New transfer requisition', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
-            'submit' => 'Submit request', // TODO(i18n): translate
-            'submit_heading' => 'Submit request', // TODO(i18n): translate
-            'submit_description' => 'Send this requisition for review.', // TODO(i18n): translate
-            'review' => 'Review / negotiate', // TODO(i18n): translate
-            'propose_revision' => 'Propose revision', // TODO(i18n): translate
-            'propose_revision_heading' => 'Propose revision', // TODO(i18n): translate
-            'propose_revision_description' => 'Propose a substitute variant or quantity.', // TODO(i18n): translate
-            'accept_revision' => 'Accept revision', // TODO(i18n): translate
-            'accept_revision_heading' => 'Accept revision', // TODO(i18n): translate
-            'accept_revision_description' => 'Accept the selected pending revision.', // TODO(i18n): translate
-            'reject_revision' => 'Reject revision', // TODO(i18n): translate
-            'reject_revision_heading' => 'Reject revision', // TODO(i18n): translate
-            'reject_revision_description' => 'Reject the selected pending revision.', // TODO(i18n): translate
-            'confirm' => 'Confirm',
-            'confirm_heading' => 'Confirm requisition', // TODO(i18n): translate
-            'confirm_description' => 'Confirm the negotiated manifest.', // TODO(i18n): translate
-            'dispatch' => 'Dispatch',
-            'dispatch_heading' => 'Dispatch stock', // TODO(i18n): translate
-            'dispatch_description' => 'Dispatch approved quantities.', // TODO(i18n): translate
-            'receive' => 'Receive',
-            'record_loss' => 'Record loss', // TODO(i18n): translate
-            'record_loss_heading' => 'Record loss', // TODO(i18n): translate
-            'record_loss_description' => 'Record lost or damaged quantities.', // TODO(i18n): translate
-            'cancel' => 'Cancel', // TODO(i18n): translate
-            'cancel_heading' => 'Cancel requisition', // TODO(i18n): translate
-            'cancel_description' => 'Cancel this requisition.', // TODO(i18n): translate
-            'more_actions' => 'More actions', // TODO(i18n): translate
+            'create' => 'Bagong transfer requisition',
+            'edit' => 'I-edit',
+            'view' => 'Tingnan',
+            'delete' => 'Burahin',
+            'restore' => 'Ibalik',
+            'force_delete' => 'Burahin nang tuluyan',
+            'submit' => 'Isumite ang kahilingan',
+            'submit_heading' => 'Isumite ang kahilingan',
+            'submit_description' => 'Ipadala ang requisition na ito para sa review.',
+            'review' => 'Pagsusuri / negosasyon',
+            'propose_revision' => 'Magmungkahi ng rebisyon',
+            'propose_revision_heading' => 'Magmungkahi ng rebisyon',
+            'propose_revision_description' => 'Magmungkahi ng kapalit na variant o dami.',
+            'accept_revision' => 'Tanggapin ang rebisyon',
+            'accept_revision_heading' => 'Tanggapin ang rebisyon',
+            'accept_revision_description' => 'Tanggapin ang napiling pending na rebisyon.',
+            'reject_revision' => 'Tanggihan ang rebisyon',
+            'reject_revision_heading' => 'Tanggihan ang rebisyon',
+            'reject_revision_description' => 'Tanggihan ang napiling pending na rebisyon.',
+            'confirm' => 'Kumpirmahin',
+            'confirm_heading' => 'Kumpirmahin ang requisition',
+            'confirm_description' => 'Kumpirmahin ang napagkasunduang manifest.',
+            'dispatch' => 'Ipadala',
+            'dispatch_heading' => 'Ipadala ang stock',
+            'dispatch_description' => 'Ipadala ang inaprubahang dami.',
+            'receive' => 'Tanggapin',
+            'record_loss' => 'Itala ang loss',
+            'record_loss_heading' => 'Itala ang loss',
+            'record_loss_description' => 'Itala ang nawala o nasirang dami.',
+            'cancel' => 'Kanselahin',
+            'cancel_heading' => 'Kanselahin ang requisition',
+            'cancel_description' => 'Kanselahin ang requisition na ito.',
+            'more_actions' => 'Iba pang aksyon',
         ],
         'notifications' => [
             'dispatched' => 'Ipinadala ang transfer requisition.',
-            'loss_recorded' => 'Loss recorded.', // TODO(i18n): translate
-            'revision_submitted' => 'Revision submitted.', // TODO(i18n): translate
-            'revision_accepted' => 'Revision accepted.', // TODO(i18n): translate
-            'revision_rejected' => 'Revision rejected.', // TODO(i18n): translate
+            'loss_recorded' => 'Naitala ang loss.',
+            'revision_submitted' => 'Naisumite ang rebisyon.',
+            'revision_accepted' => 'Tinanggap ang rebisyon.',
+            'revision_rejected' => 'Tinanggihan ang rebisyon.',
         ],
     ],
     'direct_transfers' => [
         'model' => [
             'singular' => 'Direct Transfer',
-            'plural' => 'Direct Transfers',
+            'plural' => 'Mga Direct Transfer',
         ],
         'navigation' => [
-            'label' => 'Direct Transfers', // TODO(i18n): translate
+            'label' => 'Mga Direct Transfer',
         ],
         'sections' => [
-            'routing' => 'Routing', // TODO(i18n): translate
-            'stock_allocation' => 'Stock allocation', // TODO(i18n): translate
+            'routing' => 'Ruta ng bodega',
+            'stock_allocation' => 'Paglalaan ng stock',
         ],
         'steps' => [
-            'location_mapping' => 'Locations', // TODO(i18n): translate
-            'location_mapping_description' => 'Choose source and destination.', // TODO(i18n): translate
-            'stock_allocation' => 'Stock allocation', // TODO(i18n): translate
-            'stock_allocation_description' => 'Allocate line quantities.', // TODO(i18n): translate
-            'review_verify' => 'Review', // TODO(i18n): translate
-            'review_verify_description' => 'Verify before transferring.', // TODO(i18n): translate
+            'location_mapping' => 'Mga Lokasyon',
+            'location_mapping_description' => 'Pumili ng pinagmulan at paroroonang bodega.',
+            'stock_allocation' => 'Paglalaan ng stock',
+            'stock_allocation_description' => 'Magdagdag ng mga variant ng produkto at dami na ipapadala.',
+            'review_verify' => 'Suriin',
+            'review_verify_description' => 'I-verify bago maglipat.',
         ],
         'fields' => [
-            'from_warehouse' => 'Origin Warehouse',
-            'to_warehouse' => 'Destination Warehouse',
-            'variant_sku' => 'Variant SKU', // TODO(i18n): translate
+            'from_warehouse' => 'Bodegang pinagmulan',
+            'to_warehouse' => 'Bodegang paroroonan',
+            'variant_sku' => 'SKU ng variant',
             'sku' => 'SKU',
-            'unit' => 'Unit', // TODO(i18n): translate
-            'ratio' => 'Ratio',
-            'ratio_base' => 'Ratio (base)', // TODO(i18n): translate
-            'qty' => 'Quantity',
-            'base_qty' => 'Base Quantity',
-            'notes' => 'Notes', // TODO(i18n): translate
-            'reference_code' => 'Reference Code',
-            'transferred_by' => 'Transferred By',
-            'transferred_at' => 'Transferred At',
+            'unit' => 'Yunit',
+            'ratio' => 'Rasyo',
+            'ratio_base' => 'Rasyo (base)',
+            'qty' => 'Dami',
+            'base_qty' => 'Dami ng base',
+            'notes' => 'Mga Tala',
+            'reference_code' => 'Kodigo ng reperensya',
+            'transferred_by' => 'Inilipat ni',
+            'transferred_at' => 'Inilipat noong',
         ],
         'hints' => [
-            'ratio_auto' => 'Ratio is resolved automatically from the unit.', // TODO(i18n): translate
+            'ratio_auto' => 'Awtomatikong nireresolba ang rasyo mula sa napiling yunit.',
         ],
         'filters' => [
-            'from_warehouse' => 'From warehouse', // TODO(i18n): translate
-            'to_warehouse' => 'To warehouse', // TODO(i18n): translate
+            'from_warehouse' => 'Bodegang pinagmulan',
+            'to_warehouse' => 'Bodegang paroroonan',
         ],
         'table' => [
-            'reference' => 'Reference',
-            'from' => 'From', // TODO(i18n): translate
-            'to' => 'To', // TODO(i18n): translate
-            'items' => 'Lines',
-            'by' => 'By', // TODO(i18n): translate
-            'transferred_at' => 'Transferred At',
-            'empty_heading' => 'No direct transfers found', // TODO(i18n): translate
-            'empty_description' => 'Create your first direct transfer to get started.', // TODO(i18n): translate
+            'reference' => 'Reperensya',
+            'from' => 'Mula',
+            'to' => 'Sa',
+            'items' => 'Mga Linya',
+            'by' => 'Ni',
+            'transferred_at' => 'Inilipat noong',
+            'empty_heading' => 'Walang mga direct transfer na nakahanap',
+            'empty_description' => 'Lumikha ng iyong unang direct transfer para simulan.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'manifest' => 'Manifest', // TODO(i18n): translate
-            'authorization' => 'Authorization', // TODO(i18n): translate
+            'profile' => 'Profile',
+            'manifest' => 'Manifest',
+            'authorization' => 'Awtorisasyon',
         ],
         'actions' => [
-            'create' => 'New direct transfer', // TODO(i18n): translate
-            'view' => 'View',
-            'delete' => 'Delete', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'create' => 'Bagong direct transfer',
+            'view' => 'Tingnan',
+            'delete' => 'Burahin',
+            'force_delete' => 'Burahin nang tuluyan',
         ],
     ],
     'in_transits' => [
@@ -297,34 +297,34 @@ return [
             'plural' => 'In-Transits',
         ],
         'navigation' => [
-            'label' => 'In-Transit Cargo', // TODO(i18n): translate
+            'label' => 'Kargamento na In-Transit',
         ],
-        'badge_tooltip' => 'Cargo currently in transit', // TODO(i18n): translate
+        'badge_tooltip' => 'Kargamentong kasalukuyang in-transit',
         'fields' => [
             'requisition' => 'Requisition',
             'sku' => 'SKU',
-            'status' => 'Status',
-            'dispatched_base' => 'Dispatched Base Qty',
-            'dispatched_at' => 'Dispatched At',
-            'cleared_at' => 'Cleared At',
+            'status' => 'Katayuan',
+            'dispatched_base' => 'Naipadala (base)',
+            'dispatched_at' => 'Naipadala noong',
+            'cleared_at' => 'Na-clear noong',
         ],
         'filters' => [
-            'status' => 'Status', // TODO(i18n): translate
+            'status' => 'Katayuan',
         ],
         'table' => [
-            'requisition' => 'Requisition', // TODO(i18n): translate
-            'sku' => 'SKU', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'dispatched' => 'Dispatched', // TODO(i18n): translate
-            'dispatched_at' => 'Dispatched at', // TODO(i18n): translate
-            'empty_heading' => 'No in-transit cargo', // TODO(i18n): translate
-            'empty_description' => 'All dispatched cargo has been accounted for.', // TODO(i18n): translate
+            'requisition' => 'Requisition',
+            'sku' => 'SKU',
+            'status' => 'Katayuan',
+            'dispatched' => 'Naipadala',
+            'dispatched_at' => 'Naipadala noong',
+            'empty_heading' => 'Walang in-transit na kargamento',
+            'empty_description' => 'Naitala na ang lahat ng naipadalang kargamento.',
         ],
         'infolist' => [
-            'cargo' => 'Cargo', // TODO(i18n): translate
+            'cargo' => 'Kargamento',
         ],
         'actions' => [
-            'view' => 'View', // TODO(i18n): translate
+            'view' => 'Tingnan',
         ],
     ],
     'stock_movements' => [
@@ -333,41 +333,41 @@ return [
             'plural' => 'Stock Movements',
         ],
         'navigation' => [
-            'label' => 'Stock Movements', // TODO(i18n): translate
+            'label' => 'Mga Stock Movement',
         ],
         'fields' => [
-            'sku' => 'SKU', // TODO(i18n): translate
-            'warehouse' => 'Warehouse',
-            'unit' => 'Unit', // TODO(i18n): translate
-            'by' => 'By', // TODO(i18n): translate
-            'timestamp' => 'Timestamp', // TODO(i18n): translate
-            'reference_code' => 'Reference', // TODO(i18n): translate
-            'type' => 'Type',
-            'quantity' => 'Quantity',
-            'notes' => 'Notes', // TODO(i18n): translate
+            'sku' => 'SKU',
+            'warehouse' => 'Bodega',
+            'unit' => 'Yunit',
+            'by' => 'Ni',
+            'timestamp' => 'Oras',
+            'reference_code' => 'Sanggunian',
+            'type' => 'Uri',
+            'quantity' => 'Dami',
+            'notes' => 'Mga Tala',
         ],
         'filters' => [
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'variant' => 'Variant', // TODO(i18n): translate
-            'type' => 'Type', // TODO(i18n): translate
+            'warehouse' => 'Bodega',
+            'variant' => 'Variant',
+            'type' => 'Uri',
         ],
         'table' => [
-            'sku' => 'SKU', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'type' => 'Type', // TODO(i18n): translate
-            'qty' => 'Qty', // TODO(i18n): translate
-            'unit' => 'Unit', // TODO(i18n): translate
-            'by' => 'By', // TODO(i18n): translate
-            'timestamp' => 'Timestamp', // TODO(i18n): translate
-            'reference_code' => 'Reference', // TODO(i18n): translate
-            'empty_heading' => 'No stock movements found', // TODO(i18n): translate
-            'empty_description' => 'Adjust the filters to see more.', // TODO(i18n): translate
+            'sku' => 'SKU',
+            'warehouse' => 'Bodega',
+            'type' => 'Uri',
+            'qty' => 'Dami',
+            'unit' => 'Yunit',
+            'by' => 'Ni',
+            'timestamp' => 'Oras',
+            'reference_code' => 'Sanggunian',
+            'empty_heading' => 'Walang nahanap na stock movement',
+            'empty_description' => 'Ayusin ang mga filter para makakita ng higit pa.',
         ],
         'infolist' => [
-            'movement' => 'Movement', // TODO(i18n): translate
+            'movement' => 'Galaw',
         ],
         'actions' => [
-            'view' => 'View', // TODO(i18n): translate
+            'view' => 'Tingnan',
         ],
     ],
     'loss_ledgers' => [
@@ -376,103 +376,103 @@ return [
             'plural' => 'Loss Ledgers',
         ],
         'navigation' => [
-            'label' => 'Loss Ledgers', // TODO(i18n): translate
+            'label' => 'Mga Loss Ledger',
         ],
         'fields' => [
             'requisition' => 'Requisition',
-            'sku' => 'SKU', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'lost_base' => 'Lost (base)', // TODO(i18n): translate
-            'damaged_base' => 'Damaged (base)', // TODO(i18n): translate
-            'notes' => 'Notes', // TODO(i18n): translate
-            'transfer_requisition_item' => 'Requisition item', // TODO(i18n): translate
+            'sku' => 'SKU',
+            'warehouse' => 'Bodega',
+            'lost_base' => 'Nawala (base)',
+            'damaged_base' => 'Nasira (base)',
+            'notes' => 'Mga Tala',
+            'transfer_requisition_item' => 'Item ng requisition',
             'recorded_at' => 'Recorded At',
-            'loss_category' => 'Loss category', // TODO(i18n): translate
-            'unit_cost_price' => 'Unit cost', // TODO(i18n): translate
-            'total_financial_loss' => 'Total loss', // TODO(i18n): translate
+            'loss_category' => 'Kategorya ng loss',
+            'unit_cost_price' => 'Gastos ng yunit',
+            'total_financial_loss' => 'Kabuuang loss',
         ],
         'filters' => [
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'loss_category' => 'Loss category', // TODO(i18n): translate
+            'warehouse' => 'Bodega',
+            'loss_category' => 'Kategorya ng loss',
         ],
         'table' => [
-            'requisition' => 'Requisition', // TODO(i18n): translate
-            'sku' => 'SKU', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'lost' => 'Lost', // TODO(i18n): translate
-            'damaged' => 'Damaged', // TODO(i18n): translate
-            'category' => 'Category', // TODO(i18n): translate
-            'unit_cost' => 'Unit cost', // TODO(i18n): translate
-            'total_loss' => 'Total loss', // TODO(i18n): translate
-            'by' => 'By', // TODO(i18n): translate
-            'recorded' => 'Recorded', // TODO(i18n): translate
-            'empty_heading' => 'No losses recorded', // TODO(i18n): translate
-            'empty_description' => 'Adjust the filters to see more.', // TODO(i18n): translate
+            'requisition' => 'Requisition',
+            'sku' => 'SKU',
+            'warehouse' => 'Bodega',
+            'lost' => 'Nawala',
+            'damaged' => 'Nasira',
+            'category' => 'Kategorya',
+            'unit_cost' => 'Gastos ng yunit',
+            'total_loss' => 'Kabuuang loss',
+            'by' => 'Ni',
+            'recorded' => 'Naitala',
+            'empty_heading' => 'Walang naitalang loss',
+            'empty_description' => 'Ayusin ang mga filter para makakita ng higit pa.',
         ],
         'infolist' => [
-            'record' => 'Record', // TODO(i18n): translate
-            'financial_impact' => 'Financial impact', // TODO(i18n): translate
+            'record' => 'Tala',
+            'financial_impact' => 'Epekto sa pananalapi',
         ],
         'notes' => [
-            'cost_missing' => 'Cost price missing or zero at time of write-off.', // TODO(i18n): translate
+            'cost_missing' => 'Nawawala o zero ang presyo ng gastos sa oras ng write-off.',
         ],
         'actions' => [
-            'view' => 'View', // TODO(i18n): translate
+            'view' => 'Tingnan',
         ],
     ],
     'warehouses' => [
         'model' => [
-            'singular' => 'Warehouse',
-            'plural' => 'Warehouses',
+            'singular' => 'Bodega',
+            'plural' => 'Mga Bodega',
         ],
         'navigation' => [
-            'label' => 'Warehouses', // TODO(i18n): translate
+            'label' => 'Mga Bodega',
         ],
         'fields' => [
-            'code' => 'Code',
-            'name' => 'Name',
-            'location' => 'Location',
+            'code' => 'Kodigo',
+            'name' => 'Pangalan',
+            'location' => 'Lokasyon',
             'is_active' => 'Active',
-            'users' => 'Users', // TODO(i18n): translate
-            'assigned_staff' => 'Assigned staff', // TODO(i18n): translate
+            'users' => 'Mga user',
+            'assigned_staff' => 'Nakatalagang staff',
         ],
         'help' => [
-            'code' => 'Leave empty to derive from the name.', // TODO(i18n): translate
-            'users_readonly' => 'Assignments are edited from the user record.', // TODO(i18n): translate
+            'code' => 'Iwanang blangko para makuha mula sa pangalan.',
+            'users_readonly' => 'Ini-edit ang mga assignment mula sa record ng user.',
         ],
         'placeholders' => [
-            'code' => 'Auto-derived when empty', // TODO(i18n): translate
+            'code' => 'Awtomatikong nakukuha kapag blangko',
         ],
         'filters' => [
-            'is_active' => 'Active', // TODO(i18n): translate
+            'is_active' => 'Active',
         ],
         'form' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'access_status' => 'Access & status', // TODO(i18n): translate
+            'profile' => 'Profile',
+            'access_status' => 'Access at katayuan',
         ],
         'table' => [
-            'code' => 'Code', // TODO(i18n): translate
-            'name' => 'Name', // TODO(i18n): translate
-            'location' => 'Location', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'staff' => 'Staff', // TODO(i18n): translate
-            'ledger_entries' => 'Ledger entries', // TODO(i18n): translate
-            'empty_heading' => 'No warehouses found', // TODO(i18n): translate
-            'empty_description' => 'Create your first warehouse to get started.', // TODO(i18n): translate
+            'code' => 'Kodigo',
+            'name' => 'Pangalan',
+            'location' => 'Lokasyon',
+            'status' => 'Katayuan',
+            'staff' => 'Staff',
+            'ledger_entries' => 'Mga entry ng ledger',
+            'empty_heading' => 'Walang nahanap na bodega',
+            'empty_description' => 'Lumikha ng iyong unang bodega para makapagsimula.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'assigned_staff' => 'Assigned staff', // TODO(i18n): translate
+            'profile' => 'Profile',
+            'status' => 'Katayuan',
+            'assigned_staff' => 'Nakatalagang staff',
         ],
-        'empty_staff' => 'No staff assigned.', // TODO(i18n): translate
-        'delete_confirm_description' => 'Delete this warehouse. This action cannot be undone.', // TODO(i18n): translate
+        'empty_staff' => 'Walang nakatalagang staff.',
+        'delete_confirm_description' => 'Burahin ang bodegang ito. Hindi na ito maibabalik.',
         'actions' => [
-            'create' => 'New warehouse', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'create' => 'Bagong bodega',
+            'edit' => 'I-edit',
+            'view' => 'Tingnan',
+            'delete' => 'Burahin',
+            'force_delete' => 'Burahin nang tuluyan',
         ],
     ],
     'users' => [
@@ -481,47 +481,47 @@ return [
             'plural' => 'Users',
         ],
         'navigation' => [
-            'label' => 'Users', // TODO(i18n): translate
+            'label' => 'Mga User',
         ],
         'fields' => [
-            'name' => 'Name',
+            'name' => 'Pangalan',
             'email' => 'Email',
-            'password' => 'Password', // TODO(i18n): translate
-            'current_password' => 'Current password', // TODO(i18n): translate
-            'new_password' => 'New password', // TODO(i18n): translate
-            'password_confirmation' => 'Confirm password', // TODO(i18n): translate
+            'password' => 'Password',
+            'current_password' => 'Kasalukuyang password',
+            'new_password' => 'Bagong password',
+            'password_confirmation' => 'Kumpirmahin ang password',
             'role' => 'Role',
-            'is_active' => 'Active', // TODO(i18n): translate
-            'warehouses' => 'Warehouses',
+            'is_active' => 'Active',
+            'warehouses' => 'Mga Bodega',
         ],
         'help' => [
-            'warehouses' => 'Warehouses this user may operate in.', // TODO(i18n): translate
-            'warehouses_branch_manager' => 'A branch manager needs at least one warehouse, and may manage staff only within them.', // TODO(i18n): translate
-            'warehouses_staff' => 'A warehouse staff member is capped at one warehouse and receives stock only.', // TODO(i18n): translate
-            'password_leave_blank' => 'Leave blank to keep the current password.', // TODO(i18n): translate
+            'warehouses' => 'Mga bodegang maaaring operahan ng user na ito.',
+            'warehouses_branch_manager' => 'Kailangan ng branch manager ng hindi bababa sa isang bodega, at maaari lang mag-manage ng staff sa loob ng mga ito.',
+            'warehouses_staff' => 'Ang warehouse staff ay limitado sa isang bodega at tumatanggap lang ng stock.',
+            'password_leave_blank' => 'Iwanang blangko para mapanatili ang kasalukuyang password.',
         ],
         'filters' => [
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'role' => 'Role', // TODO(i18n): translate
-            'is_active' => 'Active', // TODO(i18n): translate
+            'warehouse' => 'Bodega',
+            'role' => 'Role',
+            'is_active' => 'Active',
         ],
         'table' => [
-            'name' => 'Name', // TODO(i18n): translate
-            'email' => 'Email', // TODO(i18n): translate
-            'role' => 'Role', // TODO(i18n): translate
-            'active' => 'Active', // TODO(i18n): translate
-            'warehouses' => 'Warehouses', // TODO(i18n): translate
-            'created' => 'Created', // TODO(i18n): translate
-            'empty_heading' => 'No users found', // TODO(i18n): translate
-            'empty_description' => 'Invite your first team member to get started.', // TODO(i18n): translate
+            'name' => 'Pangalan',
+            'email' => 'Email',
+            'role' => 'Role',
+            'active' => 'Active',
+            'warehouses' => 'Mga Bodega',
+            'created' => 'Nailikha',
+            'empty_heading' => 'Walang nahanap na user',
+            'empty_description' => 'Mag-imbita ng iyong unang miyembro ng team para makapagsimula.',
         ],
         'actions' => [
-            'create' => 'New user', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'edit_profile' => 'Edit profile', // TODO(i18n): translate
-            'logout' => 'Sign out', // TODO(i18n): translate
-            'reassign_warehouses' => 'Reassign warehouses', // TODO(i18n): translate
+            'create' => 'Bagong user',
+            'edit' => 'I-edit',
+            'delete' => 'Burahin',
+            'edit_profile' => 'I-edit ang profile',
+            'logout' => 'Mag-sign out',
+            'reassign_warehouses' => 'Itakda muli ang mga bodega',
         ],
     ],
     'purchase_orders' => [
@@ -530,87 +530,87 @@ return [
             'plural' => 'Purchase Orders',
         ],
         'navigation' => [
-            'label' => 'Purchase Orders', // TODO(i18n): translate
+            'label' => 'Mga Purchase Order',
         ],
-        'badge_tooltip' => 'Orders awaiting receipt', // TODO(i18n): translate
+        'badge_tooltip' => 'Mga order na naghihintay ng resibo',
         'form' => [
-            'supplier_warehouse' => 'Supplier & warehouse', // TODO(i18n): translate
+            'supplier_warehouse' => 'Supplier at bodega',
         ],
         'steps' => [
-            'supplier_warehouse' => 'Supplier & Warehouse',
-            'supplier_warehouse_description' => 'Choose supplier and receiving warehouse.', // TODO(i18n): translate
+            'supplier_warehouse' => 'Supplier at Bodega',
+            'supplier_warehouse_description' => 'Pumili ng supplier at receiving na bodega.',
             'line_items' => 'Line Items',
-            'line_items_description' => 'Add ordered line items.', // TODO(i18n): translate
-            'review_verify' => 'Review & Notes',
-            'review_verify_description' => 'Verify before creating.', // TODO(i18n): translate
+            'line_items_description' => 'Magdagdag ng mga ordered line item.',
+            'review_verify' => 'Pagsusuri at Tala',
+            'review_verify_description' => 'I-verify bago maglikha.',
         ],
         'fields' => [
             'supplier' => 'Supplier',
-            'receiving_warehouse' => 'Receiving warehouse', // TODO(i18n): translate
-            'variant_sku' => 'Variant SKU', // TODO(i18n): translate
-            'sku' => 'SKU', // TODO(i18n): translate
-            'product' => 'Product', // TODO(i18n): translate
-            'unit' => 'Unit', // TODO(i18n): translate
-            'ratio_base' => 'Ratio (base)', // TODO(i18n): translate
-            'qty' => 'Qty', // TODO(i18n): translate
-            'ordered_base' => 'Ordered (base)', // TODO(i18n): translate
-            'received_base' => 'Received (base)', // TODO(i18n): translate
-            'unit_cost' => 'Unit cost', // TODO(i18n): translate
-            'update_cost_price' => 'Update cost price', // TODO(i18n): translate
-            'notes' => 'Notes', // TODO(i18n): translate
-            'reference_code' => 'Reference', // TODO(i18n): translate
-            'ordered_by' => 'Ordered by', // TODO(i18n): translate
-            'received_by' => 'Received by', // TODO(i18n): translate
-            'ordered_at' => 'Ordered at', // TODO(i18n): translate
-            'received_at' => 'Received at', // TODO(i18n): translate
-            'receive_line' => ':sku — outstanding :outstanding :unit (:base base)', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
+            'receiving_warehouse' => 'Receiving na bodega',
+            'variant_sku' => 'SKU ng variant',
+            'sku' => 'SKU',
+            'product' => 'Produkto',
+            'unit' => 'Yunit',
+            'ratio_base' => 'Rasyo (base)',
+            'qty' => 'Dami',
+            'ordered_base' => 'Inorder (base)',
+            'received_base' => 'Natanggap (base)',
+            'unit_cost' => 'Gastos ng yunit',
+            'update_cost_price' => 'I-update ang presyo ng gastos',
+            'notes' => 'Mga Tala',
+            'reference_code' => 'Sanggunian',
+            'ordered_by' => 'Inorder ni',
+            'received_by' => 'Natanggap ni',
+            'ordered_at' => 'Inorder noong',
+            'received_at' => 'Natanggap noong',
+            'receive_line' => ':sku — natitira :outstanding :unit (:base base)',
+            'status' => 'Katayuan',
         ],
         'hints' => [
-            'ratio_auto' => 'Ratio is resolved automatically from the unit.', // TODO(i18n): translate
+            'ratio_auto' => 'Awtomatikong nireresolba ang rasyo mula sa yunit.',
         ],
         'help' => [
-            'update_cost_price' => 'Update the variant cost price on receipt.', // TODO(i18n): translate
-            'receive_display_equivalent' => ':display :unit', // TODO(i18n): translate
+            'update_cost_price' => 'I-update ang presyo ng gastos ng variant sa pagtanggap.',
+            'receive_display_equivalent' => ':display :unit',
         ],
         'filters' => [
-            'supplier' => 'Supplier', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
+            'supplier' => 'Supplier',
+            'warehouse' => 'Bodega',
+            'status' => 'Katayuan',
         ],
         'table' => [
-            'reference' => 'Reference', // TODO(i18n): translate
-            'supplier' => 'Supplier', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'items' => 'Items', // TODO(i18n): translate
-            'ordered' => 'Ordered', // TODO(i18n): translate
-            'received' => 'Received', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'empty_heading' => 'No purchase orders found', // TODO(i18n): translate
-            'empty_description' => 'Create your first purchase order to get started.', // TODO(i18n): translate
+            'reference' => 'Sanggunian',
+            'supplier' => 'Supplier',
+            'warehouse' => 'Bodega',
+            'items' => 'Mga Item',
+            'ordered' => 'Inorder',
+            'received' => 'Natanggap',
+            'status' => 'Katayuan',
+            'empty_heading' => 'Walang nahanap na purchase order',
+            'empty_description' => 'Lumikha ng iyong unang purchase order para makapagsimula.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'signoffs' => 'Sign-offs', // TODO(i18n): translate
-            'line_items' => 'Line items', // TODO(i18n): translate
+            'profile' => 'Profile',
+            'signoffs' => 'Mga Lagda',
+            'line_items' => 'Mga line item',
         ],
         'actions' => [
-            'create' => 'New purchase order', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
-            'order' => 'Order', // TODO(i18n): translate
-            'order_heading' => 'Place order', // TODO(i18n): translate
-            'order_description' => 'Send this purchase order to the supplier.', // TODO(i18n): translate
-            'receive' => 'Receive',
-            'receive_heading' => 'Receive purchase', // TODO(i18n): translate
-            'receive_description' => 'Record received base quantities.', // TODO(i18n): translate
-            'cancel' => 'Cancel', // TODO(i18n): translate
-            'cancel_heading' => 'Cancel purchase order', // TODO(i18n): translate
-            'cancel_description' => 'Cancel this purchase order.', // TODO(i18n): translate
-            'more_actions' => 'More actions', // TODO(i18n): translate
+            'create' => 'Bagong purchase order',
+            'edit' => 'I-edit',
+            'view' => 'Tingnan',
+            'delete' => 'Burahin',
+            'restore' => 'Ibalik',
+            'force_delete' => 'Burahin nang tuluyan',
+            'order' => 'Iorder',
+            'order_heading' => 'Mag-order',
+            'order_description' => 'Ipadala ang purchase order na ito sa supplier.',
+            'receive' => 'Tanggapin',
+            'receive_heading' => 'Tanggapin ang pagbili',
+            'receive_description' => 'Itala ang natanggap na base na dami.',
+            'cancel' => 'Kanselahin',
+            'cancel_heading' => 'Kanselahin ang purchase order',
+            'cancel_description' => 'Kanselahin ang purchase order na ito.',
+            'more_actions' => 'Iba pang aksyon',
         ],
         'notifications' => [
             'received' => 'Natanggap ang purchase order.',
@@ -622,39 +622,39 @@ return [
             'plural' => 'Suppliers',
         ],
         'navigation' => [
-            'label' => 'Suppliers', // TODO(i18n): translate
+            'label' => 'Mga Supplier',
         ],
         'fields' => [
-            'name' => 'Name',
-            'contact_person' => 'Contact Person',
-            'phone' => 'Phone',
+            'name' => 'Pangalan',
+            'contact_person' => 'Taong Kontak',
+            'phone' => 'Telepono',
             'email' => 'Email',
-            'address' => 'Address',
-            'is_active' => 'Active', // TODO(i18n): translate
+            'address' => 'Adres',
+            'is_active' => 'Active',
         ],
         'filters' => [
-            'is_active' => 'Active', // TODO(i18n): translate
+            'is_active' => 'Active',
         ],
         'table' => [
-            'name' => 'Name', // TODO(i18n): translate
-            'contact' => 'Contact', // TODO(i18n): translate
-            'email' => 'Email', // TODO(i18n): translate
-            'phone' => 'Phone', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'purchase_orders' => 'Purchase orders', // TODO(i18n): translate
-            'empty_heading' => 'No suppliers found', // TODO(i18n): translate
-            'empty_description' => 'Create your first supplier to get started.', // TODO(i18n): translate
+            'name' => 'Pangalan',
+            'contact' => 'Kontak',
+            'email' => 'Email',
+            'phone' => 'Telepono',
+            'status' => 'Katayuan',
+            'purchase_orders' => 'Mga purchase order',
+            'empty_heading' => 'Walang nahanap na supplier',
+            'empty_description' => 'Lumikha ng iyong unang supplier para makapagsimula.',
         ],
         'infolist' => [
-            'profile' => 'Supplier profile', // TODO(i18n): translate
-            'purchase_orders' => 'Purchase orders', // TODO(i18n): translate
+            'profile' => 'Profile ng supplier',
+            'purchase_orders' => 'Mga purchase order',
         ],
         'actions' => [
-            'create' => 'New supplier', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'create' => 'Bagong supplier',
+            'edit' => 'I-edit',
+            'delete' => 'Burahin',
+            'restore' => 'Ibalik',
+            'force_delete' => 'Burahin nang tuluyan',
         ],
     ],
     'sales_orders' => [
@@ -663,102 +663,102 @@ return [
             'plural' => 'Sales Orders',
         ],
         'navigation' => [
-            'label' => 'Sales Orders', // TODO(i18n): translate
+            'label' => 'Mga Sales Order',
         ],
-        'badge_tooltip' => 'Orders awaiting dispatch', // TODO(i18n): translate
+        'badge_tooltip' => 'Mga order na naghihintay ng dispatch',
         'form' => [
-            'customer_warehouse' => 'Customer & warehouse', // TODO(i18n): translate
+            'customer_warehouse' => 'Customer at bodega',
         ],
         'steps' => [
-            'customer_warehouse' => 'Customer & Warehouse',
-            'customer_warehouse_description' => 'Choose customer and dispatching warehouse.', // TODO(i18n): translate
+            'customer_warehouse' => 'Customer at Bodega',
+            'customer_warehouse_description' => 'Pumili ng customer at dispatching na bodega.',
             'line_items' => 'Line Items (Read-Only Sale Price Preview)',
-            'line_items_description' => 'Add sold line items.', // TODO(i18n): translate
-            'review_verify' => 'Review & Notes',
-            'review_verify_description' => 'Verify before creating.', // TODO(i18n): translate
+            'line_items_description' => 'Magdagdag ng mga nabentang line item.',
+            'review_verify' => 'Pagsusuri at Tala',
+            'review_verify_description' => 'I-verify bago maglikha.',
         ],
         'fields' => [
             'customer' => 'Customer',
-            'dispatching_warehouse' => 'Dispatching warehouse', // TODO(i18n): translate
-            'variant_sku' => 'Variant SKU', // TODO(i18n): translate
-            'sku' => 'SKU', // TODO(i18n): translate
-            'product' => 'Product', // TODO(i18n): translate
-            'unit' => 'Unit', // TODO(i18n): translate
-            'ratio_base' => 'Ratio (base)', // TODO(i18n): translate
-            'qty' => 'Qty', // TODO(i18n): translate
-            'ordered_base' => 'Ordered (base)', // TODO(i18n): translate
-            'dispatched_base' => 'Dispatched (base)', // TODO(i18n): translate
-            'snapshot_price' => 'Snapshot price', // TODO(i18n): translate
-            'catalog_sale_price' => 'Catalog sale price', // TODO(i18n): translate
-            'notes' => 'Notes', // TODO(i18n): translate
-            'reference_code' => 'Reference', // TODO(i18n): translate
-            'ordered_by' => 'Ordered by', // TODO(i18n): translate
-            'ordered_at' => 'Ordered at', // TODO(i18n): translate
-            'dispatched_by' => 'Dispatched by', // TODO(i18n): translate
-            'confirmed_at' => 'Confirmed at', // TODO(i18n): translate
-            'dispatched_at' => 'Dispatched at', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'line_item' => 'Line item', // TODO(i18n): translate
-            'dispatch_line' => ':sku — outstanding :outstanding :unit (available :available)', // TODO(i18n): translate
-            'return_option' => ':sku — dispatched :dispatched, returned :returned', // TODO(i18n): translate
-            'returned_qty_base' => 'Returned qty (base)', // TODO(i18n): translate
+            'dispatching_warehouse' => 'Dispatching na bodega',
+            'variant_sku' => 'SKU ng variant',
+            'sku' => 'SKU',
+            'product' => 'Produkto',
+            'unit' => 'Yunit',
+            'ratio_base' => 'Rasyo (base)',
+            'qty' => 'Dami',
+            'ordered_base' => 'Inorder (base)',
+            'dispatched_base' => 'Naipadala (base)',
+            'snapshot_price' => 'Presyo ng snapshot',
+            'catalog_sale_price' => 'Presyo ng benta sa catalog',
+            'notes' => 'Mga Tala',
+            'reference_code' => 'Sanggunian',
+            'ordered_by' => 'Inorder ni',
+            'ordered_at' => 'Inorder noong',
+            'dispatched_by' => 'Ipinadala ni',
+            'confirmed_at' => 'Kinumpirma noong',
+            'dispatched_at' => 'Ipinadala noong',
+            'status' => 'Katayuan',
+            'line_item' => 'Line item',
+            'dispatch_line' => ':sku — natitira :outstanding :unit (magagamit :available)',
+            'return_option' => ':sku — naipadala :dispatched, naibalik :returned',
+            'returned_qty_base' => 'Naibalik na dami (base)',
         ],
         'hints' => [
-            'ratio_auto' => 'Ratio is resolved automatically from the unit.', // TODO(i18n): translate
+            'ratio_auto' => 'Awtomatikong nireresolba ang rasyo mula sa yunit.',
         ],
         'help' => [
-            'reference_code' => 'Auto-generated when left empty.', // TODO(i18n): translate
-            'no_stock' => 'No stock available for this line.', // TODO(i18n): translate
-            'insufficient_stock' => 'Available stock is below the outstanding quantity.', // TODO(i18n): translate
+            'reference_code' => 'Awtomatikong nalilikha kapag iniwang blangko.',
+            'no_stock' => 'Walang available na stock para sa linyang ito.',
+            'insufficient_stock' => 'Mas mababa ang available na stock kaysa sa natitirang dami.',
         ],
         'placeholders' => [
-            'reference_code' => 'Auto-generated when empty', // TODO(i18n): translate
+            'reference_code' => 'Awtomatikong nalilikha kapag blangko',
         ],
         'filters' => [
-            'customer' => 'Customer', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
+            'customer' => 'Customer',
+            'warehouse' => 'Bodega',
+            'status' => 'Katayuan',
         ],
         'table' => [
-            'reference' => 'Reference', // TODO(i18n): translate
-            'customer' => 'Customer', // TODO(i18n): translate
-            'warehouse' => 'Warehouse', // TODO(i18n): translate
-            'items' => 'Items', // TODO(i18n): translate
-            'confirmed' => 'Confirmed', // TODO(i18n): translate
-            'dispatched' => 'Dispatched', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'empty_heading' => 'No sales orders found', // TODO(i18n): translate
-            'empty_description' => 'Create your first sales order to get started.', // TODO(i18n): translate
+            'reference' => 'Sanggunian',
+            'customer' => 'Customer',
+            'warehouse' => 'Bodega',
+            'items' => 'Mga Item',
+            'confirmed' => 'Kinumpirma',
+            'dispatched' => 'Naipadala',
+            'status' => 'Katayuan',
+            'empty_heading' => 'Walang nahanap na sales order',
+            'empty_description' => 'Lumikha ng iyong unang sales order para makapagsimula.',
         ],
         'infolist' => [
-            'profile' => 'Profile', // TODO(i18n): translate
-            'signoffs' => 'Sign-offs', // TODO(i18n): translate
-            'line_items' => 'Line items', // TODO(i18n): translate
+            'profile' => 'Profile',
+            'signoffs' => 'Mga Lagda',
+            'line_items' => 'Mga line item',
         ],
         'actions' => [
-            'create' => 'New sales order', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'view' => 'View', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
-            'confirm' => 'Confirm', // TODO(i18n): translate
-            'confirm_heading' => 'Confirm sales order', // TODO(i18n): translate
-            'confirm_description' => 'Confirm and reserve stock for this order.', // TODO(i18n): translate
-            'dispatch' => 'Dispatch',
-            'dispatch_heading' => 'Dispatch sale', // TODO(i18n): translate
-            'dispatch_description' => 'Dispatch quantities against reservations.', // TODO(i18n): translate
-            'return' => 'Return', // TODO(i18n): translate
-            'return_heading' => 'Record sales return', // TODO(i18n): translate
-            'return_description' => 'Record returned base quantities.', // TODO(i18n): translate
-            'cancel' => 'Cancel', // TODO(i18n): translate
-            'cancel_heading' => 'Cancel sales order', // TODO(i18n): translate
-            'cancel_description' => 'Cancel this sales order.', // TODO(i18n): translate
-            'more_actions' => 'More actions', // TODO(i18n): translate
+            'create' => 'Bagong sales order',
+            'edit' => 'I-edit',
+            'view' => 'Tingnan',
+            'delete' => 'Burahin',
+            'restore' => 'Ibalik',
+            'force_delete' => 'Burahin nang tuluyan',
+            'confirm' => 'Kumpirmahin',
+            'confirm_heading' => 'Kumpirmahin ang sales order',
+            'confirm_description' => 'Kumpirmahin at ireserba ang stock para sa order na ito.',
+            'dispatch' => 'Ipadala',
+            'dispatch_heading' => 'Ipadala ang benta',
+            'dispatch_description' => 'Ipadala ang mga dami laban sa mga reservation.',
+            'return' => 'Ibalik',
+            'return_heading' => 'Itala ang sales return',
+            'return_description' => 'Itala ang naibalik na base na dami.',
+            'cancel' => 'Kanselahin',
+            'cancel_heading' => 'Kanselahin ang sales order',
+            'cancel_description' => 'Kanselahin ang sales order na ito.',
+            'more_actions' => 'Iba pang aksyon',
         ],
         'notifications' => [
             'dispatched' => 'Ipinadala ang sales order.',
-            'return_recorded' => 'Return recorded.', // TODO(i18n): translate
+            'return_recorded' => 'Naitala ang return.',
         ],
     ],
     'customers' => [
@@ -767,39 +767,39 @@ return [
             'plural' => 'Customers',
         ],
         'navigation' => [
-            'label' => 'Customers', // TODO(i18n): translate
+            'label' => 'Mga Customer',
         ],
         'fields' => [
-            'name' => 'Name',
-            'contact_person' => 'Contact Person',
-            'phone' => 'Phone',
+            'name' => 'Pangalan',
+            'contact_person' => 'Taong Kontak',
+            'phone' => 'Telepono',
             'email' => 'Email',
-            'address' => 'Address',
-            'is_active' => 'Active', // TODO(i18n): translate
+            'address' => 'Adres',
+            'is_active' => 'Active',
         ],
         'filters' => [
-            'is_active' => 'Active', // TODO(i18n): translate
+            'is_active' => 'Active',
         ],
         'table' => [
-            'name' => 'Name', // TODO(i18n): translate
-            'contact' => 'Contact', // TODO(i18n): translate
-            'email' => 'Email', // TODO(i18n): translate
-            'phone' => 'Phone', // TODO(i18n): translate
-            'status' => 'Status', // TODO(i18n): translate
-            'sales_orders' => 'Sales orders', // TODO(i18n): translate
-            'empty_heading' => 'No customers found', // TODO(i18n): translate
-            'empty_description' => 'Create your first customer to get started.', // TODO(i18n): translate
+            'name' => 'Pangalan',
+            'contact' => 'Kontak',
+            'email' => 'Email',
+            'phone' => 'Telepono',
+            'status' => 'Katayuan',
+            'sales_orders' => 'Mga sales order',
+            'empty_heading' => 'Walang nahanap na customer',
+            'empty_description' => 'Lumikha ng iyong unang customer para makapagsimula.',
         ],
         'infolist' => [
-            'profile' => 'Customer profile', // TODO(i18n): translate
-            'sales_orders' => 'Sales orders', // TODO(i18n): translate
+            'profile' => 'Profile ng customer',
+            'sales_orders' => 'Mga sales order',
         ],
         'actions' => [
-            'create' => 'New customer', // TODO(i18n): translate
-            'edit' => 'Edit', // TODO(i18n): translate
-            'delete' => 'Delete', // TODO(i18n): translate
-            'restore' => 'Restore', // TODO(i18n): translate
-            'force_delete' => 'Delete permanently', // TODO(i18n): translate
+            'create' => 'Bagong customer',
+            'edit' => 'I-edit',
+            'delete' => 'Burahin',
+            'restore' => 'Ibalik',
+            'force_delete' => 'Burahin nang tuluyan',
         ],
     ],
 ];

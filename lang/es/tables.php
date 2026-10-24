@@ -17,7 +17,7 @@ return [
 
     // Direct Transfer table
     'reference' => 'Referencia',
-    'reference_code' => 'Código de referencia',
+    'reference_code' => 'Referencia',
     'from' => 'Desde',
     'to' => 'Hacia',
     'from_warehouse' => 'Almacén origen',
