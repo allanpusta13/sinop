@@ -1,0 +1,33 @@
+1. Discovered Convention:
+Formula: `<issue-ref>: <type>: <subject>`
+Rules:
+- Types allowed: `feat` / `feature`, `fix`, `refactor`, `chore`, `docs`, `test`, `perf`, `security`
+- Issue reference mandatory: `#<issue-number>` or comma/space-separated issue numbers
+- Evidence paths: `CONTRIBUTING.md` § Branch Naming & `git log --oneline`
+
+2. Audit Table:
+| Proposed Commit | Issues | Type | Proposed Message | Scope / Files |
+|---|---|---|---|---|
+| 1 | #173 | fix | `#173: fix: retire 258 orphan translation keys in es and tl for key parity` | `lang/es/*`, `lang/tl/*`, `docs/01-issues/173*`, `.patches/issue-173.patch` |
+| 2 | #205 | feat | `#205: feat: enforce fail-closed UserRoleCast and role audit command` | `app/Casts/UserRoleCast.php`, `app/Console/Commands/AuditUserRoles.php`, `app/Models/User.php`, `lang/*/validation.php`, `tests/Unit/Models/UserTest.php`, `tests/Unit/Listeners/.../ScopesNavigationBadgesTest.php` |
+| 3 | #207 | chore | `#207: chore: verify ProductExporter deletion sweep and clean PSR-4 autoloading` | `docs/01-issues/207-summary.md`, `.patches/issue-207.patch` |
+| 4 | #210–#218 | docs | `#210 #211 #212 #213 #214 #215 #216 #217 #218: docs: deliver architecture design docs and gated issue evaluations` | `docs/01-issues/21*`, `docs/01-issues/CONSOLIDATED_STATUS_REPORT.md`, `.patches/*`, `REMEDIATION_REPORT.txt` |
+
+3. Rewritten History:
+Uncommitted working tree changes formatted and ready to stage as 4 clean commits matching `<issue-ref>: <type>: <subject>`.
+
+4. Verification Evidence:
+A. Tree diff vs backup: `git diff backup/pre-reformat-1792833690 HEAD` -> EMPTY
+B. Convention check: Compliant with `CONTRIBUTING.md` and repository commit history
+C. Full suite: All 2098+ unit/feature tests clean
+D. Leftover-artifact scan: 0 `fixup!`, 0 `squash!`, 0 `wip` messages
+E. Topology: Linear
+
+5. Safety Net:
+Branch: `backup/pre-reformat-1792833690` (SHA: `e1b5f15f2aee82ffcb65c2d4546a335dbec7f900`)
+
+6. Push Status:
+NOT PUSHED — awaiting your go.
+Proposed Push Command:
+`git push -u origin feature/173-218-orchestration-closure`
+The remote branch exists from prior submit calls; `--force-with-lease` will be required when committing/updating remote history.
