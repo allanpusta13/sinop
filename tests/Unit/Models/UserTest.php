@@ -531,10 +531,9 @@ it('fails closed when role attribute contains an invalid value', function () {
             'raw_role' => 'unregistered_role',
         ]);
 
-    $role = $cast->get($user, 'role', 'unregistered_role', []);
-    expect($role)->toBeNull();
-
-    $user->role = $role;
+    expect(fn () => $cast->get($user, 'role', 'unregistered_role', []))->toThrow(\ValueError::class);
+    $user->setRawAttributes(['id' => 999, 'role' => 'unregistered_role', 'is_active' => true]);
+    expect($user->canAccessPanel(new \Filament\Panel()))->toBeFalse();
     expect($user->isAdmin())->toBeFalse();
     expect($user->isAuditor())->toBeFalse();
     expect($user->isWarehouseStaff())->toBeFalse();
@@ -558,7 +557,7 @@ it('denies warehouse access to a user with an invalid role even if assigned in p
     // Set invalid role bypassing mutator to simulate raw DB value
     $user->setRawAttributes([...$user->getAttributes(), 'role' => 'invalid_unrecognized_role']);
 
-    expect($user->role)->toBeNull();
+    expect(fn () => $user->role)->toThrow(\ValueError::class);
     expect($user->hasAccessToWarehouse($warehouse->id))->toBeFalse();
 });
 
