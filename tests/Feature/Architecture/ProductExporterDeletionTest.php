@@ -16,29 +16,58 @@ it('product_exporter_does_not_exist', function () {
 });
 
 it('no_reference_to_product_exporter', function () {
-    $appDir = base_path('app');
-    $testsDir = base_path('tests');
-    $configDir = base_path('config');
-    $databaseDir = base_path('database');
-    $resourcesDir = base_path('resources');
+    $searchDirs = [
+        base_path('app'),
+        base_path('tests'),
+        base_path('config'),
+        base_path('database'),
+        base_path('resources'),
+    ];
 
     $searchPattern = 'ProductExporter';
 
-    $cmd = sprintf(
-        'grep -rn %s %s %s %s %s %s 2>/dev/null',
-        escapeshellarg($searchPattern),
-        escapeshellarg($appDir),
-        escapeshellarg($testsDir),
-        escapeshellarg($configDir),
-        escapeshellarg($databaseDir),
-        escapeshellarg($resourcesDir)
-    );
+    // PHP-native recursive scan instead of `grep -rn ... 2>/dev/null`.
+    // The POSIX redirect is not understood by cmd.exe, which made the shell
+    // version fail to execute at all on Windows (silent vacuous pass) while
+    // leaking "The system cannot find the path specified." into the output.
+    $candidateLines = [];
 
-    $output = trim(shell_exec($cmd) ?? '');
+    foreach ($searchDirs as $searchDir) {
+        if (! is_dir($searchDir)) {
+            continue;
+        }
+
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($searchDir, \FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($files as $file) {
+            if (! $file->isFile()) {
+                continue;
+            }
+
+            $pathname = $file->getPathname();
+            $contents = @file_get_contents($pathname);
+
+            if ($contents === false || str_contains($contents, "\0")) {
+                continue;
+            }
+
+            $lines = preg_split('/\R/', $contents) ?: [];
+
+            foreach ($lines as $index => $line) {
+                if (! str_contains($line, $searchPattern)) {
+                    continue;
+                }
+
+                $candidateLines[] = $pathname.':'.($index + 1).':'.$line;
+            }
+        }
+    }
 
     // Exclude this test file itself from the match count
     $matches = array_filter(
-        explode("\n", $output),
+        $candidateLines,
         fn (string $line) => $line !== '' && ! str_contains($line, 'ProductExporterDeletionTest.php')
     );
 

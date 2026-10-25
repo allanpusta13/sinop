@@ -1,13 +1,17 @@
 # Sinop PR #238 — Final Execution & Remediation Report
 
 ## Head SHA Details
-- **Last CI-Verified Code Head SHA:** `fe0ba03cdac6a655089cfb5beccb2b4e05576ed8`
+- **Last CI-Verified Code Head SHA:** `cf71d747fd193c687cc08a6a5bdec8830bb11e89`
 - **Working Tree Base SHA:** `e1b5f15f2aee82ffcb65c2d4546a335dbec7f900`
-- **CI Run URL:** https://github.com/allanpusta13/sinop/actions/runs/40108512464
+- **CI Run URL:** https://github.com/allanpusta13/sinop/actions/runs/40155708765
 - **Execution Mode:** Sequential passes with logical file locks enforced.
 
 ## Fixed Verification Clause
-Metadata in this document is synchronized to CI run https://github.com/allanpusta13/sinop/actions/runs/40108512464 on code head fe0ba03cdac6a655089cfb5beccb2b4e05576ed8 (Tests: 2103 passed, 0 failed, 4 skipped [4813 assertions]; PHP 8.4 104.67s / PHP 8.5 102.15s). That run is the last CI-verified code state prior to this metadata update. This document is a documentation-only artifact: it reports the verified run and does not itself alter code or tests. Any later code or test change requires this metadata to be re-synchronized against a new run.
+Metadata in this document is synchronized to CI run https://github.com/allanpusta13/sinop/actions/runs/40155708765
+on code head cf71d747fd193c687cc08a6a5bdec8830bb11e89 (2,103 passed, 0 failed, 4 skipped; 4,813
+assertions; PHP 8.4 168.38s, PHP 8.5 90.00s). That run is the last CI-verified code state prior to this metadata
+update. This document is a documentation-only artifact: it reports the verified run and does not itself alter
+code or tests. Any later code or test change requires this metadata to be re-synchronized against a new run.
 
 ---
 
@@ -15,7 +19,7 @@ Metadata in this document is synchronized to CI run https://github.com/allanpust
 
 | Issue | Work Classification | Category Label | Deliverable / Test Evidence | Gate / Unblock Condition |
 |---|---|---|---|---|
-| **#173** | IMPLEMENT NOW | **IMPLEMENTED** | Retired 258 orphan keys/locale. `TranslationKeyParityTest` passed (0 missing, 0 orphans). Full 258-key inventory sidecars `i18n-parity-orphans-{es,tl}.txt` created. Tracked parity log created at `storage/logs/i18n-parity.md`. | Code staged in working tree; ready for PR review |
+| **#173** | IMPLEMENT NOW | **IMPLEMENTED** | Retired 258 orphan keys/locale. `TranslationKeyParityTest` passed (0 missing, 0 orphans). Full 258-key inventory sidecars `i18n-parity-orphans-{es,tl}.txt` created. Tracked parity log created at `storage/logs/i18n-parity.md`. Manifest reconciliation traceable in `docs/01-issues/173-orphan-key-manifest.md` (997 canonical keys; Missing 0 / Orphans 0 / Placeholders 0). | Code staged in working tree; ready for PR review |
 | **#205** | IMPLEMENT NOW | **IMPLEMENTED** | `UserRoleCast` throw-on-read contract implemented with fail-closed model boundary (`User::canAccessPanel()`, `hasAccessToWarehouse()`). Tests passed including invalid role with assigned warehouse pivot. | Code staged in working tree; ready for PR review |
 | **#207** | IMPLEMENT NOW | **IMPLEMENTED** | Reference sweep clean (`ZERO_REFERENCES`). Verified `ProductExporter.php` absence and empty export directory. Named regression tests added in `ProductExporterDeletionTest.php` (sweeping app, tests, config, database, resources). Autoload verified clean. | Code staged in working tree; ready for PR review |
 | **#210** | DESIGN / DECISION | **SPEC DELIVERED** | Architecture spec delivered in `docs/01-issues/210-supplier-shipment-tracking.md`. | Implementation owner-gated |
@@ -33,11 +37,10 @@ Metadata in this document is synchronized to CI run https://github.com/allanpust
 ## CI & Automated Test Verification Summary
 
 ```
-Tests: 2103 passed, 0 failed, 4 skipped (4813 assertions)
-Duration: 104.67s
+2,103 passed, 0 failed, 4 skipped (4,813 assertions) — on both PHP 8.4 and PHP 8.5.
+PHP 8.4 — 168.38s; PHP 8.5 — 90.00s.
 Exit Code: 0
-CI Run URL: https://github.com/allanpusta13/sinop/actions/runs/40108512464
-PHP Versions Tested: PHP 8.4 (104.67s) / PHP 8.5 (102.15s)
+CI Run URL: https://github.com/allanpusta13/sinop/actions/runs/40155708765
 ```
 
 ### Key Verification Checks:
