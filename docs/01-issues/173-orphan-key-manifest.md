@@ -5,6 +5,7 @@ This document provides an exhaustive, evidence-based audit of all translation ke
 
 - **Canonical Locale:** `en`
 - **Target Locales:** `es`, `tl`
+- **Total Canonical Keys:** 997 keys across 19 namespaces (including `validation.role.invalid` added for #205).
 - **Initial Orphans (Session Baseline):** 258 orphan keys per locale across `forms`, `tables`, and `widgets` namespaces.
 - **Canonical Structure:** `lang/en/forms.php`, `lang/en/tables.php`, and `lang/en/widgets.php` are intentionally-empty canonical namespaces (`return [];`) per blueprint §0A.15.
 - **Disposition Strategy:** **Retire (Delete)** verified vendor stubs with zero code references.
@@ -49,6 +50,7 @@ This document provides an exhaustive, evidence-based audit of all translation ke
 | `validation` | 141 | 141 | 141 | 0 | Preserved & Parity Verified (including `validation.role.invalid`) |
 | `widgets` | 0 | 0 | 0 | 0 | Intentionally empty |
 | `wizards` | 24 | 24 | 24 | 0 | Preserved & Parity Verified |
+| **TOTAL** | **997** | **997** | **997** | **0** | **100% Parity Clean** |
 
 ---
 
@@ -59,7 +61,7 @@ This document provides an exhaustive, evidence-based audit of all translation ke
   # Translation key parity (§0A.15)
   Canonical locale: en
   Locales: en, es, tl
-  Canonical keys: 1070
+  Canonical keys: 997
 
   Missing keys: 0
   Orphan keys (no canonical equivalent): 0

@@ -1,10 +1,13 @@
 # Sinop PR #238 — Final Execution & Remediation Report
 
 ## Head SHA Details
-- **Last CI-Verified Head SHA:** `fe0ba03cdac6a655089cfb5beccb2b4e05576ed8`
+- **Last CI-Verified Code Head SHA:** `fe0ba03cdac6a655089cfb5beccb2b4e05576ed8`
 - **Working Tree Base SHA:** `e1b5f15f2aee82ffcb65c2d4546a335dbec7f900`
 - **CI Run URL:** https://github.com/allanpusta13/sinop/actions/runs/40108512464
 - **Execution Mode:** Sequential passes with logical file locks enforced.
+
+## Fixed Verification Clause
+This document reflects CI run https://github.com/allanpusta13/sinop/actions/runs/40108512464 on code head fe0ba03cdac6a655089cfb5beccb2b4e05576ed8. Commits after this SHA are documentation-only and do not alter the verified code or test counts.
 
 ---
 
@@ -14,7 +17,7 @@
 |---|---|---|---|---|
 | **#173** | IMPLEMENT NOW | **IMPLEMENTED** | Retired 258 orphan keys/locale. `TranslationKeyParityTest` passed (0 missing, 0 orphans). Full 258-key inventory sidecars `i18n-parity-orphans-{es,tl}.txt` created. Tracked parity log created at `storage/logs/i18n-parity.md`. | Code staged in working tree; ready for PR review |
 | **#205** | IMPLEMENT NOW | **IMPLEMENTED** | `UserRoleCast` throw-on-read contract implemented with fail-closed model boundary (`User::canAccessPanel()`, `hasAccessToWarehouse()`). Tests passed including invalid role with assigned warehouse pivot. | Code staged in working tree; ready for PR review |
-| **#207** | IMPLEMENT NOW | **IMPLEMENTED** | Reference sweep clean (`ZERO_REFERENCES`). Verified `ProductExporter.php` absence and empty export directory. Named regression tests added in `ProductExporterDeletionTest.php`. Autoload verified clean. | Code staged in working tree; ready for PR review |
+| **#207** | IMPLEMENT NOW | **IMPLEMENTED** | Reference sweep clean (`ZERO_REFERENCES`). Verified `ProductExporter.php` absence and empty export directory. Named regression tests added in `ProductExporterDeletionTest.php` (sweeping app, tests, config, database, resources). Autoload verified clean. | Code staged in working tree; ready for PR review |
 | **#210** | DESIGN / DECISION | **SPEC DELIVERED** | Architecture spec delivered in `docs/01-issues/210-supplier-shipment-tracking.md`. | Implementation owner-gated |
 | **#211** | DESIGN / DECISION | **SPEC DELIVERED** | Architecture spec delivered in `docs/01-issues/211-purchase-negotiation.md`. | Implementation owner-gated |
 | **#212** | DESIGN / DECISION | **SPEC DELIVERED** | Decision doc delivered in `docs/01-issues/212-cogs-costing-methodology.md` with reconciled Lot-Level arithmetic and valuation reconciliations. | **Owner Decision Required:** Moving-Average recommendation awaiting formal sign-off. Snapshot costing remains active production code. |
@@ -34,6 +37,7 @@ Tests: 2103 passed, 0 failed, 4 skipped (4813 assertions)
 Duration: 104.67s
 Exit Code: 0
 CI Run URL: https://github.com/allanpusta13/sinop/actions/runs/40108512464
+PHP Versions Tested: PHP 8.4 (104.67s) / PHP 8.5 (102.15s)
 ```
 
 ### Key Verification Checks:
@@ -48,7 +52,7 @@ CI Run URL: https://github.com/allanpusta13/sinop/actions/runs/40108512464
    - Invalid role user with pre-existing warehouse assignment in pivot: **DENIED** (`hasAccessToWarehouse() === false`).
    - Log warnings (`invalid_user_role`): rate-limited and deduped via cache TTL (60s).
 3. **ProductExporter Sweep (#207):**
-   - `grep -rn "ProductExporter" app/ config/ tests/ database/` $\rightarrow$ `ZERO_REFERENCES`.
+   - `grep -rn "ProductExporter" app/ config/ tests/ database/ resources/` $\rightarrow$ `ZERO_REFERENCES`.
    - Named regression tests: `ProductExporterDeletionTest.php` (`product_exporter_does_not_exist`, `no_reference_to_product_exporter`).
 
 ---

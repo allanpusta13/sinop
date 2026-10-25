@@ -19,15 +19,19 @@ it('no_reference_to_product_exporter', function () {
     $appDir = base_path('app');
     $testsDir = base_path('tests');
     $configDir = base_path('config');
+    $databaseDir = base_path('database');
+    $resourcesDir = base_path('resources');
 
     $searchPattern = 'ProductExporter';
 
     $cmd = sprintf(
-        'grep -rn %s %s %s %s 2>/dev/null',
+        'grep -rn %s %s %s %s %s %s 2>/dev/null',
         escapeshellarg($searchPattern),
         escapeshellarg($appDir),
         escapeshellarg($testsDir),
-        escapeshellarg($configDir)
+        escapeshellarg($configDir),
+        escapeshellarg($databaseDir),
+        escapeshellarg($resourcesDir)
     );
 
     $output = trim(shell_exec($cmd) ?? '');
