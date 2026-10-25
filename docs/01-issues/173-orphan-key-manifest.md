@@ -1,11 +1,11 @@
-# Issue #173 — Orphan Translation Key Disposition Manifest (Final Reconciled)
+# Issue #173 — Orphan Translation Key Disposition Manifest (100% Parity Reconciled)
 
 ## Executive Summary
 This document provides an exhaustive, evidence-based audit of all translation keys across canonical English (`lang/en`), Spanish (`lang/es`), and Tagalog (`lang/tl`).
 
 - **Canonical Locale:** `en`
 - **Target Locales:** `es`, `tl`
-- **Total Canonical Keys:** 997 keys across 19 namespaces (including `validation.role.invalid` added for #205).
+- **Total Canonical Keys:** 997 keys across 19 namespaces.
 - **Initial Orphans (Session Baseline):** 258 orphan keys per locale across `forms`, `tables`, and `widgets` namespaces.
 - **Canonical Structure:** `lang/en/forms.php`, `lang/en/tables.php`, and `lang/en/widgets.php` are intentionally-empty canonical namespaces (`return [];`) per blueprint §0A.15.
 - **Disposition Strategy:** **Retire (Delete)** verified vendor stubs with zero code references.
@@ -71,4 +71,3 @@ This document provides an exhaustive, evidence-based audit of all translation ke
   - es: 0 placeholders across 0 files
   - tl: 0 placeholders across 0 files
   ```
-- **Validation Role Key Integrity:** `validation.role.invalid` is present in `en`, `es`, and `tl`, ensuring #205 form error feedback works across all supported locales without introducing orphans.

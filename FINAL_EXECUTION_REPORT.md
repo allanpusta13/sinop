@@ -7,7 +7,7 @@
 - **Execution Mode:** Sequential passes with logical file locks enforced.
 
 ## Fixed Verification Clause
-This document reflects CI run https://github.com/allanpusta13/sinop/actions/runs/40108512464 on code head fe0ba03cdac6a655089cfb5beccb2b4e05576ed8. Commits after this SHA are documentation-only and do not alter the verified code or test counts.
+Metadata in this document is synchronized to CI run https://github.com/allanpusta13/sinop/actions/runs/40108512464 on code head fe0ba03cdac6a655089cfb5beccb2b4e05576ed8 (Tests: 2103 passed, 0 failed, 4 skipped [4813 assertions]; PHP 8.4 104.67s / PHP 8.5 102.15s). That run is the last CI-verified code state prior to this metadata update. This document is a documentation-only artifact: it reports the verified run and does not itself alter code or tests. Any later code or test change requires this metadata to be re-synchronized against a new run.
 
 ---
 
