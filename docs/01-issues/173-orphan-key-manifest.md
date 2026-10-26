@@ -5,11 +5,11 @@ This document provides an exhaustive, evidence-based audit of all translation ke
 
 - **Canonical Locale:** `en`
 - **Target Locales:** `es`, `tl`
-- **Total Canonical Keys:** 997 keys across 19 namespaces.
+- **Total Canonical Keys:** 996 keys across 19 namespaces.
 - **Initial Orphans (Session Baseline):** 258 orphan keys per locale across `forms`, `tables`, and `widgets` namespaces.
 - **Canonical Structure:** `lang/en/forms.php`, `lang/en/tables.php`, and `lang/en/widgets.php` are intentionally-empty canonical namespaces (`return [];`) per blueprint §0A.15.
 - **Disposition Strategy:** **Retire (Delete)** verified vendor stubs with zero code references.
-- **Valid Translations Preserved:** All 551 `resources.php` keys, 63 `direct_transfers.php` keys, 33 `common.php` keys, 26 `dashboard.php` keys, 141 `validation.php` keys, and all active namespaces are 100% preserved and structurally aligned across `en`, `es`, and `tl`.
+- **Valid Translations Preserved:** All 551 `resources.php` keys, 63 `direct_transfers.php` keys, 33 `common.php` keys, 26 `dashboard.php` keys, 140 `validation.php` keys, and all active namespaces are 100% preserved and structurally aligned across `en`, `es`, and `tl`.
 - **Final Parity Status:** `Missing: 0`, `Orphans: 0`, `Placeholders: 0`.
 
 ---
@@ -47,10 +47,10 @@ This document provides an exhaustive, evidence-based audit of all translation ke
 | `resources` | 551 | 551 | 551 | 0 | Preserved & Parity Verified |
 | `stn` | 15 | 15 | 15 | 0 | Preserved & Parity Verified |
 | `tables` | 0 | 0 | 0 | 0 | Intentionally empty |
-| `validation` | 141 | 141 | 141 | 0 | Preserved & Parity Verified (including `validation.role.invalid`) |
+| `validation` | 140 | 140 | 140 | 0 | Preserved & Parity Verified (including `validation.role.invalid`) |
 | `widgets` | 0 | 0 | 0 | 0 | Intentionally empty |
 | `wizards` | 24 | 24 | 24 | 0 | Preserved & Parity Verified |
-| **TOTAL** | **997** | **997** | **997** | **0** | **100% Parity Clean** |
+| **TOTAL** | **996** | **996** | **996** | **0** | **100% Parity Clean** |
 
 ---
 
@@ -61,7 +61,7 @@ This document provides an exhaustive, evidence-based audit of all translation ke
   # Translation key parity (§0A.15)
   Canonical locale: en
   Locales: en, es, tl
-  Canonical keys: 997
+  Canonical keys: 996
 
   Missing keys: 0
   Orphan keys (no canonical equivalent): 0
