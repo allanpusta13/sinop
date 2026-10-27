@@ -1157,9 +1157,9 @@ A Resource, model-facing feature, action, or workflow is **not complete** until:
 
 **No new feature may introduce a hard-coded user-facing string without an explicit documented exception.**
 
-> **v0.1 state:** `es`/`tl` carry 847 orphan keys per locale (the pre-existing flat keys with no `en` equivalent — enumerated in the sidecar files) spread across namespaces `en` intentionally leaves empty (§0A.2a; §25) and others. They were flagged, not dropped (`docs/01-issues/i18n-parity-orphans-{es,tl}.txt`), and are due disposition by v0.1 under §0A.15 item 14.
+> **v0.1 state:** `es`/`tl` carry no orphans after the #173 disposition (258 retired per locale; see `docs/01-issues/i18n-parity-orphans-{es,tl}.txt`). The 847 figure was a pre-catalogue planning estimate, never recomputed against the committed catalogues — see `docs/01-issues/173-847-provenance.md`. Disposition under §0A.15 item 14 is complete.
 >
-> **v0.1 update:** no change — `es`/`tl` still carry 847 orphan keys per locale (the same flagged set). Disposition deadline unchanged: v0.1 per item 14. This update records continued tracking only; the orphan policy text above is unaltered.
+> **v0.1 update:** closed — `es`/`tl` carry no orphans after the #173 disposition (258 retired per locale; see `docs/01-issues/i18n-parity-orphans-{es,tl}.txt`). Disposition deadline unchanged: v0.1 per item 14. This update records the disposition only; the orphan policy text above is unaltered.
 
 ### 0A.17 Council Gap Closed
 
@@ -1646,7 +1646,7 @@ WarehouseStaff is capped at a single warehouse by role (§Q8), so no multi-wareh
 
 **The scope rule is never negotiated at the call site.** Every badge implementation must resolve its warehouse ID set through `ScopesNavigationBadges::badgeScopedWarehouseIds()`. Ad hoc `auth()->user()->warehouses()->pluck('id')` inside a resource is prohibited — it silently produces the wrong result for admins and auditors, whose warehouse pivot may be empty while their badge authority is global.
 
-**Out-of-domain role (v0.1 amendment, v0.1 count).** `users.role` carries the `UserRole` enum cast (§3.18), so a value outside the four declared cases cannot be persisted through the model and cannot be read back — the cast throws on read. The resolver reads `role` inside its comparison chain, therefore an out-of-domain value **fails closed by throwing**, never silently resolving a wider tier. The trailing `default => []` branch in `badgeScopedWarehouseIds()` (`ScopesNavigationBadges.php:136`) is defensive: it is only reachable if `UserRole` gains a case without a matching branch, and it prevents that future case from inheriting another role's scope. The contract test asserts the throw rather than a widened or falsely-empty scope.
+**Out-of-domain role (v0.1 amendment, v0.1 count).** `users.role` carries the `UserRole` enum cast (§3.18), so a value outside the four declared cases cannot be persisted through the model, and reading one throws — the cast (`App\Casts\UserRoleCast`) rejects the value on read. That throw does not reach the resolver: the `User` model's `isAdmin()` / `isAuditor()` / `isWarehouseStaff()` / `isBranchManager()` helpers each catch `ValueError` and evaluate to `false` (fail-closed boundary, §3.18). The resolver therefore never throws; with every branch false it falls through to the trailing `default => []` in `badgeScopedWarehouseIds()` (`ScopesNavigationBadges.php:136`) and **fails closed by returning an empty scope** — it never silently resolves a wider tier. The contract test asserts `toBe([])`, and `hasBadgeScope()` asserts `toBeFalse()`, rather than a widened scope.
 
 ### 1B.1b Counterpart Warehouse Does Not Widen Scope
 
@@ -15305,7 +15305,9 @@ now exist. 847 orphan keys per locale (pre-existing flat keys with no `en`
 equivalent) are flagged, never dropped, in
 `docs/01-issues/i18n-parity-orphans-{es,tl}.txt` for owner review (pre-reconciliation
 `es`/`tl` catalogues preserved in `docs/01-issues/i18n-parity-backup/`). Full report:
-`storage/logs/i18n-parity.md`.
+`storage/logs/i18n-parity.md`. *(Superseded: the 847 figure was a pre-catalogue
+planning estimate; the #173 disposition retired 258 orphans per locale, leaving 0 —
+see `docs/01-issues/173-847-provenance.md`.)*
 
 **Note — structural parity ≠ content completeness.** `TranslationKeyParityTest`
 enforces **structural** parity only: the key set of every locale must match
@@ -20245,7 +20247,7 @@ Open items surfaced by Council review, not yet closed:
 | 8 | §7K.1 `WarehouseForm` components | **Fixed** — `Livewire::make()` is not a Filament v5 form component and has no `helperText()`; the dead placeholder block was replaced with `Filament\Schemas\Components\Livewire` + `Filament\Schemas\Components\Text`. §7K.1 snippet updated to match | P1 |
 | 9 | §4.1 under-review icon pairing | **Clarified** — `UnderReviewFulfiller` and `UnderReviewRequestor` deliberately share one icon (§4.1 ping-pong lifecycle); the test now asserts the pairing instead of distinct icons | P1 |
 | 10 | §5.6 `UserFactory::admin()` | **Fixed** — `admin()` had drifted to chain `afterCreating` attaching a stray `Warehouse`; §5.6 declares `admin()`/`auditor()` as role-`state()` only. Auto-attach removed to restore the empty-pivot contract (§1B.1a) | P1 |
-| 11 | §1B.1a out-of-domain role | **Amended** — resolver fail-closed contract stated: with `users.role` carrying the enum cast, an out-of-domain value throws on read rather than silently widening; the defensive `[]` branch is unreachable while `UserRole` has four wired cases. Test asserts the throw | Governance |
+| 11 | §1B.1a out-of-domain role | **Amended** — resolver fail-closed contract stated: with `users.role` carrying the enum cast, an out-of-domain value is rejected on read by the cast and caught at the model boundary rather than silently widening; the defensive `[]` branch is what an out-of-domain role actually reaches. The resolver returns `[]`; the cast throws on read and the model boundary catches. | Governance |
 | 12 | §25 untracked extras + PSR-4 | **Declared + Deleted** — 36 load-bearing files enumerated in the new §25 "Untracked Extras (Declared)" subsection; `STNManifestController` PSR-4 case fixed. `ProductExporter.php` (sole zero-reference dead file) deleted | Governance |
 
 ---
