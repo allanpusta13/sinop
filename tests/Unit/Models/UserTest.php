@@ -577,3 +577,19 @@ it('authorizes warehouse access within scope for valid staff and branch manager'
     expect($bm->hasAccessToWarehouse($w1->id))->toBeTrue();
     expect($bm->hasAccessToWarehouse($w2->id))->toBeFalse();
 });
+
+it('rejects invalid role assignment through the model set path', function () {
+    $user = \App\Models\User::factory()->create();
+
+    expect(fn () => $user->role = 'invalid_role_value')
+        ->toThrow(\InvalidArgumentException::class);
+
+    // The rejection happens at assignment: the cast's set() runs inside
+    // setAttribute(), so nothing reaches the INSERT. The mass-assignment path
+    // used by the factory takes the same cast, so a create() carrying an
+    // out-of-domain role is likewise rejected before persistence.
+    expect(fn () => \App\Models\User::factory()->create(['role' => 'invalid_role_value']))
+        ->toThrow(\InvalidArgumentException::class);
+
+    expect(\App\Models\User::where('role', 'invalid_role_value')->count())->toBe(0);
+});

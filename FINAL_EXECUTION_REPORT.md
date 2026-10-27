@@ -64,3 +64,4 @@ CI Run URL: https://github.com/allanpusta13/sinop/actions/runs/40160469116
 1. **Issue #212 (COGS Methodology Sign-off):** Review and sign off on Weighted-Average Costing recommendation in `docs/01-issues/212-cogs-costing-methodology.md` to transition from current snapshot costing.
 2. **Issue #216 (Card Bulk Selection Package Approval):** Provide explicit sign-off on whether to install `mkdev-grid-card-layout` dependency.
 3. **Issue #218 (Widget Refactor Trigger):** Acknowledge recorded benchmark ($12$ active variants, $15.1\text{ms}$ latency); issue remains open until trigger is met.
+4. **Issue #173 (Canonical Key Count):** #173 canonical count: 996 as cited; loader re-derivation pending Bash recovery per D3.
