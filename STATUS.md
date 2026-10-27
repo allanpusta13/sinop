@@ -1,5 +1,106 @@
 # Status
 
+## Current workstream — issue audit CLOSED (2026-10-27)
+
+Closure report: [docs/01-issues/2026-10-27-issue-audit-closure.md](docs/01-issues/2026-10-27-issue-audit-closure.md)
+Audit report (read-only, unmodified): [docs/01-issues/2026-10-26-issue-audit-173-218.md](docs/01-issues/2026-10-26-issue-audit-173-218.md)
+
+- **§Prerequisite discharged.** The classifier that blocked the 2026-10-26 run recovered. `git`,
+  `php artisan test`, `vendor/bin/pest`, `vendor/bin/phpstan analyse` and `composer show` all
+  executed. No HALT required; no verdict rests on inference.
+- **Green tails (D-A satisfied):**
+  - Pest full suite `passed` — baseline **2107 / 2103 passed / 4 skipped / 4813 assertions** →
+    final **2108 / 2104 / 4 skipped / 4817 assertions**. +1 test, +1 passed, +4 assertions,
+    **0 new failures**.
+  - PHPStan level 7 — **365 → 365**, zero drift. Note: not zero in absolute terms; 365
+    pre-existing errors are unbaselined project debt. "Green vs baseline" = non-regression.
+- **Three authorised edits applied, each independently verified:**
+  - **D-C** — `docs/01-issues/210-supplier-shipment-tracking.md:22` no longer recommends
+    auto-backorder tracking; now defers to #214 (DO-NOT-IMPLEMENT). Prose only, 1 line.
+  - **D-D** — `TranslationKeyParityTest` gained an additive zero-catalogue-orphans assertion.
+    **Mutation-proven red→green**: injected a probe orphan into `lang/es/common.php` → RED naming
+    `common.__dd_orphan_probe` (996 canonical / 0 missing / 1 orphan); reverted → GREEN. Probe
+    never committed.
+  - **D-G** — `UserTest.php` gained `it('rejects invalid role assignment through the model set
+    path')`, guarding the model-level assign+save contract that was previously unguarded
+    (only the cast-level `set()` was covered). Owner-authorised explicitly; the sole test edit
+    besides D-D's assertion.
+- **D-G's "resolver throw" target was NOT implemented — resolved in favour of D1.** D1
+  (owner-approved) requires the resolver to fail closed with `[]`; the AC demanded a throw. D1
+  wins under the authority order. The `[]` contract is already guarded by
+  `ScopesNavigationBadgesTest.php:233`.
+- **D-H — no fail-open regression.** `app/Models/User.php:81-85` catches `ValueError` and returns
+  `false`, i.e. **denies**. The catch does not fall through to a default or widened role.
+- **Verdicts:** #173 **`CLOSED` (owner-signed 2026-10-26)**; #205 `SATISFIED` — evidence gap
+  closed; #207 `SATISFIED` — re-proved (sweep of `app`/`config`/`database`/`resources`/`routes`:
+  zero refs; glob finds only the guard test); #214 `EXCLUDED`; #218 unchanged
+  (`TRIGGER-NOT-MET` local / `UNABLE-TO-MEASURE` prod); #210–#213, #215–#217 **`BLOCKED-gap`** —
+  no §0.3 owner decisions supplied, so the blocks persist.
+- **Recorded, not changed:** D-E test-name mapping table (the three #205 cited test names do not
+  exist on disk; mapped to the tests that do deliver each contract); D-F CD-5 amended to accept
+  `UserRoleCast` as compliant (matches `User.php:61`).
+- **R-1 RESOLVED (option A).** The 13 hand-maintained CI-provenance lines (Head SHA, CI Run URL,
+  runner summary, fixed verification clause) were moved byte-for-byte out of the test-generated
+  `storage/logs/i18n-parity.md` into `storage/logs/i18n-parity.header.md`, and
+  `storage/logs/.gitignore` gained a negation so the header is tracked. The log is now purely a
+  test artifact: `TranslationKeyParityTest` is untouched, a full-suite run no longer alters it,
+  and rerunning leaves it byte-identical (verified by hash). The header lines were **not**
+  contiguous in the original (2 after the generated title, 11 after the canonical-key block);
+  extraction adapted accordingly.
+- **R-7 RESOLVED (option A, default) — renumbering citation corrected; errata recorded for the
+  read-only sites.** Removing the R-1 header renumbered the parity log: `Canonical keys` moved
+  line 7 → 5, and Missing/Orphan/Identity moved 20–22 → 7–9. Four citation sites referenced the old
+  numbers. The one editable site was fixed; the three inside read-only reports were **not** edited
+  and are recorded here as errata instead (cited *content* unchanged and still correct — only the
+  line numbers moved):
+  | Site | Status | Cited | Correct now | Content |
+  |---|---|---|---|---|
+  | `docs/01-issues/173-847-provenance.md:86` | **fixed** | `i18n-parity.md:7` | `:5` | `Canonical keys: 996` |
+  | `docs/01-issues/2026-10-26-issue-audit-173-218.md:52` | errata (READ-ONLY) | `i18n-parity.md:20-22` | `:7-9` | Missing / Orphan / Identity |
+  | `docs/01-issues/2026-10-26-issue-audit-173-218.md:64` | errata (READ-ONLY) | `i18n-parity.md:20-22` | `:7-9` | Missing / Orphan / Identity |
+  | `docs/01-issues/2026-10-27-issue-audit-closure.md:298` | errata (READ-ONLY) | `i18n-parity.md:7` | `:5` | `Canonical keys: 996` |
+- **R-6 RESOLVED (option C, default) — header kept as historical; drift recorded here.**
+  `storage/logs/i18n-parity.header.md` was **not** edited and still attests `6c736538`. It is
+  historical, not current. Its fixed verification clause asserts `6c736538` "is the most recent
+  commit that modified application code or tests" and that later commits are "documentation-only";
+  D-D (`225a8df`) and D-G (`3b405b8`) both modified test files after it, so the clause is false for
+  the current tree, and its cited runner counts (2,103 passed / 119.76s / 130.04s) no longer match
+  the current 2,104 / 4 skipped / 4,817. Re-attestation needs a real CI run (head SHA, run URL,
+  per-version timings) which this checkout cannot produce; the values were **not** invented.
+  Verbatim drift note, as directed:
+  > R-6: storage/logs/i18n-parity.header.md reflects CI generation at 6c736538. Drift since: D-D + D-G modified test files. Re-attestation pending next CI run. Values not invented locally.
+- Lower-severity: R-2 `210-...md:25` still says received costs update a moving average, against
+  the implemented snapshot/current-cost method (#212 territory, blocked); R-3 PHPStan 365
+  pre-existing errors at level 7; R-4 #173 canonical 996-vs-995 still deferred under D3;
+  R-5 pre-existing uncommitted changes in the tree are not part of this change set.
+- **Committed, not pushed.** Branch `issue-audit-closure/2026-10-27` (off the audit branch at
+  `39f9a79`), five atomic commits: `9ca4535` D-C, `225a8df` D-D, `3b405b8` D-G, `7593140` R-1, then
+  the R-6/R-7 status records ("chore(R-6,R-7): record header staleness and parity-log citation
+  errata", the branch tip). Non-regression re-proven on the committed tree: suite `passed`
+  2108 / 2104 / 4 skipped / 4817 assertions (closure baseline unchanged), targeted 86 / 86 / 160, and
+  PHPStan 365 → 365 — zero drift on all three. **No push, no PR** (CD-18); proved via `.git` refs —
+  no remote ref for this branch, parent remote still `39f9a798`.
+  Close-out report: [docs/01-issues/2026-10-27-issue-audit-closeout.md](docs/01-issues/2026-10-27-issue-audit-closeout.md)
+  Final report: [docs/01-issues/2026-10-27-issue-audit-final.md](docs/01-issues/2026-10-27-issue-audit-final.md)
+
+### Prior — audit run (2026-10-26)
+
+- Blocked at the §Prerequisite: the permission classifier refused every new command all session,
+  so the suite never ran and **no verdict was closed** in that run. Recorded in the audit's §5/§8.
+- **Headline of that run:** the supplied acceptance criteria **contradicted four recorded owner
+  decisions (D1–D4)** already applied on this branch. The recorded decision was applied in each
+  case and the conflict flagged, not overwritten:
+  - **D1** — owner rewrote #205 to require the resolver to fail closed with `[]`; the AC demanded
+    it *throw*. Code NOT changed.
+  - **D2/D3** — owner retired the 847 criterion; orphan sidecars are a *disposition record*, not
+    to be emptied. Catalogue orphans 0; sidecar line count 272 by design.
+  - **D4** — owner directed naming the delivered test; the AC's `RepositoryMapTest` /
+    `RuntimeCompletenessTest` are phantom citations.
+- No regression found then either: #212's implemented methodology is snapshot/current-cost
+  replacement (`PurchaseService::updateCurrentCostPrice()`), not an unapproved weighted average.
+  #213 has no half-built return workflow. #217's presets match the blueprint verbatim.
+- Open: #167 has no artifact on disk (parity inferred from the green §0A.15 test).
+
 ## Done
 - Aligned `tests/Unit/Policies/*` with the updated (v13.10 role model) policies.
   - PurchaseOrderPolicyTest, SalesOrderPolicyTest, TransferRequisitionPolicyTest, DirectTransferPolicyTest, ProductVariantPolicyTest.
