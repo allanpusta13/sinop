@@ -236,9 +236,8 @@ it('fails closed for an out-of-domain role rather than widening', function () {
     // (Admin/Auditor/WarehouseStaff/BranchManager), all wired into the
     // branches above, and `users.role` carries the enum cast — so an
     // unknown value cannot be persisted through the model. The reachable
-    // fail-closed behaviour is the cast rejecting the value on read: the
-    // resolver reads `role` inside its comparison chain, so an
-    // out-of-domain value throws instead of silently resolving wider.
+    // fail-closed behaviour: the cast rejects the value on read; the
+    // boundary catches; the resolver returns [].
     Warehouse::factory()->count(3)->create();
 
     $user = User::factory()->create();
@@ -288,9 +287,9 @@ it('reports hasBadgeScope false for a branch manager with no assignments', funct
 });
 
 it('hasBadgeScope fails closed for an out-of-domain role', function () {
-    // Same fail-closed contract as the resolve() case above: an
-    // out-of-domain role throws on the `role` cast rather than reporting
-    // a widened or falsely-empty scope.
+    // Same fail-closed contract as the resolve() case above: the cast
+    // rejects the value on read; the boundary catches; the resolver
+    // returns [].
     $user = User::factory()->create();
     $user->setRawAttributes([...$user->getAttributes(), 'role' => 'unregistered_role']);
     $this->actingAs($user);
