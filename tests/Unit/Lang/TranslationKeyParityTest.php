@@ -281,6 +281,13 @@ it('all_locales_match_canonical_key_set', function () {
 
     expect($missing)->toBeEmpty("Translation key parity FAILED (§0A.15).\nFull report: storage/logs/i18n-parity.md\n\n{$report}");
 
+    // Zero-orphan enforcement: the live catalogue must carry no key absent from
+    // canonical `en`. The `es`/`tl` retired-orphan sidecars
+    // (docs/01-issues/i18n-parity-orphans-{es,tl}.txt) are a *disposition
+    // record* of keys already removed from the live catalogue, not live keys —
+    // they must never be re-added to satisfy this assertion.
+    expect($orphans)->toBeEmpty("Translation key parity FAILED (§0A.15): orphan keys present with no canonical equivalent.\nFull report: storage/logs/i18n-parity.md\n\n{$report}");
+
     // Placeholder presence is now enforced at zero: the content-backfill
     // workstream (#172) has translated every `// TODO(i18n): translate` entry,
     // so any surviving marker is a regression, not migration state.
