@@ -19,7 +19,7 @@ Implement Option 2. Define clear states for supplier shipments and formalize rec
 
 ### Handling Receipt Mismatches & Accounting
 - Over-shipment: Flag for manager review; option to accept into inventory (updating COGS per #212) or create supplier return draft (#213).
-- Under-shipment: Automatically generate backorder tracking or mark remaining line items as cancelled.
+- Under-shipment: Flag for manager review; the shortage is recorded against the PO line and the remainder stays open on the PO. Automatic backorder generation is **out of scope for v1** — see #214 (DO-NOT-IMPLEMENT).
 
 ## Impacted Systems
 - **#212 (COGS Costing):** Received shipment item unit costs directly update moving average unit costs upon inspection.
