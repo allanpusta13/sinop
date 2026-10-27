@@ -69,14 +69,23 @@ Audit report (read-only, unmodified): [docs/01-issues/2026-10-26-issue-audit-173
   per-version timings) which this checkout cannot produce; the values were **not** invented.
   Verbatim drift note, as directed:
   > R-6: storage/logs/i18n-parity.header.md reflects CI generation at 6c736538. Drift since: D-D + D-G modified test files. Re-attestation pending next CI run. Values not invented locally.
+- **R-8 DEFERRED (LOW, owner-directed deferral) — the errata table is a snapshot of a regenerated
+  file.** Both the errata table above and every citation it corrects point into
+  `storage/logs/i18n-parity.md`, which the parity test rewrites on every run. R-1 proved the file is
+  byte-stable across runs today, but the citations are still **line numbers**: if the report format
+  ever changes, they break again — which is exactly how R-7 arose. The durable fix is option D
+  (cite stable anchors instead of line numbers, in the citing documents plus the test's report
+  header). That is a **convention change**, so it is deferred, not actioned. No file changed for R-8.
 - Lower-severity: R-2 `210-...md:25` still says received costs update a moving average, against
   the implemented snapshot/current-cost method (#212 territory, blocked); R-3 PHPStan 365
   pre-existing errors at level 7; R-4 #173 canonical 996-vs-995 still deferred under D3;
   R-5 pre-existing uncommitted changes in the tree are not part of this change set.
 - **Committed, not pushed.** Branch `issue-audit-closure/2026-10-27` (off the audit branch at
-  `39f9a79`), five atomic commits: `9ca4535` D-C, `225a8df` D-D, `3b405b8` D-G, `7593140` R-1, then
-  the R-6/R-7 status records ("chore(R-6,R-7): record header staleness and parity-log citation
-  errata", the branch tip). Non-regression re-proven on the committed tree: suite `passed`
+  `39f9a79`), six atomic commits: `9ca4535` D-C, `225a8df` D-D, `3b405b8` D-G, `7593140` R-1, the
+  R-6/R-7 status records ("chore(R-6,R-7): record header staleness and parity-log citation errata"),
+  then owner-authorized `docs(173): track corrected provenance citation (R-7)` — which newly tracks
+  `docs/01-issues/173-847-provenance.md` and carries the R-8 deferral note (the branch tip).
+  Non-regression re-proven on the committed tree: suite `passed`
   2108 / 2104 / 4 skipped / 4817 assertions (closure baseline unchanged), targeted 86 / 86 / 160, and
   PHPStan 365 → 365 — zero drift on all three. **No push, no PR** (CD-18); proved via `.git` refs —
   no remote ref for this branch, parent remote still `39f9a798`.
