@@ -1,5 +1,5 @@
 # Complete Orphan Keys Inventory — TL (tl)
-# Base SHA: e1b5f15
+# Base SHA: 6c736538e4fb2b5d904a395c2423238038c7f41f
 # Disposition: RETIRED (Verified vendor/stub keys absent from canonical lang/en)
 # Format: key | locale | disposition | justification
 #======================================================================
