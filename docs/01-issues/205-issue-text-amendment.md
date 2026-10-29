@@ -2,8 +2,9 @@
 
 **Status:** the live #205 body carries this sheet's authorized edit set. Applied and
 read back (see §8 for the 2026-10-29 paste set and §9 for the Cast contract bullet).
-Live `updatedAt`: `2026-10-29T09:01:36Z`. One item is **held** — the *Test coverage*
-block, §10. It is stale on the live body and not yet applied.
+Live `updatedAt`: `2026-10-29T14:35:03Z`. Both #205 items are now applied and read back:
+the Cast contract bullet (§9) and the *Test coverage* block (§10). The remaining test gaps
+are tracked in #241, not in placeholder text. **No stale statement remains on the live body.**
 
 **Authority:** Phase 3 owner decision **D1 = (b) + (c)** — update the issue text and
 the internal docs; **code is NOT changed**.
@@ -111,7 +112,8 @@ D-E maps them to the delivered tests; do not create the named ones.
 
 **Verified 2026-10-29 (observed, direct grep + file read).** Two of the three cited *classes*
 exist; only the *method* names are phantom. `tests/Feature/Architecture/BadgeScopeTest.php` is a
-real file (17 tests, all badge-count scoping — it contains **no** out-of-domain case).
+real file (19 declared `it()` cases, all badge-count scoping — it contains **no** out-of-domain case;
+corrected from an earlier "17", which was a miscount).
 `tests/Unit/Models/UserModelTest.php` does **not** exist at all; the model tests live in
 `tests/Unit/Models/UserTest.php`. The behaviour the AC describes **is** covered, under different
 names — so this is a naming defect, **not** a coverage gap:
@@ -217,7 +219,7 @@ trailing-newline claim** is made (same posture as the #173 fence line-ending ite
 
 ---
 
-## 10. HELD — Test coverage block (owner item 2, investigated 2026-10-29)
+## 10. Test coverage block (owner item 2) — investigated, signed, and applied 2026-10-29
 
 **Finding: tests exist under different names.** The AC claims stand; only the *names* are
 phantom. Nothing was deleted — deleting the claim would hide the mapping.
@@ -230,15 +232,56 @@ phantom. Nothing was deleted — deleting the claim would hide the mapping.
   So this is a **naming defect**, and the owner's rule resolves it to path **(a)**:
   replace the AC bullets with the real test names.
 
-**Status: HELD — not applied to the live body.** The replacement wording is new public
-text that is not sourced from this sheet, and the owner's rule selects between (a) and (b)
-on report. Awaiting that call.
+**Status: APPLIED to the live body 2026-10-29** — server `updatedAt 2026-10-29T14:35:03Z`.
+The owner signed a revised draft that (i) split read-path from set-path lines so the first
+bullet matches the table below rather than paraphrasing it, and (ii) scoped the second bullet
+to the two levels it names — the earlier draft read "covered" and "not covered" two lines
+apart, the same contradiction class this workstream exists to remove. The placeholder was
+replaced by the real follow-up number before paste: **#241**, filed at
+`2026-10-29T14:13:55Z`.
 
-**Proposed replacement (draft — awaiting confirmation):**
+### 10.1 Per-line coverage — what value each cited test supplies (read 2026-10-29)
+
+| Line | Test | Value supplied | Path exercised |
+|---|---|---|---|
+| `UserTest.php:519` | `fails closed when role attribute contains an invalid value` | **invalid-persisted** — `setRawAttributes(['role' => 'unregistered_role'])`, plus a direct `UserRoleCast::get()` call | cast **read** throws `ValueError`; `canAccessPanel()` false; all four `is*()` false; `hasAccessToWarehouse(1)` false |
+| `UserTest.php:544` | `rejects invalid role assignment on set` | **invalid-supplied** — `$cast->set($user, 'role', 'invalid_role_value', [])` | cast **set** throws `InvalidArgumentException` |
+| `UserTest.php:552` | `denies warehouse access to a user with an invalid role even if assigned in pivot` | **invalid-persisted**, warehouse attached to the pivot | `$user->role` throws `ValueError`; `hasAccessToWarehouse($id)` false **despite** the pivot row |
+| `UserTest.php:581` | `rejects invalid role assignment through the model set path` | **invalid-supplied** — model attribute set and `factory()->create()` | `InvalidArgumentException` on both; `where('role', …)->count()` is 0 — nothing persisted |
+| `ScopesNavigationBadgesTest.php:233` | `fails closed for an out-of-domain role rather than widening` | **out-of-domain reaching the resolver** — `setRawAttributes([... 'role' => 'unregistered_role'])` | real trait via `ScopesNavigationBadgesHarness` (`use ScopesNavigationBadges`); `badgeScopedWarehouseIds()` returns `[]` |
+| `ScopesNavigationBadgesTest.php:289` | `hasBadgeScope fails closed for an out-of-domain role` | **out-of-domain reaching the resolver** — same raw value | same harness; `hasBadgeScope()` returns `false` |
+
+**Out-of-domain IS exercised — at four of these six lines** (`:519`, `:552`, `:233`, `:289`), not
+zero. The harness at `ScopesNavigationBadgesTest.php:52` uses the real trait, so `:233`/`:289` drive
+the shipped resolver, not a copy. `:544`/`:581` are the write-path half of the same contract.
+
+**The gaps are elsewhere, and they are real:**
+
+1. **Badge-count level.** `tests/Feature/Architecture/BadgeScopeTest.php` (19 cases) is entirely
+   valid-role; a malformed role never reaches the badge *count* assertions there.
+2. **Policy-ability level.** No test supplies an out-of-domain role to a policy ability call
+   (`authorize()` / `Gate`) anywhere under `tests/`. `UserTest.php:519` asserts `canAccessPanel()`
+   false, which is the panel-access gate, not a policy ability.
+
+**Applied replacement (owner-signed; the text now live):**
 
 > ### Test coverage
-> - [ ] `tests/Unit/Models/UserTest.php` — `fails closed when role attribute contains an invalid value` (`:519`), `rejects invalid role assignment on set` (`:544`), `rejects invalid role assignment through the model set path` (`:581`), `denies warehouse access to a user with an invalid role even if assigned in pivot` (`:552`)
-> - [ ] `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php` — `fails closed for an out-of-domain role rather than widening` (`:233`), `hasBadgeScope fails closed for an out-of-domain role` (`:289`)
+> - [ ] The cast/model/resolver contract is covered by existing tests: cast read failure and model-boundary denial at `tests/Unit/Models/UserTest.php:519`, `:552`; cast set failure at `:544`, `:581`; out-of-domain resolver behavior at `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php:233`, `:289`.
+> - [ ] Two levels remain uncovered: badge-count (`tests/Feature/Architecture/BadgeScopeTest.php` is valid-role only) and policy-ability (no test supplies a malformed role to `authorize()`/`Gate`). Both are tracked in #241.
+
+**Byte proof.** Live body 5106 → 5464 bytes. Replaced span 191 → 549 bytes. Prefix
+(0–2495) and suffix byte-identical; the replaced span compares exactly to the authored
+region. Read-back: candidate 5463 vs live 5464 — equal bar the same single GitHub-appended
+trailing newline; **no byte-exact trailing-newline claim**. Transport-damage patterns zero
+hits. `BadgeScopeTest::`, `UserModelTest::` and `resolver_fails_closed_for_unknown_role`:
+0 occurrences in the live body.
+
+**Follow-up filed:** **#241** — *#205 test coverage gaps: badge-count out-of-domain and
+policy-ability malformed-role cases* — https://github.com/allanpusta13/sinop/issues/241.
+It names both gaps, states the expected assertions, and records the sequencing constraint in
+the issue text: a policy-ability test asserting **deny** for a malformed role fails today
+because of the `DirectTransferPolicy.php:26` fail-open (#240), so it is blocked-by-#240
+rather than written-and-left-red.
 
 All six names verified on disk by direct grep on 2026-10-29 (file, line, and exact
 `it('…')` string). No phantom name is carried forward, and no `- [ ]` marker wording

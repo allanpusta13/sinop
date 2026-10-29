@@ -164,6 +164,38 @@ Pinned revision: PR #238 head `9ac18567bb22ff293eeece503129fc1d0deefbed`, workin
 - **Commit still withheld.** Gated on #205 completing. `HEAD` `9ac1856`; 7 paths unchanged in scope
   (STATUS.md and UPDATES.md updated in place).
 
+### 2026-10-29 22:35 — #205 Test coverage block resolved; follow-up #241 filed; G1 closeable
+
+- **Item 2 — RESOLVED, applied.** Owner signed a revised draft; the placeholder became a real
+  issue number before paste.
+  - **Investigation result:** the three cited tests are phantom by **name only** — out-of-domain
+    *is* exercised, at **four of the six** cited lines. `UserTest.php:519` (invalid persisted →
+    cast read `ValueError`, `canAccessPanel()` false, all four `is*()` false), `:552` (invalid
+    persisted **with a pivot row** → `hasAccessToWarehouse()` false anyway), `:544`/`:581`
+    (invalid supplied on the set path → `InvalidArgumentException`, nothing persisted), and
+    `ScopesNavigationBadgesTest.php:233`/`:289` (out-of-domain reaching the resolver → `[]` /
+    `hasBadgeScope()` false). The harness at `:52` does `use ScopesNavigationBadges`, so those
+    two drive the shipped resolver, not a copy.
+  - **The real gaps** are elsewhere and were declared in the issue text: badge-count level
+    (`BadgeScopeTest.php` is valid-role only) and policy-ability level (no test supplies a
+    malformed role to `authorize()`/`Gate`; `canAccessPanel()` is the panel gate, not an ability).
+  - **Correction:** `BadgeScopeTest.php` has **19** declared `it()` cases, not 17 — earlier count
+    was a miscount, fixed in the sheet.
+  - **Write:** `gh issue edit 205`; server `updatedAt` **`2026-10-29T14:35:03Z`**. Live body
+    5106 → 5464 bytes; replaced span 191 → 549; prefix and suffix byte-identical; read-back equal
+    bar the same single GitHub-appended trailing newline. Transport-damage patterns zero hits;
+    the three phantom names have 0 occurrences on the live body.
+- **Follow-up filed — #241** — *#205 test coverage gaps: badge-count out-of-domain and
+  policy-ability malformed-role cases* (created `2026-10-29T14:13:55Z`). Names both gaps, states
+  expected assertions, and records in the issue text that the policy-ability deny-assertion is
+  **blocked-by-#240** (the `DirectTransferPolicy.php:26` fail-open) rather than written and left
+  red.
+- **G1 closeable.** Every stale statement is now off the live issue body; the remaining gaps are
+  tracked in a real issue, not a placeholder.
+- **Commit trail:** `c82a8381` (7 files), `8cd9851` (3 files), third commit this pass. Docs only;
+  no code or test file in any of them.
+- **No push, no merge.**
+
 ### 2026-10-29 17:05 — #205 Cast contract bullet applied and read back; phantom test names held
 
 - **Item 1 — DONE (owner-authorized).** The live #205 *Cast contract* bullet at body line 6 —
