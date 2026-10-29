@@ -416,7 +416,7 @@ requirement is tracked on #172 and is **not** satisfied by this report.
 | #205 invalid-role behaviour explicitly defined; implementation + tests match; authorization fails closed | **Met for cast/model/resolver** — matrix §3.2; 6 delivered tests green; **one policy-layer fail-open found and escalated (§3.4, DC-5) — outside the issue's stated component scope** |
 | #207 exporter removal verified; prohibited references absent; regression coverage valid | **Met** — file + directory absent; zero executable refs; stronger-than-AC guard, 2/2 green |
 | Shared evidence cites one pinned revision and is reproducible | **Met** — `9ac1856`, commands recorded in §1 |
-| Acceptance criteria and status accurately reflect the verified result | **Met locally; GitHub body updates pending authorization** (DC-2) |
+| Acceptance criteria and status accurately reflect the verified result | **Met** — the authorized GitHub body writes landed (DC-2 discharged): #173 byte-equal to sheet §1/§2; #205 cast bullet `2026-10-29T09:01:36Z` and *Test coverage* block `2026-10-29T14:35:03Z`; #207 body confirmed. Residual test gaps tracked in #241 |
 | Only authorized files modified; no push or merge without authorization | **Met** — documentation only; no push, no PR, no issue edit |
 
 **Corroboration.** Three independent read-only investigation passes were run in parallel
@@ -431,6 +431,19 @@ this report. The owner has ruled that the pre-existing policy fail-open is **not
 here and is tracked in a **separate follow-up issue** — the correct outcome for a finding
 *surfaced by* the #205 investigation. It is an out-of-scope tracked finding, **not a G1
 blocker**, and must not be silently folded into the three issues' closure.
+
+**Commit trail.** The audit trail for this workstream, in order, in one place:
+
+```
+Commits (branch fix/173-205-207-g1-evidence-reconciliation):
+- c82a83811669b967e45a5ea01e099a242698ec34 — 7 files, docs paste set (incl. this report)
+- 8cd98515de6487dd0bcf9acb9cdfdf9de4fad048 — 3 files, cast-bullet fix record
+- e21204d67ac3d74dbfff607a95fdb293bdd8aeda — 3 files, §10 test-coverage + §5 miscount fix
+```
+
+All three are documentation-only — no code or test path appears in any of them, checked with
+`git show --name-only`. The branch is local: **not pushed, not merged**; `origin/master`
+untouched at `7b0429496d89cc7ca419a6663e1fcff52ca01b34`. A fourth commit carries this list.
 
 ---
 
