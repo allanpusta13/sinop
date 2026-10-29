@@ -20,13 +20,15 @@ stay as-is.
 
 > records the orphan set the documented counting rule actually produces. The
 > committed catalogues carry **258 orphans per locale** (`forms` 140, `tables` 83,
-> `widgets` 35), all dispositioned `RETIRED` — see
+> `widgets` 35), all dispositioned `RETIRED`; see
 > `docs/01-issues/i18n-parity-orphans-{es,tl}.txt`. The canonical `en` catalogue
-> carries **996 keys as cited; loader re-derivation pending** (owner decision D3 —
-> `docs/02-research/2026-10-23-i18n-count-verification.md:96` reproduces 995; the
-> evidence files cite 996; the delta is unreconciled until the loader runs). The 847
-> figure was a pre-catalogue planning estimate and is retired as a criterion — see
-> `docs/01-issues/173-847-provenance.md`.
+> carries **996 keys, loader-verified** at PR #238 head `9ac1856` on 2026-10-27
+> (`php docs/02-research/i18n-count-reproduction.php`, and
+> `TranslationKeyParityTest` via `storage/logs/i18n-parity.md`). The count moved
+> from 995 to 996 when `aa54af6` added the key `validation.role.invalid`, a
+> one-leaf delta, not a counting-rule difference; owner decision D3 is discharged.
+> The earlier 847 figure was a pre-catalogue planning estimate and is retired as a
+> criterion; see `docs/01-issues/173-847-provenance.md`.
 
 ---
 
@@ -45,17 +47,23 @@ stay as-is.
 > ```bash
 > # The sidecars are a *disposition record*, not a to-be-emptied enumeration.
 > # Verify zero unclassified rows instead of a zero line count.
-> wc -l docs/01-issues/i18n-parity-orphans-es.txt   # → 272 (2 header + 258 rows + 12 namespace/rule lines)
-> wc -l docs/01-issues/i18n-parity-orphans-tl.txt   # → 272
-> grep -c 'RETIRED' docs/01-issues/i18n-parity-orphans-es.txt   # → 258 rows dispositioned
-> grep -cE 'RECONCILED|NOT_A_KEY|PREVIOUSLY_REMOVED' docs/01-issues/i18n-parity-orphans-es.txt  # → 0
+> wc -l docs/01-issues/i18n-parity-orphans-es.txt   # => 272 total lines
+> wc -l docs/01-issues/i18n-parity-orphans-tl.txt   # => 272 total lines
+> # NOTE: a bare `grep -c 'RETIRED'` returns 260, not 258, because the header line
+> # and the trailing total line also contain the word. Anchor on the row format so
+> # the command counts key rows rather than mentions:
+> grep -cE '\| es \| RETIRED \|' docs/01-issues/i18n-parity-orphans-es.txt   # => 258 key rows
+> grep -cE 'RECONCILED|NOT_A_KEY|PREVIOUSLY_REMOVED' docs/01-issues/i18n-parity-orphans-es.txt  # => 0
 > ```
 
 ---
 
-## 3. Owner-decision-required line (D3)
+## 3. Owner-decision-required line (D3) — RESOLVED 2026-10-27
 
-`#173 canonical count: 996 as cited; loader re-derivation pending Bash recovery per D3.`
+`#173 canonical count: 996, loader-verified at PR #238 head 9ac1856.`
 
-This line is also recorded in `FINAL_EXECUTION_REPORT.md` → *Explicit Owner Decisions
-Required* item 4.
+The loader re-derivation has run and is closed. Superseded text (kept for the record):
+`996 as cited; loader re-derivation pending Bash recovery per D3.` The same superseded
+line is also recorded in `FINAL_EXECUTION_REPORT.md` → *Explicit Owner Decisions
+Required* item 4, which remains uncorrected (root-level historical report; see
+`2026-10-28-g1-evidence-ac-reconciliation.md` discrepancy **D-6**).

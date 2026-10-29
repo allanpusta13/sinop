@@ -81,7 +81,19 @@ estimates, then presented as a measured quantity. It was never counted.
    future report, plan, or review.
 3. **258 is the only artifact-backed orphan figure** — and it is a *disposition*
    record (all retired), not a residual gap.
-4. **The canonical count is still open.** `docs/02-research/2026-10-23-i18n-count-verification.md:96`
-   reproduces **995**; `docs/01-issues/173-orphan-key-manifest.md:8` and
-   `storage/logs/i18n-parity.md:5` cite **996**. Owner decision **D3** defers
-   resolution until the loader can run.
+4. **The canonical count is closed: 996.** Loader re-derived at PR #238 head
+   `9ac18567bb22ff293eeece503129fc1d0deefbed` on 2026-10-27 by two independent
+   paths — `php docs/02-research/i18n-count-reproduction.php` and
+   `php artisan test --filter=TranslationKeyParityTest` (which writes
+   `storage/logs/i18n-parity.md`: `Canonical keys: 996`). Owner decision **D3**
+   and residual risk **R-4** are discharged. The **995** at
+   `docs/02-research/2026-10-23-i18n-count-verification.md:96` is a stale
+   2026-10-23 snapshot: the counting rule is byte-identical in both producers
+   (`TranslationKeyParityTest.php:59-107`, `i18n-count-reproduction.php:9-40`),
+   so no rule difference can produce a 1-key delta; and `lang/en` was last
+   changed by `aa54af6` (2026-10-24 04:51 UTC) after that snapshot. The added key
+   is **`validation.role.invalid`**: `grep -c "=> '" lang/en/validation.php` gives
+   140 versus 139 at `aa54af6^` — exactly one leaf — and `aa54af6` adds
+   `'role' =>` / `'invalid' => 'The selected role is invalid.'`. Observed, by
+   direct key diff. See
+   `docs/01-issues/2026-10-28-g1-evidence-ac-reconciliation.md` §3.1.
