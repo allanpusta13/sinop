@@ -1,8 +1,9 @@
 # Issue #205 — Issue-Text Amendment (owner paste sheet)
 
-**Status:** prepared for manual paste. `gh` was unavailable this pass, so the issue
-body was **not** written by this session. No GitHub write occurred. **Paste awaits
-owner sign-off on the exact wording below.**
+**Status:** the live #205 body carries this sheet's authorized edit set. Applied and
+read back (see §8 for the 2026-10-29 paste set and §9 for the Cast contract bullet).
+Live `updatedAt`: `2026-10-29T09:01:36Z`. One item is **held** — the *Test coverage*
+block, §10. It is stale on the live body and not yet applied.
 
 **Authority:** Phase 3 owner decision **D1 = (b) + (c)** — update the issue text and
 the internal docs; **code is NOT changed**.
@@ -106,13 +107,27 @@ grants viewAny via negated predicate in DirectTransferPolicy*).
 ## 5. Cited test names — stale, do not create
 
 The issue names three tests that **do not exist on disk** (grep across `tests/` → 0 hits).
-D-E maps them to the delivered tests; do not create the named ones:
+D-E maps them to the delivered tests; do not create the named ones.
 
-| Cited (absent) | Delivered |
-|---|---|
-| `role_cast_throws_on_invalid_value` | `tests/Unit/Models/UserTest.php:544`, `:519` |
-| `out_of_domain_role_throws_on_read` | `tests/Unit/Models/UserTest.php:552` |
-| `resolver_fails_closed_for_unknown_role` | `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php:233`, `:289` |
+**Verified 2026-10-29 (observed, direct grep + file read).** Two of the three cited *classes*
+exist; only the *method* names are phantom. `tests/Feature/Architecture/BadgeScopeTest.php` is a
+real file (17 tests, all badge-count scoping — it contains **no** out-of-domain case).
+`tests/Unit/Models/UserModelTest.php` does **not** exist at all; the model tests live in
+`tests/Unit/Models/UserTest.php`. The behaviour the AC describes **is** covered, under different
+names — so this is a naming defect, **not** a coverage gap:
+
+| Cited (absent) | Delivered — real test name | Site |
+|---|---|---|
+| `role_cast_throws_on_invalid_value` | `it('fails closed when role attribute contains an invalid value')` | `tests/Unit/Models/UserTest.php:519` |
+| `role_cast_throws_on_invalid_value` | `it('rejects invalid role assignment on set')` | `tests/Unit/Models/UserTest.php:544` |
+| `role_cast_throws_on_invalid_value` | `it('rejects invalid role assignment through the model set path')` | `tests/Unit/Models/UserTest.php:581` |
+| `out_of_domain_role_throws_on_read` | `it('denies warehouse access to a user with an invalid role even if assigned in pivot')` | `tests/Unit/Models/UserTest.php:552` |
+| `resolver_fails_closed_for_unknown_role` | `it('fails closed for an out-of-domain role rather than widening')` | `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php:233` |
+| `resolver_fails_closed_for_unknown_role` | `it('hasBadgeScope fails closed for an out-of-domain role')` | `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php:289` |
+
+Note the wording drift the cited names encode: they say **"throws"**, the delivered tests say
+**"fails closed"** (deny / empty scope). That is the D1 contract, not a missing assertion — the
+cast throws, the model helpers catch and deny, the resolver returns `[]`.
 
 ---
 
@@ -161,4 +176,70 @@ closed by throwing."*
   names `BadgeScopeTest::out_of_domain_role_throws_on_read`,
   `UserModelTest::role_cast_throws_on_invalid_value`, and
   `ScopesNavigationBadgesTest::resolver_fails_closed_for_unknown_role` — none exist on disk (§5).
-  The authorized edit set does not cover that section, so it was not touched.
+  The authorized edit set does not cover that section, so it was not touched. **Superseded by §10**
+  (investigated) and **§9** (the §2(i) "not applied" line is corrected there).
+
+---
+
+## 9. Execution record — Cast contract bullet applied (2026-10-29)
+
+**Authorized by:** owner, 2026-10-29 — *"Apply [B]'s first bullet as an in-place
+replacement of the live Cast contract bullet, verbatim from the sheet. … This is an
+authorized edit."*
+
+**Scope error corrected.** §8 recorded sheet §2(i) as "NOT applied", on the reading
+that [B] held one bullet (the phantom one). [B] held two; only the **second** was
+phantom. [B]'s **first** bullet is the text applied here.
+
+| Step | Detail |
+|---|---|
+| Target line | live body line 6, byte offset 659–705 — `- [ ] \`User::$casts['role'] = UserRole::class\`` (47 bytes) |
+| Replacement | sheet §2 lines 41–49, blockquote markers stripped, soft wraps flattened to a single line — verbatim, 684 bytes |
+| Write | `gh issue edit 205 --body-file …` → https://github.com/allanpusta13/sinop/issues/205 |
+| Server timestamp | `updatedAt 2026-10-29T09:01:36Z` (read back twice; body size stable) |
+
+**Byte proof.** Live body 4468 → 5106 bytes. The replaced span moved 47 → 684 bytes
+(delta +637). Everything outside the line is byte-identical — `cmp` on the replaced
+span against `repl.txt`, on the original span against `target.txt`, and on the
+prefix/suffix around them. This is a single-line replacement, not a body rewrite.
+
+**Read-back — one honest caveat.** Equal except a trailing newline. Authored candidate
+5105 bytes; live body 5106 bytes; the first 5105 bytes compare identical and the live
+body carries one **extra** trailing `\n` (4 vs 3). Attributed to the GitHub write path
+appending a trailing newline; content-identical, and **no byte-exact
+trailing-newline claim** is made (same posture as the #173 fence line-ending item).
+
+**Transport-damage check on the written body:** zero hits for `theresult`,
+`raisesValueError`, `UserRoleenum`, `negation:return`, `docs 01-issues`, `$user.role`
+(unhyphenated).
+
+**Old false line:** `UserRole::class` — 0 occurrences in the live body.
+
+---
+
+## 10. HELD — Test coverage block (owner item 2, investigated 2026-10-29)
+
+**Finding: tests exist under different names.** The AC claims stand; only the *names* are
+phantom. Nothing was deleted — deleting the claim would hide the mapping.
+
+- `tests/Feature/Architecture/BadgeScopeTest.php` **is** a real file (17 badge-count tests,
+  no out-of-domain case).
+- `tests/Unit/Models/UserModelTest.php` does **not** exist; the model tests live in
+  `tests/Unit/Models/UserTest.php`.
+- The behaviour the three cited names describe **is** covered — see the §5 mapping table.
+  So this is a **naming defect**, and the owner's rule resolves it to path **(a)**:
+  replace the AC bullets with the real test names.
+
+**Status: HELD — not applied to the live body.** The replacement wording is new public
+text that is not sourced from this sheet, and the owner's rule selects between (a) and (b)
+on report. Awaiting that call.
+
+**Proposed replacement (draft — awaiting confirmation):**
+
+> ### Test coverage
+> - [ ] `tests/Unit/Models/UserTest.php` — `fails closed when role attribute contains an invalid value` (`:519`), `rejects invalid role assignment on set` (`:544`), `rejects invalid role assignment through the model set path` (`:581`), `denies warehouse access to a user with an invalid role even if assigned in pivot` (`:552`)
+> - [ ] `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php` — `fails closed for an out-of-domain role rather than widening` (`:233`), `hasBadgeScope fails closed for an out-of-domain role` (`:289`)
+
+All six names verified on disk by direct grep on 2026-10-29 (file, line, and exact
+`it('…')` string). No phantom name is carried forward, and no `- [ ]` marker wording
+from the live list is altered beyond the names themselves.

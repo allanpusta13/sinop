@@ -164,6 +164,38 @@ Pinned revision: PR #238 head `9ac18567bb22ff293eeece503129fc1d0deefbed`, workin
 - **Commit still withheld.** Gated on #205 completing. `HEAD` `9ac1856`; 7 paths unchanged in scope
   (STATUS.md and UPDATES.md updated in place).
 
+### 2026-10-29 17:05 — #205 Cast contract bullet applied and read back; phantom test names held
+
+- **Item 1 — DONE (owner-authorized).** The live #205 *Cast contract* bullet at body line 6 —
+  `- [ ] \`User::$casts['role'] = UserRole::class\`` — was replaced in place with sheet §2 [B]'s
+  **first** bullet (the cast-contract bullet), verbatim. This corrects §8's scoping error: [B] held
+  two bullets, only the second was phantom.
+  - Write: `gh issue edit 205 --body-file …`; server `updatedAt` **`2026-10-29T09:01:36Z`** (read
+    back twice, body size stable).
+  - Byte proof: 4468 → 5106 bytes; replaced span 47 → 684 bytes (delta +637); every byte outside the
+    span identical. Single-line replacement, not a body rewrite.
+  - Read-back: equal except a **trailing newline** — candidate 5105, live 5106, first 5105 identical,
+    live carries one extra trailing `\n` (GitHub write path). Content-identical; **no byte-exact
+    trailing-newline claim** made (same posture as the #173 fence line-ending item).
+  - Transport-damage patterns (`theresult`, `raisesValueError`, `UserRoleenum`, `negation:return`,
+    `docs 01-issues`, `$user.role` unhyphenated): **zero hits** on the written body. Old false line:
+    0 occurrences.
+- **Item 2 — HELD, investigated, nothing deleted.** The three cited tests are phantom by **name**
+  only; the behaviour is covered. `tests/Feature/Architecture/BadgeScopeTest.php` is real (17 tests,
+  no out-of-domain case); `tests/Unit/Models/UserModelTest.php` does not exist; the real tests live in
+  `tests/Unit/Models/UserTest.php:519/:544/:552/:581` and
+  `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php:233/:289` (all six
+  verified by direct grep, exact `it('…')` strings). Owner's rule resolves this to path **(a)**:
+  replace the AC bullets with the real names. **Not applied** — the replacement wording is new public
+  text not sourced from the sheet, so it is recorded as a §10 draft and awaits the owner's call.
+- **Sheet updated:** `docs/01-issues/205-issue-text-amendment.md` — Status block corrected (§8's "body
+  not written by this session" is no longer true), new **§9** execution record, new **§10** held item
+  with the draft replacement.
+- **G1 remains OPEN.** The live body no longer contradicts the implementation on the cast contract, but
+  the *Test coverage* block still names three non-existent tests. Closes only when that is resolved.
+- **Commit:** additional docs-only commit made on `fix/173-205-207-g1-evidence-reconciliation`. No
+  push, no merge.
+
 ### 2026-10-29 13:12 — paste provenance closed; #205 was already pasted; 7-path commit made
 
 - **⚠ Problem 1 (owner) — #173 unrecorded write: ACTOR AND TIME IDENTIFIED.** The actor is the
