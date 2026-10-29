@@ -164,6 +164,25 @@ Pinned revision: PR #238 head `9ac18567bb22ff293eeece503129fc1d0deefbed`, workin
 - **Commit still withheld.** Gated on #205 completing. `HEAD` `9ac1856`; 7 paths unchanged in scope
   (STATUS.md and UPDATES.md updated in place).
 
+### 2026-10-30 — G1 audit trail recorded; DC-2 discharged; G1 formally closed
+
+- **Commit trail added to the report.** §7 of
+  `docs/01-issues/2026-10-28-g1-evidence-ac-reconciliation.md` now carries the workstream's
+  SHAs in one place, with one-line descriptions: `c82a8381` (7 files, docs paste set incl. the
+  report), `8cd9851` (3 files, cast-bullet fix record), `e21204d` (3 files, §10 test-coverage +
+  §5 miscount fix). Verified with `git show --name-only` that no code or test path appears in any
+  of the three.
+- **DC-2 row discharged.** The close-out table's "GitHub body updates pending authorization" row
+  is stale no longer: it now records the landed writes (#173 byte-equal to the sheet; #205 cast
+  bullet `2026-10-29T09:01:36Z`; #205 Test coverage `2026-10-29T14:35:03Z`; #207 confirmed) and
+  points the residual test gaps at #241. Fixing stale text in the report is the same class as the
+  §5 miscount fix — G1 exists to stop exactly that surviving.
+- **Branch tip `adb8e24`, tree clean.** Docs only. No push, no merge; `origin/master` untouched at
+  `7b04294`. Commits after `adb8e24` are the manager-layer log (`STATUS.md` / `UPDATES.md`), not
+  audit-relevant to the report's list.
+- **G1: formally closed.** Every issue-level condition met; #241 tracks the two uncovered levels
+  with the #240 dependency stated in its own text.
+
 ### 2026-10-29 22:35 — #205 Test coverage block resolved; follow-up #241 filed; G1 closeable
 
 - **Item 2 — RESOLVED, applied.** Owner signed a revised draft; the placeholder became a real
