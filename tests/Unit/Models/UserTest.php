@@ -125,7 +125,7 @@ it('declares the §3.18 blueprint-mandated casts', function () {
     // §3.18 mandates role, is_active, password.
     $casts = (new User)->getCasts();
 
-    expect($casts['role'])->toBe(UserRole::class);
+    expect($casts['role'])->toBe(\App\Casts\UserRoleCast::class);
     expect($casts['is_active'])->toBe('boolean');
     expect($casts['password'])->toBe('hashed');
 });
@@ -515,3 +515,81 @@ function filamentPanel(string $id = 'admin'): Panel
 {
     return Panel::make()->id($id);
 }
+
+it('fails closed when role attribute contains an invalid value', function () {
+
+    $user = new \App\Models\User();
+    $user->id = 999;
+
+    // Simulate database value returning invalid string through cast
+    $cast = new \App\Casts\UserRoleCast();
+
+    \Illuminate\Support\Facades\Log::shouldReceive('warning')
+        ->once()
+        ->with('invalid_user_role', [
+            'user_id' => 999,
+            'raw_role' => 'unregistered_role',
+        ]);
+
+    expect(fn () => $cast->get($user, 'role', 'unregistered_role', []))->toThrow(\ValueError::class);
+    $user->setRawAttributes(['id' => 999, 'role' => 'unregistered_role', 'is_active' => true]);
+    expect($user->canAccessPanel(new \Filament\Panel()))->toBeFalse();
+    expect($user->isAdmin())->toBeFalse();
+    expect($user->isAuditor())->toBeFalse();
+    expect($user->isWarehouseStaff())->toBeFalse();
+    expect($user->isBranchManager())->toBeFalse();
+    expect($user->hasAccessToWarehouse(1))->toBeFalse();
+});
+
+it('rejects invalid role assignment on set', function () {
+    $cast = new \App\Casts\UserRoleCast();
+    $user = new \App\Models\User();
+
+    expect(fn () => $cast->set($user, 'role', 'invalid_role_value', []))
+        ->toThrow(\InvalidArgumentException::class);
+});
+
+it('denies warehouse access to a user with an invalid role even if assigned in pivot', function () {
+    $warehouse = \App\Models\Warehouse::factory()->create();
+    $user = \App\Models\User::factory()->create();
+    $user->warehouses()->attach($warehouse->id);
+
+    // Set invalid role bypassing mutator to simulate raw DB value
+    $user->setRawAttributes([...$user->getAttributes(), 'role' => 'invalid_unrecognized_role']);
+
+    expect(fn () => $user->role)->toThrow(\ValueError::class);
+    expect($user->hasAccessToWarehouse($warehouse->id))->toBeFalse();
+});
+
+it('authorizes warehouse access within scope for valid staff and branch manager', function () {
+    $w1 = \App\Models\Warehouse::factory()->create();
+    $w2 = \App\Models\Warehouse::factory()->create();
+
+    $staff = \App\Models\User::factory()->create(['role' => \App\Enums\UserRole::WarehouseStaff->value]);
+    $staff->warehouses()->attach($w1->id);
+
+    expect($staff->hasAccessToWarehouse($w1->id))->toBeTrue();
+    expect($staff->hasAccessToWarehouse($w2->id))->toBeFalse();
+
+    $bm = \App\Models\User::factory()->branchManager()->create();
+    $bm->warehouses()->attach($w1->id);
+
+    expect($bm->hasAccessToWarehouse($w1->id))->toBeTrue();
+    expect($bm->hasAccessToWarehouse($w2->id))->toBeFalse();
+});
+
+it('rejects invalid role assignment through the model set path', function () {
+    $user = \App\Models\User::factory()->create();
+
+    expect(fn () => $user->role = 'invalid_role_value')
+        ->toThrow(\InvalidArgumentException::class);
+
+    // The rejection happens at assignment: the cast's set() runs inside
+    // setAttribute(), so nothing reaches the INSERT. The mass-assignment path
+    // used by the factory takes the same cast, so a create() carrying an
+    // out-of-domain role is likewise rejected before persistence.
+    expect(fn () => \App\Models\User::factory()->create(['role' => 'invalid_role_value']))
+        ->toThrow(\InvalidArgumentException::class);
+
+    expect(\App\Models\User::where('role', 'invalid_role_value')->count())->toBe(0);
+});

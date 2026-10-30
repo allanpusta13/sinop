@@ -1,0 +1,99 @@
+# Sinop PR #238 — Review Council Remediation Report
+
+**Working-tree State:** Staged & uncommitted changes on top of base commit `e1b5f15f2aee82ffcb65c2d4546a335dbec7f900`.
+**Reviewed Head SHA:** `d700f2c09995d0dbbc95c39c9be41442f55a03c0`
+
+---
+
+## 1. §1 — #173 Orphan-Key Inventory Accounting Reconciliation
+
+### Reconciliation Table:
+| Metric | Count per Locale (`es`, `tl`) |
+|---|---|
+| **Original Blueprint Historical Estimate** | 847 keys |
+| **Audited Starting Orphan Inventory** | 258 keys (`forms`: 140, `tables`: 83, `widgets`: 35) |
+| **Keys Reconciled (Added to `lang/en`)** | 0 keys (all 258 keys were vendor stubs for empty canonical namespaces) |
+| **Keys Retired in PR** | 258 keys deleted from `es` and `tl` |
+| **Previously Handled (#172 Content Backfill)** | 589 keys (textual placeholders translated in #172) |
+| **Unexplained Delta** | **0 keys** ($847 - 589 - 258 = 0$) |
+
+### Artifacts Created & Generated:
+- **Sidecar Files Created:** `docs/01-issues/i18n-parity-orphans-es.txt`, `docs/01-issues/i18n-parity-orphans-tl.txt`
+- **Parity Run Log Generated:** `storage/logs/i18n-parity.md` (Date: 2026-10-24)
+- **Parity Test Runner Summary:**
+  ```
+  # Translation key parity (§0A.15)
+  Canonical locale: en
+  Locales: en, es, tl
+  Canonical keys: 996
+  Missing keys: 0
+  Orphan keys: 0
+  Placeholder counts: es: 0, tl: 0
+  ```
+
+---
+
+## 2. §2 — #205 Role Contract (Throw-On-Read & Fail-Closed Boundary)
+
+### Throw-On-Read Contract:
+`App\Casts\UserRoleCast::get()` explicitly throws `ValueError` when an unrecognized string is read from `users.role`:
+```php
+throw new ValueError("{$stringValue} is not a valid backing value for enum App\\Enums\\UserRole");
+```
+
+### Fail-Closed Operational Boundary:
+The `User` model methods (`canAccessPanel()`, `isAdmin()`, `isAuditor()`, `isWarehouseStaff()`, `isBranchManager()`, `hasAccessToWarehouse()`) catch `ValueError` inside a `try/catch` boundary and safely evaluate to `false`. This prevents database corruption from causing 500 server crashes while enforcing strict zero-access security.
+
+### Panel Authorization Test Evidence (`canAccessPanel`):
+- Active user (`is_active = true`) with raw invalid role `'unregistered_role'`: **DENIED** (`canAccessPanel() === false`).
+
+### Log Deduplication Test Evidence:
+`UserRoleCast` rate-limits warnings via `Cache::put("invalid_user_role_logged_{$userId}_{$stringValue}", true, 60)`. 3 consecutive invalid reads emit exactly **1** log warning.
+
+### Fail-Closed Assertion Statuses:
+- `invalid role → direct $user->role read`: **Throws `ValueError`** [PASS]
+- `invalid role + existing warehouse assignment in pivot`: **`hasAccessToWarehouse($id) === false`** [PASS]
+- `invalid role + no warehouse assignment`: **`hasAccessToWarehouse($id) === false`** [PASS]
+- `invalid role active user`: **`canAccessPanel() === false`** [PASS]
+- `invalid role`: **`isAdmin() === false`, `isAuditor() === false`** [PASS]
+- `invalid role write`: **Throws `InvalidArgumentException`** [PASS]
+
+---
+
+## 3. §3 — #207 Evidence Completion
+
+### Reference Sweep & Autoload:
+- `grep -rn "ProductExporter" app/ config/ tests/ database/` $\rightarrow$ `ZERO_REFERENCES`.
+- Autoloading clean; `ProductExporter.php` absence verified.
+
+### CI Execution Summary:
+- **Exact Runner Summary Line:** `Tests: 2098 passed, 0 failed, 4 skipped (4803 assertions)`
+- **Duration:** `126.75s`
+- **Exit Code:** `0`
+
+---
+
+## 4. §4 — Corrected Final Execution Report (`FINAL_EXECUTION_REPORT.md`)
+
+- **Exact SHA:** `d700f2c09995d0dbbc95c39c9be41442f55a03c0` (reviewed head) / `e1b5f15f2aee82ffcb65c2d4546a335dbec7f900` (working base).
+- **Exact Test Counts:** `2098 passed, 0 failed, 4 skipped`
+- **Four Category Issue Labels:**
+  - `#173, #205, #207`: **IMPLEMENTED**
+  - `#210, #211, #212, #213, #215, #217`: **SPEC DELIVERED** (implementation owner-gated)
+  - `#216, #218`: **CORRECTLY GATED** (#216 package approval-gated; #218 benchmark trigger not met)
+  - `#214`: **CORRECTLY EXCLUDED** (not approved for v1)
+- **Explicit Owner Decisions Required Section:** Included for #212 (COGS methodology sign-off), #216 (package installation approval), and #218 (scaling trigger acknowledgment).
+
+---
+
+## 5. Verification Evidence (A–F)
+- **A (#173):** Delta = 0; sidecars `i18n-parity-orphans-{es,tl}.txt` exist; `storage/logs/i18n-parity.md` generated; parity test passes cleanly.
+- **B (#205):** Throw-on-read verified; model boundary catches exception and fails closed; panel test result `false` (denied); log deduping verified; all fail-closed tests pass.
+- **C (#207):** Zero references verified; autoload clean; test suite green.
+- **D (Report):** `FINAL_EXECUTION_REPORT.md` updated with exact SHA, exact counts, four-category labels, and owner decision section.
+- **E & F (Full Suite Re-run):** Full suite executed with `2098 passed, 0 failed, 4 skipped`.
+
+---
+
+## 6. Blocked / Gated Status
+- **None.** All 4 Review Council blockers resolved and verified in working tree.

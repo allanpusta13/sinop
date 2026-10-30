@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\UserRoleCast;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use ValueError;
 
 final class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
 {
@@ -56,7 +58,7 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
      */
     protected $casts = [
         // §3.18 — blueprint-mandated.
-        'role' => UserRole::class,
+        'role' => UserRoleCast::class,
         'is_active' => 'boolean',
         'password' => 'hashed',
 
@@ -72,27 +74,51 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_active;
+        if (! $this->is_active) {
+            return false;
+        }
+
+        try {
+            return $this->role instanceof UserRole;
+        } catch (ValueError $e) {
+            return false;
+        }
     }
 
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::Admin;
+        try {
+            return $this->role === UserRole::Admin;
+        } catch (ValueError $e) {
+            return false;
+        }
     }
 
     public function isAuditor(): bool
     {
-        return $this->role === UserRole::Auditor;
+        try {
+            return $this->role === UserRole::Auditor;
+        } catch (ValueError $e) {
+            return false;
+        }
     }
 
     public function isWarehouseStaff(): bool
     {
-        return $this->role === UserRole::WarehouseStaff;
+        try {
+            return $this->role === UserRole::WarehouseStaff;
+        } catch (ValueError $e) {
+            return false;
+        }
     }
 
     public function isBranchManager(): bool
     {
-        return $this->role === UserRole::BranchManager;
+        try {
+            return $this->role === UserRole::BranchManager;
+        } catch (ValueError $e) {
+            return false;
+        }
     }
 
     /**
@@ -105,9 +131,18 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
 
     public function hasAccessToWarehouse(int $warehouseId): bool
     {
-        return $this->isAdmin()
-            || $this->isAuditor()
-            || $this->warehouses()->where('warehouses.id', $warehouseId)->exists();
+        try {
+            if ($this->role === null) {
+                return false;
+            }
+
+            return $this->isAdmin()
+                || $this->isAuditor()
+                || (($this->isWarehouseStaff() || $this->isBranchManager())
+                    && $this->warehouses()->where('warehouses.id', $warehouseId)->exists());
+        } catch (ValueError $e) {
+            return false;
+        }
     }
 
     public function getAppAuthenticationSecret(): ?string

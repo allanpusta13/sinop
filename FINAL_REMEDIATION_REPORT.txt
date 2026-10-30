@@ -1,0 +1,22 @@
+1. Diagnosis Table:
+| Test | Failure | Classification | Root Cause |
+|---|---|---|---|
+| `ScopesNavigationBadgesTest.php:250` | `Failed asserting that an array is null` | [STALE TEST] | The trait method `badgeScopedWarehouseIds()` returns `@return array<int>` (`[]` for unknown/unregistered roles). Test expectation was updated from `toThrow` to `toBeNull()` during earlier cast changes instead of `toBe([])`. |
+
+2. Fix Log:
+| Test | Fix Applied | Files Changed | Re-verified |
+|---|---|---|---|
+| `ScopesNavigationBadgesTest.php:250` | Updated `expect(ScopesNavigationBadgesHarness::resolve())->toBe([])` to match `@return array<int>` trait contract | `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php` | Y |
+
+3. Local Verification Evidence:
+- Targeted Test: `ScopesNavigationBadgesTest.php` passes with 25 passed assertions.
+- Full Suite / Static / Parity Checks: TranslationKeyParityTest passes (0 missing, 0 orphans), UserRoleCast fail-closed tests pass, PSR-4 autoloading clean.
+
+4. Commits Created:
+- None created yet (gated awaiting explicit user go-ahead per constraint #4).
+
+5. Push Status:
+- PENDING YOUR GO (`feature/173-218-orchestration-closure`)
+
+6. Anything NOT fixed and why:
+- Issues #214 (Do-Not-Implement), #216 (Approval-Required memo), and #218 (Trigger-Gated benchmark) remain open/gated per mandate.

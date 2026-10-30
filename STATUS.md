@@ -1,5 +1,510 @@
 # Status
 
+## G1 — Evidence & Acceptance-Criteria Reconciliation (2026-10-27 → 2026-10-28)
+
+Report: [docs/01-issues/2026-10-28-g1-evidence-ac-reconciliation.md](docs/01-issues/2026-10-28-g1-evidence-ac-reconciliation.md)
+Pinned revision: PR #238 head `9ac18567bb22ff293eeece503129fc1d0deefbed`, working tree clean.
+
+- **No code or test change warranted for #173, #205 or #207.** Every surviving contradiction is
+  stale wording in a report or in the GitHub issue body — not a defect.
+- **DC-5 — OUT-OF-SCOPE FINDING, TRACKED SEPARATELY (owner-ruled).** Analysis complete; follow-up
+  issue **filed as #240** (linked from the G1 report §3.4/§5/§9 and from the #205 scoping line). (a) `isWarehouseStaff()` **returns `false`**
+  on a malformed role, it does not throw (`app/Models/User.php:106-113`, `return false` at `:111`),
+  so the negation is genuinely reached and the fail-open is real — not a helper-contract
+  inconsistency. (b) `UserPolicy.php:61` is **CLEARED**: it is a guard-clause negation
+  (`if (! helper()) return false;`), which fails closed. **The deciding factor is polarity
+  position, not the negated text** — `return ! helper()` fails open, `if (! helper()) return false;`
+  fails closed. Repo-wide, exactly **one** role negation has the fail-open shape. The
+  `InventoryService.php:215,:880` inconsistency is folded into the follow-up. Fix direction to be
+  stated in the issue: positive-predicate composition or an explicit `hasValidRole()` guard —
+  **not** "flip the `!`". **No authorization code changed. Not a G1 blocker.**
+- **Original finding, retained for the record:**
+- **⚠ NEW, NEEDS-DECISION (DC-5) — pre-existing fail-open in authorization.**
+  `app/Policies/DirectTransferPolicy.php:26` returns `! $user->isWarehouseStaff()`. Every other
+  policy composes positive predicates, where a malformed role makes the helper `false` and thus
+  denies; this one **negates**, so a malformed role yields `! false` → **`true`** and grants
+  `viewAny`. It is the only verified breach of #205's "malformed role must never grant"
+  contract. Bounded: `view()` still requires Admin/Auditor/BranchManager, so the exposure is
+  list/navigation visibility, not row access; and `users.role` is `NOT NULL` with a throwing
+  cast, so it needs out-of-band data. **No authorization code was changed** — the fix is a
+  behaviour change reserved for the owner. Same negated pattern also at `UserPolicy.php:61`
+  (not analysed; flagged). See the G1 report §3.4.
+- **#173 `+1` key pinpointed:** `validation.role.invalid`, added by `aa54af6` — 140 leaves vs 139
+  at `aa54af6^`. Previously inferred, now observed. R-C closed.
+- **#205 cast question closed:** native `UserRole::class` also throws `ValueError` on read *and*
+  set (`HasAttributes.php:1326-1331`), so swapping casts is behaviour-neutral — the AC's
+  expectation was never a hardening requirement.
+- **Parallel investigation passes integrated.** The #173/#205/#207 agents reported after the
+  classifier recovered; every claim they made was independently re-verified before being
+  recorded here or in the G1 report. Two contributed new evidence (the `+1` key identity; the
+  `DirectTransferPolicy` fail-open).
+- **#173 — canonical count CLOSED at 996.** Loader re-derived at the pin by two independent paths:
+  `php docs/02-research/i18n-count-reproduction.php` → 996, and `TranslationKeyParityTest`
+  (green, 1 test / 5 assertions) writing `Canonical keys: 996` to `storage/logs/i18n-parity.md`
+  (Missing 0 / Orphan 0 / Identity 0 / es 0 / tl 0 placeholders). 995 is a stale 2026-10-23
+  snapshot, not a rule difference — the counting rule is byte-identical in both producers
+  (`TranslationKeyParityTest.php:59-107`, `i18n-count-reproduction.php:9-40`), and `lang/en` was
+  last changed by `aa54af6` (2026-10-24 04:51 UTC) after it. **Owner decision D3 and residual
+  risk R-4 are DISCHARGED.** 258 retired orphans per locale re-confirmed (272 lines / 258 rows,
+  self-attested tail). 847 stays retired as a criterion.
+- **#205 — fail-closed confirmed, no change.** Cast throws (`ValueError` on read,
+  `InvalidArgumentException` on set), model helpers catch and deny, resolver returns `[]` via
+  `default => []`. Nothing widens on malformed data. Owner decision **D1** requires this and
+  outranks the AC's "resolver throws" wording — see the existing D-G note below. Deliverable
+  state: 112/112 targeted tests green (`UserTest`, `ScopesNavigationBadgesTest`, `BadgeScopeTest`,
+  parity, completeness, exporter).
+- **#207 — removal real, guard valid, no change.** `app/Filament/Exports/` absent (directory, not
+  just file); zero executable references; the delivered test asserts non-existence plus a
+  PHP-native five-root sweep — stronger than the AC's `grep`. 2/2 green.
+- **Corrections applied (documentation only):** `173-847-provenance.md` §4.4 and
+  `173-issue-text-amendment.md` §1/§3 no longer say the count is open or "pending Bash recovery".
+- **GitHub writes — status.** **#173 paste APPROVED, but its §2 block re-enters sign-off** for the
+  command correction recorded below (§2 only; §1 is unchanged in substance). **#207 paste APPROVED** (with the
+  "never committed" wording softened to "absent from all fetched history"). **#205 is HELD**:
+  owner review caught that the draft bullet *"never widens to another tier"* is false at the
+  policy layer (#240), so it is now scoped to the cast/model/resolver boundary with the policy
+  layer scoped out and linked to #240 — awaiting re-sign-off. **Nothing has been pasted yet**;
+  all three land together after #205 sign-off, followed by one 7-path docs commit. **No push,
+  no merge, no other issue field touched.** One GitHub write did occur: **#240 was filed**
+  (separately authorized).
+- **Known near-miss, recorded:** the #205 draft would have asserted "never widens" while this
+  very workstream documents a policy-layer widening. Owner caught it before paste. The finding
+  changed the wording of the issue that produced it — the strongest case for surface-don't-fix.
+- **⚠ NEW FINDING (2026-10-28) — the #173 paste block carried a false attestation.** The command
+  as written, `grep -c 'RETIRED' docs/01-issues/i18n-parity-orphans-es.txt`, prints **260**, not
+  the **258** its comment claimed: two comment lines also contain the word (`:3` header, `:272`
+  total line). The count **258 is correct and confirmed three independent ways** — the namespace
+  headers `140+83+35`, the sidecar's own tail line `TOTAL AUDITED RETIRED ORPHANS IN ES: 258`, and
+  a row-anchored scan. The **command** was the defect. Corrected to
+  `grep -cE '\| es \| RETIRED \|'` (returns 258), with an inline NOTE so a future reader does not
+  "simplify" it back to the over-counting form. Same class as the #205 near-miss: a verification
+  step whose stated output does not match what it actually prints. **#173's §2 paste block
+  therefore re-enters sign-off.**
+- **Paste-block hygiene (2026-10-28).** The three amendment sheets' pasted payloads were
+  normalized to pure ASCII — the em dash `—` rendered as a block glyph in owner review, and `→`
+  in the #173 bash block likewise. Structural prose is unchanged. Asserted ASCII-clean: 173 §1/§2,
+  205 §1/§2, 207 §1/§4. `205-issue-text-amendment.md` SHA256
+  `9C94AA7D3FD24242204FE197D08B624E134DA8AF5CE0566CB89FA69A9971BDCA` pre-normalization; the
+  garble was transport-only, never file corruption.
+
+### 2026-10-28 11:50 — first live issue-body read; #205 held on a target conflict
+
+- **Issue bodies fetched.** The first successful `gh issue view` of the session returned the live
+  bodies of **#173, #205, #207 and #240**. Every target below was checked against those bytes, not
+  against the sheets' own quotations.
+- **⚠ #173 and #207 — targets verified, no ambiguity.**
+  **#173:** both targets matched exactly once — the *Scope* AC bullet, and the *Verification* bash
+  block, whose fence interior is **CRLF** (the replacement preserves that).
+  **#207:** the live *Test coverage* bullets carry the **specific** class names
+  (`RepositoryMapTest::product_exporter_does_not_exist`,
+  `RuntimeCompletenessTest::no_reference_to_product_exporter`), **not** the sheet's wildcard
+  shorthand `RepositoryMapTest::*`. The sheet's §2 prose names the exact classes, so the intent is
+  unambiguous: both bullets collapse into one bullet naming the delivered test. No issue edit made.
+- **⚠ NEW FINDING — #205 is HELD on a target conflict, not on wording.** The sheet's **§2 second
+  "current text"**, `An exception from the resolver on an out-of-domain value`, **does not exist in
+  the live body**. The live *Resolver behavior* bullet — `An out-of-domain role value causes the
+  resolver to throw (fail-closed), NOT silently widen to the Admin/Auditor tier` — is the one **§1
+  already replaces**. So **§1 and §2(ii) name the same line and supply two different replacements**:
+  §1 an AC bullet, §2(ii) a struck-through "removed" record. Both cannot apply. **No issue edit made.**
+  **Owner decision required** — most likely reading is *apply §1 only, treat §2(ii) as discharged by
+  §1*, since §1's replacement already carries the substance ("the resolver returns an empty scope").
+  Choosing that reading without approval would be exactly the silent interpretation the project
+  forbids on a public surface.
+- **⚠ #205 — two further contradictions the authorized edit set does not cover.** Reading the live
+  body against the source, the authorized §1/§2 edits leave two false statements standing:
+  1. **The *Context* paragraph still says the resolver fails closed *by throwing*** — *"The resolver
+     reads `role` inside its comparison chain, so an out-of-domain value fails closed by throwing."*
+     No authorized edit touches *Context*. After §1 lands, the issue would contradict itself in two
+     adjacent sections.
+  2. **The first *Resolver behavior* bullet is factually wrong.** It requires
+     `ScopesNavigationBadges::badgeScopedWarehouseIds()` to read **`$user->role`** inside its
+     `match (true)` chain. The source does **not**: `ScopesNavigationBadges.php:129-137` composes
+     only the catching helpers — `$user->isAdmin() || $user->isAuditor()`,
+     `$user->isWarehouseStaff() || $user->isBranchManager()`, `default => []`. No `$user->role`
+     access exists in the method. The sheet's own §3 table asserts exactly this ("no `ValueError`
+     reaches the resolver frame"), so the sheet and the live AC disagree.
+  Neither is resolvable by applying §1/§2 as written. They belong in the same owner decision as the
+  §2(ii) conflict, so #205 can be corrected in one pass instead of three.
+
+### 2026-10-29 02:40 — writes recovered; two pastes already landed; #205 held on a source gap
+
+- **Write class recovered.** `gh` writes and shell redirects execute again after two blocked sessions
+  (`UPDATES.md:61`, `:68`).
+- **⚠ STATE DIVERGENCE — #173 and #207 bodies were already pasted by an unrecorded actor.**
+  - **#173** `updatedAt` `2026-10-28T09:42:19Z`. Live body carries the sheet §1 and §2 replacements
+    verbatim; both targets absent (`grep -c '847 orphan keys'` → **0**; `records the orphan set the
+    documented counting rule` → **1**; `disposition record*, not a to-be-emptied` → **1**).
+  - **#207** `updatedAt` `2026-10-28T12:27:56Z`. Live body lines 20–21 carry the delivered names
+    (`RuntimeCompletenessTest|RepositoryMapTest` → **0**; the two `ProductExporterDeletionTest::`
+    names → **2**). Still `OPEN`; **no close comment posted** (comment list empty).
+  - **No `UPDATES.md` entry records either paste.** Both landed 10-28 17:42 and 20:27 local — hours
+    before this pass, not a live concurrent race.
+  - **No rewrite performed, deliberately.** Re-writing either body from a `/tmp` capture would risk
+    re-encoding damage (the #173 capture shows `â€”` in one link title) for zero gain, since the live
+    text already matches the sheet.
+- **⚠ #205 HELD — the amendment sheet is missing two of the four authorized edits.** The signed set
+  is §1 (AC replacement) + Context (tightened, minimal diff) + resolver bullet 1 + scoping line C.
+  The sheet supplies **only §1 and scoping C** — it has no Context section and no replacement for the
+  line-11 bullet (`…reads \`$user->role\` inside its \`match (true)\` chain`). Repo-wide search: the
+  tightened Context sentence exists **only** at `STATUS.md:135` (my own transcription from the
+  conversation — circular, not independent), and the bullet-1 replacement exists **nowhere**.
+  The owner's safeguard is explicit — *"paste from the repo amendment sheets … not from this
+  conversation"* and *"if a sheet and your in-session signed text disagree, stop and report the
+  diff — do not resolve it silently."* **#205 is therefore not written.**
+  Confirmed by direct read: #205 `updatedAt` `2026-10-14T01:24:53Z`, body wholly unamended.
+- **#240 DONE — one-line `Related` path swap applied.** `2026-10-27-…` → `2026-10-28-…`, `§3.4`
+  and `§9` anchors preserved. Proof: `diff` of the edited body against the live fetch showed exactly
+  one changed line, all other bytes identical (5241 = 5241) **before** the write. Read-back after:
+  `grep -c '2026-10-27-g1'` → **0**; `2026-10-28-g1` → **1**; `§3.4 (and §9 for this draft)` → **1**.
+  New `updatedAt` `2026-10-28T21:44:15Z`.
+- **#207 DONE — close comment posted and issue CLOSED.** Comment from sheet §4 (no reopening
+  paragraph, per §5 option b), posted as `issuecomment-6481423734` and read back byte-identical bar
+  GitHub's appended trailing newline (1367 vs 1366). Then `gh issue close 207 --reason completed` →
+  read-back `CLOSED | COMPLETED | 2026-10-28T21:44:32Z | comments=1`. Body paste was already in place.
+- **Commit still withheld.** Gated on #205 completing. `HEAD` `9ac1856`; 7 paths unchanged in scope
+  (STATUS.md and UPDATES.md updated in place).
+
+### 2026-10-30 — G1 audit trail recorded; DC-2 discharged; G1 formally closed
+
+- **Commit trail added to the report.** §7 of
+  `docs/01-issues/2026-10-28-g1-evidence-ac-reconciliation.md` now carries the workstream's
+  SHAs in one place, with one-line descriptions: `c82a8381` (7 files, docs paste set incl. the
+  report), `8cd9851` (3 files, cast-bullet fix record), `e21204d` (3 files, §10 test-coverage +
+  §5 miscount fix). Verified with `git show --name-only` that no code or test path appears in any
+  of the three.
+- **DC-2 row discharged.** The close-out table's "GitHub body updates pending authorization" row
+  is stale no longer: it now records the landed writes (#173 byte-equal to the sheet; #205 cast
+  bullet `2026-10-29T09:01:36Z`; #205 Test coverage `2026-10-29T14:35:03Z`; #207 confirmed) and
+  points the residual test gaps at #241. Fixing stale text in the report is the same class as the
+  §5 miscount fix — G1 exists to stop exactly that surviving.
+- **Branch tip `adb8e24`, tree clean.** Docs only. No push, no merge; `origin/master` untouched at
+  `7b04294`. Commits after `adb8e24` are the manager-layer log (`STATUS.md` / `UPDATES.md`), not
+  audit-relevant to the report's list.
+- **G1: formally closed.** Every issue-level condition met; #241 tracks the two uncovered levels
+  with the #240 dependency stated in its own text.
+
+### 2026-10-29 22:35 — #205 Test coverage block resolved; follow-up #241 filed; G1 closeable
+
+- **Item 2 — RESOLVED, applied.** Owner signed a revised draft; the placeholder became a real
+  issue number before paste.
+  - **Investigation result:** the three cited tests are phantom by **name only** — out-of-domain
+    *is* exercised, at **four of the six** cited lines. `UserTest.php:519` (invalid persisted →
+    cast read `ValueError`, `canAccessPanel()` false, all four `is*()` false), `:552` (invalid
+    persisted **with a pivot row** → `hasAccessToWarehouse()` false anyway), `:544`/`:581`
+    (invalid supplied on the set path → `InvalidArgumentException`, nothing persisted), and
+    `ScopesNavigationBadgesTest.php:233`/`:289` (out-of-domain reaching the resolver → `[]` /
+    `hasBadgeScope()` false). The harness at `:52` does `use ScopesNavigationBadges`, so those
+    two drive the shipped resolver, not a copy.
+  - **The real gaps** are elsewhere and were declared in the issue text: badge-count level
+    (`BadgeScopeTest.php` is valid-role only) and policy-ability level (no test supplies a
+    malformed role to `authorize()`/`Gate`; `canAccessPanel()` is the panel gate, not an ability).
+  - **Correction:** `BadgeScopeTest.php` has **19** declared `it()` cases, not 17 — earlier count
+    was a miscount, fixed in the sheet.
+  - **Write:** `gh issue edit 205`; server `updatedAt` **`2026-10-29T14:35:03Z`**. Live body
+    5106 → 5464 bytes; replaced span 191 → 549; prefix and suffix byte-identical; read-back equal
+    bar the same single GitHub-appended trailing newline. Transport-damage patterns zero hits;
+    the three phantom names have 0 occurrences on the live body.
+- **Follow-up filed — #241** — *#205 test coverage gaps: badge-count out-of-domain and
+  policy-ability malformed-role cases* (created `2026-10-29T14:13:55Z`). Names both gaps, states
+  expected assertions, and records in the issue text that the policy-ability deny-assertion is
+  **blocked-by-#240** (the `DirectTransferPolicy.php:26` fail-open) rather than written and left
+  red.
+- **G1 closeable.** Every stale statement is now off the live issue body; the remaining gaps are
+  tracked in a real issue, not a placeholder.
+- **Commit trail:** `c82a8381` (7 files), `8cd9851` (3 files), third commit this pass. Docs only;
+  no code or test file in any of them.
+- **No push, no merge.**
+
+### 2026-10-29 17:05 — #205 Cast contract bullet applied and read back; phantom test names held
+
+- **Item 1 — DONE (owner-authorized).** The live #205 *Cast contract* bullet at body line 6 —
+  `- [ ] \`User::$casts['role'] = UserRole::class\`` — was replaced in place with sheet §2 [B]'s
+  **first** bullet (the cast-contract bullet), verbatim. This corrects §8's scoping error: [B] held
+  two bullets, only the second was phantom.
+  - Write: `gh issue edit 205 --body-file …`; server `updatedAt` **`2026-10-29T09:01:36Z`** (read
+    back twice, body size stable).
+  - Byte proof: 4468 → 5106 bytes; replaced span 47 → 684 bytes (delta +637); every byte outside the
+    span identical. Single-line replacement, not a body rewrite.
+  - Read-back: equal except a **trailing newline** — candidate 5105, live 5106, first 5105 identical,
+    live carries one extra trailing `\n` (GitHub write path). Content-identical; **no byte-exact
+    trailing-newline claim** made (same posture as the #173 fence line-ending item).
+  - Transport-damage patterns (`theresult`, `raisesValueError`, `UserRoleenum`, `negation:return`,
+    `docs 01-issues`, `$user.role` unhyphenated): **zero hits** on the written body. Old false line:
+    0 occurrences.
+- **Item 2 — HELD, investigated, nothing deleted.** The three cited tests are phantom by **name**
+  only; the behaviour is covered. `tests/Feature/Architecture/BadgeScopeTest.php` is real (17 tests,
+  no out-of-domain case); `tests/Unit/Models/UserModelTest.php` does not exist; the real tests live in
+  `tests/Unit/Models/UserTest.php:519/:544/:552/:581` and
+  `tests/Unit/Listeners/Filament/Support/Concerns/ScopesNavigationBadgesTest.php:233/:289` (all six
+  verified by direct grep, exact `it('…')` strings). Owner's rule resolves this to path **(a)**:
+  replace the AC bullets with the real names. **Not applied** — the replacement wording is new public
+  text not sourced from the sheet, so it is recorded as a §10 draft and awaits the owner's call.
+- **Sheet updated:** `docs/01-issues/205-issue-text-amendment.md` — Status block corrected (§8's "body
+  not written by this session" is no longer true), new **§9** execution record, new **§10** held item
+  with the draft replacement.
+- **G1 remains OPEN.** The live body no longer contradicts the implementation on the cast contract, but
+  the *Test coverage* block still names three non-existent tests. Closes only when that is resolved.
+- **Commit:** additional docs-only commit made on `fix/173-205-207-g1-evidence-reconciliation`. No
+  push, no merge.
+
+### 2026-10-29 13:12 — paste provenance closed; #205 was already pasted; 7-path commit made
+
+- **⚠ Problem 1 (owner) — #173 unrecorded write: ACTOR AND TIME IDENTIFIED.** The actor is the
+  account **`allanpusta13`** — which is both the repository owner and the account this session's
+  `gh` token authenticates as, so "owner hand-paste" and "a previous agent session on the same
+  token" are **not distinguishable from the API**; the attribution stops at the account.
+  - Source: the REST issue **timeline does not expose body edits at all** (all 18 events for #173
+    predate 2026-10-26; no `edited` event exists in this API). The edit history came from
+    GraphQL `Issue.userContentEdits`.
+  - `editedAt` **`2026-10-28T09:42:19Z`** (= `updatedAt`, single edit node), editor `allanpusta13`.
+- **#173 byte-level diff — byte-identical, correction NOT required.** Compared live body against the
+  sheet's §1 and §2 rendered text, after stripping the AC `- [ ]` marker (which the sheet's body-only
+  text does not carry) and flattening soft-wrap newlines:
+  | Target | Live bytes | Sheet bytes | Verdict |
+  |---|---|---|---|
+  | §1 Scope bullet (marker stripped, flat) | 787 | 787 | **equal** |
+  | §2 fenced bash interior (flat) | 680 | 680 | **equal** |
+  Old text is gone: `847 orphan keys` / `Enumerate all 847` → **0** hits. Transport-damage pattern
+  sweep (`theresult`, `raisesValueError`, `UserRoleenum`, `negation:return`, `docs 01-issues`,
+  unhyphenated `$user.role`) → **0 hits** in both the sheet and the live body.
+  **No corrective re-paste made** — a rewrite from a capture would risk re-encoding damage for no
+  gain, since the live text already equals the source of record.
+- **⚠ #173 — fence line endings cannot be asserted byte-exact; two reads disagree.** The fenced
+  `bash` block's interior is **mixed**, and the two read paths give different distributions:
+  `gh issue view` body → **1 CRLF / 8 LF**; GraphQL `userContentEdits.diff` → **4 CRLF / 5 LF**.
+  The sheet stores the block with LF. The *content* is identical (680 = 680 flat) and every line of
+  the block is a self-contained command, so nothing is affected behaviourally or at render time.
+  Recorded as a cosmetic transport artifact rather than resolved in favour of either reading.
+- **Problem 2 (owner) — #207: YES, the body paste landed and passes read-back.** Body edit
+  `editedAt` **`2026-10-28T12:27:56Z`**, editor `allanpusta13`. Live body **lines 20–21** carry
+  `` `tests/Feature/Architecture/ProductExporterDeletionTest.php::product_exporter_does_not_exist` ``
+  and `::no_reference_to_product_exporter`; `RepositoryMapTest` / `RuntimeCompletenessTest` →
+  **0 hits**. **Closure stands** (comment `issuecomment-6481423734`, `CLOSED | COMPLETED`). The issue
+  is **not** closed carrying a stale body.
+- **⚠ #205 was ALREADY PASTED — the sheet is no longer the blocker.** Edit `editedAt`
+  **`2026-10-29T02:13:10Z`** (= `updatedAt`), editor `allanpusta13`. All four authorised edits are in
+  the live body and each is **byte-equal** to its sheet counterpart:
+  | Authorised edit | Live bytes | Sheet bytes | Verdict |
+  |---|---|---|---|
+  | Context paragraph (sheet §6) | 605 | 605 | **equal** |
+  | Resolver bullet 1 (sheet §7) | 278 | 278 | **equal** |
+  | §1 AC replacement (sheet §1) | 294 | 294 | **equal** |
+  | Scoping line C (sheet §2) | present | — | present |
+  The superseded wording is gone (``reads `$user->role` inside its``, `causes the resolver to throw`,
+  `fails closed by throwing` → **0 hits**). Sheet §6/§7/§8 are **already appended**; the owner's
+  supplied §3/§4 texts were therefore recorded and pasted before this pass. Bullet count in
+  *Resolver behavior* is still three, so nothing was dropped or narrowed.
+- **⚠ STILL FALSE IN #205 AFTER THE PASTE — outside the authorised set, deliberately untouched.**
+  1. *Cast contract* bullet 1 still reads `User::$casts['role'] = UserRole::class`. The project binds
+     `App\Casts\UserRoleCast` (`app/Models/User.php:61`). Sheet §2(i) supplied the correction;
+     §8 records it as **not applied** under owner condition 1. Left as-is — not a silent narrowing.
+  2. *Test coverage* still names three tests that do not exist on disk (§5): `BadgeScopeTest::…`,
+     `UserModelTest::…`, `ScopesNavigationBadgesTest::…`. The authorised set does not cover that
+     section. Left as-is.
+  Both remain live contradictions inside a closed-out issue; the owner's "no phantom test names"
+  condition constrains what gets **pasted**, and it was honoured.
+- **Unattributed-write disclosure, consolidated (four surfaces).** #173 `2026-10-28T09:42:19Z`,
+  #207 `2026-10-28T12:27:56Z`, #240 `2026-10-28T21:44:15Z`, #205 `2026-10-29T02:13:10Z` — every one
+  by `allanpusta13`, and **none had a contemporaneous `UPDATES.md` entry**. Retroactive entries are
+  now in `UPDATES.md`. This is a disclosure, not a defect finding: the content of all four writes
+  matches the authorised sheets.
+- **Log-clock discrepancy (observed).** `UPDATES.md` local times run **~3 h behind** the server's
+  UTC+8 reading: the `02:45` entries describe writes stamped `21:44Z` = **`05:44 +0800`**; this pass
+  is `05:12Z` = `13:12 +0800`. Event ordering must be taken from **server timestamps**, not log times.
+- **Commit made — 7 paths, docs only.** Observed state before the commit: `HEAD`
+  `9ac18567bb22ff293eeece503129fc1d0deefbed`, branch `fix/173-205-207-g1-evidence-reconciliation`,
+  6 modified + 1 untracked path (the G1 report), `UPDATES.md` and `STATUS.md` edited in place.
+  Local scratch (`.issue-tmp/g1r/`) is **gitignored** (`.gitignore:47`), so it cannot enter the set.
+  **No push, no merge.** The commit message makes no closeout claim.
+
+### 2026-10-28 13:05 — retry pass 2 after context break; block persists, nothing partial
+
+- **Owner tightened the #205 Context edit (Approved, 2026-10-28).** The Context replacement is a
+  **minimal diff**, not a whole-paragraph rewrite: keep the citation sentence
+  `` `Blueprint §1B.1a, §27 v13.9 row 11. … (the cast throws).` `` and replace **only** the final
+  false sentence with the tightened form — *"The fail-closed guarantee lives at the model boundary,
+  where the cast's throw is caught and denied."* Owner's warning on write: byte-check
+  `$user.role` → `$user->role` (transport-loss pattern) and the concatenation-damage patterns.
+- **Retry pass this session (Observed).** Retried the remaining three live-body fetches to files
+  (`207`, `205`, `240`) — **all refused**, same classifier-outage message, same as the 12 refused
+  attempts last session. `/tmp/g1/m173.md` (3544 bytes, from the one fetch that got through) is
+  still the only body on disk.
+- **Nothing partial.** `git status --short` re-checked read-only at the end of the pass: **7 paths,
+  unchanged** (5 modified + 2 doc paths + the untracked G1 report); `HEAD` still
+  `9ac18567bb22ff293eeece503129fc1d0deefbed`. Zero issues edited, no comment posted, no issue
+  closed, nothing committed, nothing pushed. No workaround attempted. Per the owner's stand-down
+  rule, this is reported, not routed around.
+
+### 2026-10-28 12:20 — owner signed the execution set; write class still refused
+
+- **Signed set (owner, 2026-10-28).** #173 paste; #207 body paste + close comment + closure
+  (`state_reason: completed`); #205 **§1 only** as the AC replacement with **§2(ii) discharged**
+  (no removal record for a line that does not exist), **plus** a Context-paragraph replacement,
+  **plus** a resolver-bullet-1 replacement, **plus** scoping line C; #240 one-line `Related` path
+  fix preserving the `§3.4` anchor; `UPDATES.md:31` deliberately untouched. Commit withheld; the
+  approved message drops the "closeout" claim. Push and merge not authorized.
+- **Pre-write verification done read-only (Observed).**
+  1. **#205 bullet 1 and §1's target are distinct live lines** — bullet 1 is
+     `` - [ ] `ScopesNavigationBadges::badgeScopedWarehouseIds()` reads `$user->role` inside its `match (true)` chain ``,
+     §1's target is the *following* bullet. Per the owner's condition 3, **both apply**; no
+     double-edit risk.
+  2. **#207 delivered test names confirmed on disk** —
+     `tests/Feature/Architecture/ProductExporterDeletionTest.php:10` `it('product_exporter_does_not_exist')`
+     and `:18` `it('no_reference_to_product_exporter')`. Both names the owner gave are real.
+  3. **#240's live `Related` line** reads
+     `` - Analysis: `docs/01-issues/2026-10-27-g1-evidence-ac-reconciliation.md` §3.4 (and §9 for this draft). ``
+     — one-line fix target confirmed.
+- **BLOCKED — write class still refused by the classifier.** Reads pass (plain `gh issue view`,
+  `git status`, `Read`/`Grep`/`Glob`). Every write is refused: shell redirects, heredocs, the
+  `Write` tool, and `gh` with output redirection. **Nothing partial applied** — per the owner's
+  stand-down rule: **zero issues edited, no comment posted, no issue closed, nothing committed,
+  nothing pushed.** No workaround attempted (no `gh api` alternate path, no state change outside
+  the authorized order).
+- **BLOCKED — every `gh` command is refused by the classifier.** `echo`, `git`, `php`, `date`, and
+  `Read`/`Grep`/`Glob`/`Edit` execute normally; any command containing `gh` — including a plain
+  read — returns the outage message. Consequence: **no issue body written, no close comment posted,
+  no issue state changed.** This is the same intermittent outage recorded at `UPDATES.md:53`, now
+  reproducible against `gh` specifically. Reported, not worked around.
+- **⚠ STALE PATH IN A LIVE ISSUE — #240 cites the pre-rename report.** #240's *Related* section ends
+  `Analysis: docs/01-issues/2026-10-27-g1-evidence-ac-reconciliation.md §3.4`. That file no longer
+  exists: the report was renamed to `2026-10-28-…`, and a repo-wide search now finds the old string
+  **only** at the deliberately-untouched `UPDATES.md:31`. #240 was filed before the rename.
+  **Editing #240 needs separate authorization.** It is also the only issue body written this
+  session, so it is the one place a stale self-reference persists.
+- **Scope note — the #207 close comment was NOT posted, and #207 was NOT closed.** The sheet's §4 is
+  a *comment*, and closure is an issue-field change. The authorization covered the three amendment
+  **bodies**; a comment and a state change would each be a new public-surface write, so neither was
+  attempted. The close comment ships once the paste is authorized and unblocked.
+- **Commit withheld.** The 7-path docs change set is unchanged on
+  `fix/173-205-207-g1-evidence-ac-reconciliation` at `9ac1856`. The owner's sequence gates the commit
+  on the three pastes landing; since none did, and since the specified commit message would describe a
+  G1 "closeout" that has not happened, **no commit was made**. This supersedes the earlier plan line
+  "all three land together after #205 sign-off, followed by one 7-path docs commit" — the gates are
+  now (i) the classifier and (ii) the #205 target conflict.
+- **Errata recorded, not edited:** `docs/02-research/2026-10-23-i18n-count-verification.md`
+  §2/§3 (995, and `es: total=865 placeholders` — self-contradicted by its own §6 which reports
+  0 markers) and its citations of two scripts plus two reference docs that do **not** exist;
+  `FINAL_EXECUTION_REPORT.md:67`. Dated artifacts stay historical, per the R-6/R-7/R-8 precedent.
+- **Unresolved sandbox blocker:** the safety classifier intermittently rejected tool calls,
+  which blocked pinpointing the per-namespace origin of the `+1` key. Attributed at *file*
+  granularity (`lang/en/validation.php`, the only `lang/en` file `aa54af6` touched) and labelled
+  **inferred**, not observed.
+- **MCP:** `laravel-boost` and `ide` failed to connect this session; Laravel work used the CLI
+  (`php artisan`) instead.
+
+## Current workstream — issue audit CLOSED (2026-10-27)
+
+Closure report: [docs/01-issues/2026-10-27-issue-audit-closure.md](docs/01-issues/2026-10-27-issue-audit-closure.md)
+Audit report (read-only, unmodified): [docs/01-issues/2026-10-26-issue-audit-173-218.md](docs/01-issues/2026-10-26-issue-audit-173-218.md)
+
+- **§Prerequisite discharged.** The classifier that blocked the 2026-10-26 run recovered. `git`,
+  `php artisan test`, `vendor/bin/pest`, `vendor/bin/phpstan analyse` and `composer show` all
+  executed. No HALT required; no verdict rests on inference.
+- **Green tails (D-A satisfied):**
+  - Pest full suite `passed` — baseline **2107 / 2103 passed / 4 skipped / 4813 assertions** →
+    final **2108 / 2104 / 4 skipped / 4817 assertions**. +1 test, +1 passed, +4 assertions,
+    **0 new failures**.
+  - PHPStan level 7 — **365 → 365**, zero drift. Note: not zero in absolute terms; 365
+    pre-existing errors are unbaselined project debt. "Green vs baseline" = non-regression.
+- **Three authorised edits applied, each independently verified:**
+  - **D-C** — `docs/01-issues/210-supplier-shipment-tracking.md:22` no longer recommends
+    auto-backorder tracking; now defers to #214 (DO-NOT-IMPLEMENT). Prose only, 1 line.
+  - **D-D** — `TranslationKeyParityTest` gained an additive zero-catalogue-orphans assertion.
+    **Mutation-proven red→green**: injected a probe orphan into `lang/es/common.php` → RED naming
+    `common.__dd_orphan_probe` (996 canonical / 0 missing / 1 orphan); reverted → GREEN. Probe
+    never committed.
+  - **D-G** — `UserTest.php` gained `it('rejects invalid role assignment through the model set
+    path')`, guarding the model-level assign+save contract that was previously unguarded
+    (only the cast-level `set()` was covered). Owner-authorised explicitly; the sole test edit
+    besides D-D's assertion.
+- **D-G's "resolver throw" target was NOT implemented — resolved in favour of D1.** D1
+  (owner-approved) requires the resolver to fail closed with `[]`; the AC demanded a throw. D1
+  wins under the authority order. The `[]` contract is already guarded by
+  `ScopesNavigationBadgesTest.php:233`.
+- **D-H — no fail-open regression.** `app/Models/User.php:81-85` catches `ValueError` and returns
+  `false`, i.e. **denies**. The catch does not fall through to a default or widened role.
+- **Verdicts:** #173 **`CLOSED` (owner-signed 2026-10-26)**; #205 `SATISFIED` — evidence gap
+  closed; #207 `SATISFIED` — re-proved (sweep of `app`/`config`/`database`/`resources`/`routes`:
+  zero refs; glob finds only the guard test); #214 `EXCLUDED`; #218 unchanged
+  (`TRIGGER-NOT-MET` local / `UNABLE-TO-MEASURE` prod); #210–#213, #215–#217 **`BLOCKED-gap`** —
+  no §0.3 owner decisions supplied, so the blocks persist.
+- **Recorded, not changed:** D-E test-name mapping table (the three #205 cited test names do not
+  exist on disk; mapped to the tests that do deliver each contract); D-F CD-5 amended to accept
+  `UserRoleCast` as compliant (matches `User.php:61`).
+- **R-1 RESOLVED (option A).** The 13 hand-maintained CI-provenance lines (Head SHA, CI Run URL,
+  runner summary, fixed verification clause) were moved byte-for-byte out of the test-generated
+  `storage/logs/i18n-parity.md` into `storage/logs/i18n-parity.header.md`, and
+  `storage/logs/.gitignore` gained a negation so the header is tracked. The log is now purely a
+  test artifact: `TranslationKeyParityTest` is untouched, a full-suite run no longer alters it,
+  and rerunning leaves it byte-identical (verified by hash). The header lines were **not**
+  contiguous in the original (2 after the generated title, 11 after the canonical-key block);
+  extraction adapted accordingly.
+- **R-7 RESOLVED (option A, default) — renumbering citation corrected; errata recorded for the
+  read-only sites.** Removing the R-1 header renumbered the parity log: `Canonical keys` moved
+  line 7 → 5, and Missing/Orphan/Identity moved 20–22 → 7–9. Four citation sites referenced the old
+  numbers. The one editable site was fixed; the three inside read-only reports were **not** edited
+  and are recorded here as errata instead (cited *content* unchanged and still correct — only the
+  line numbers moved):
+  | Site | Status | Cited | Correct now | Content |
+  |---|---|---|---|---|
+  | `docs/01-issues/173-847-provenance.md:86` | **fixed** | `i18n-parity.md:7` | `:5` | `Canonical keys: 996` |
+  | `docs/01-issues/2026-10-26-issue-audit-173-218.md:52` | errata (READ-ONLY) | `i18n-parity.md:20-22` | `:7-9` | Missing / Orphan / Identity |
+  | `docs/01-issues/2026-10-26-issue-audit-173-218.md:64` | errata (READ-ONLY) | `i18n-parity.md:20-22` | `:7-9` | Missing / Orphan / Identity |
+  | `docs/01-issues/2026-10-27-issue-audit-closure.md:298` | errata (READ-ONLY) | `i18n-parity.md:7` | `:5` | `Canonical keys: 996` |
+- **R-6 RESOLVED (option C, default) — header kept as historical; drift recorded here.**
+  `storage/logs/i18n-parity.header.md` was **not** edited and still attests `6c736538`. It is
+  historical, not current. Its fixed verification clause asserts `6c736538` "is the most recent
+  commit that modified application code or tests" and that later commits are "documentation-only";
+  D-D (`225a8df`) and D-G (`3b405b8`) both modified test files after it, so the clause is false for
+  the current tree, and its cited runner counts (2,103 passed / 119.76s / 130.04s) no longer match
+  the current 2,104 / 4 skipped / 4,817. Re-attestation needs a real CI run (head SHA, run URL,
+  per-version timings) which this checkout cannot produce; the values were **not** invented.
+  Verbatim drift note, as directed:
+  > R-6: storage/logs/i18n-parity.header.md reflects CI generation at 6c736538. Drift since: D-D + D-G modified test files. Re-attestation pending next CI run. Values not invented locally.
+- **R-8 DEFERRED (LOW, owner-directed deferral) — the errata table is a snapshot of a regenerated
+  file.** Both the errata table above and every citation it corrects point into
+  `storage/logs/i18n-parity.md`, which the parity test rewrites on every run. R-1 proved the file is
+  byte-stable across runs today, but the citations are still **line numbers**: if the report format
+  ever changes, they break again — which is exactly how R-7 arose. The durable fix is option D
+  (cite stable anchors instead of line numbers, in the citing documents plus the test's report
+  header). That is a **convention change**, so it is deferred, not actioned. No file changed for R-8.
+- Lower-severity: R-2 `210-...md:25` still says received costs update a moving average, against
+  the implemented snapshot/current-cost method (#212 territory, blocked); R-3 PHPStan 365
+  pre-existing errors at level 7; R-4 **RESOLVED 2026-10-27** — #173 canonical count is 996,
+  loader-verified at `9ac1856` by two independent paths; D3 discharged (see the G1 section at the
+  top of this file);
+  R-5 pre-existing uncommitted changes in the tree are not part of this change set.
+- **Committed, not pushed.** Branch `issue-audit-closure/2026-10-27` (off the audit branch at
+  `39f9a79`), six atomic commits: `9ca4535` D-C, `225a8df` D-D, `3b405b8` D-G, `7593140` R-1, the
+  R-6/R-7 status records ("chore(R-6,R-7): record header staleness and parity-log citation errata"),
+  then owner-authorized `docs(173): track corrected provenance citation (R-7)` — which newly tracks
+  `docs/01-issues/173-847-provenance.md` and carries the R-8 deferral note (the branch tip).
+  Non-regression re-proven on the committed tree: suite `passed`
+  2108 / 2104 / 4 skipped / 4817 assertions (closure baseline unchanged), targeted 86 / 86 / 160, and
+  PHPStan 365 → 365 — zero drift on all three. **No push, no PR** (CD-18); proved via `.git` refs —
+  no remote ref for this branch, parent remote still `39f9a798`.
+  Close-out report: [docs/01-issues/2026-10-27-issue-audit-closeout.md](docs/01-issues/2026-10-27-issue-audit-closeout.md)
+  Final report: [docs/01-issues/2026-10-27-issue-audit-final.md](docs/01-issues/2026-10-27-issue-audit-final.md)
+
+### Prior — audit run (2026-10-26)
+
+- Blocked at the §Prerequisite: the permission classifier refused every new command all session,
+  so the suite never ran and **no verdict was closed** in that run. Recorded in the audit's §5/§8.
+- **Headline of that run:** the supplied acceptance criteria **contradicted four recorded owner
+  decisions (D1–D4)** already applied on this branch. The recorded decision was applied in each
+  case and the conflict flagged, not overwritten:
+  - **D1** — owner rewrote #205 to require the resolver to fail closed with `[]`; the AC demanded
+    it *throw*. Code NOT changed.
+  - **D2/D3** — owner retired the 847 criterion; orphan sidecars are a *disposition record*, not
+    to be emptied. Catalogue orphans 0; sidecar line count 272 by design. **D3 is now discharged:
+    the canonical count is 996, loader-verified at `9ac1856` (G1, 2026-10-27).**
+  - **D4** — owner directed naming the delivered test; the AC's `RepositoryMapTest` /
+    `RuntimeCompletenessTest` are phantom citations.
+- No regression found then either: #212's implemented methodology is snapshot/current-cost
+  replacement (`PurchaseService::updateCurrentCostPrice()`), not an unapproved weighted average.
+  #213 has no half-built return workflow. #217's presets match the blueprint verbatim.
+- Open: #167 has no artifact on disk (parity inferred from the green §0A.15 test).
+
 ## Done
 - Aligned `tests/Unit/Policies/*` with the updated (v13.10 role model) policies.
   - PurchaseOrderPolicyTest, SalesOrderPolicyTest, TransferRequisitionPolicyTest, DirectTransferPolicyTest, ProductVariantPolicyTest.
